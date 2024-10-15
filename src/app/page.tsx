@@ -52,9 +52,11 @@ export default function Home() {
               </div>
               <div className="space-x-4">
                 <Link href="login">
-                <Button>Log In</Button>
+                  <Button>Log In</Button>
                 </Link>
-                <Button variant="outline">Create Account</Button>
+                <Link href="create-account">
+                  <Button variant="outline">Create Account</Button>
+                </Link>
               </div>
             </div>
           </div>
