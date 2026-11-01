@@ -4,11 +4,14 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { auth } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+
+/** A login failure whose message is safe to show as-is. */
+class LoginError extends Error {}
+
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -38,25 +41,32 @@ export default function LoginPage() {
     setError("");
 
     try {
-      let email = identifier;
-      // If the identifier is not an email, assume it's a username and look up the email
-      if (!identifier.includes("@")) {
-        const db = getFirestore();
-        const usernameDoc = await getDoc(doc(db, "usernames", identifier));
-        if (usernameDoc.exists()) {
-          const uid = usernameDoc.data().uid;
-          const userDoc = await getDoc(doc(db, "users", uid));
-          email = userDoc.data()?.email;
-        } else {
-          throw new Error("Username not found");
+      let email = identifier.trim();
+      // If the identifier is not an email, assume it's a username. The server
+      // looks up the email, since users/{uid} isn't readable while signed out.
+      if (!email.includes("@")) {
+        const response = await fetch("/api/auth/resolve-username", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: email }),
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || typeof result.email !== "string") {
+          throw new LoginError(
+            result.error ??
+              "Failed to log in. Please check your credentials and try again."
+          );
         }
+        email = result.email;
       }
 
       await signInWithEmailAndPassword(auth, email, password);
       router.push("/dashboard");
     } catch (error) {
       setError(
-        "Failed to log in. Please check your credentials and try again."
+        error instanceof LoginError
+          ? error.message
+          : "Failed to log in. Please check your credentials and try again."
       );
       console.error("Login failed:", error);
     } finally {

@@ -8,61 +8,15 @@ import Footer from "@/components/footer";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
-
-interface GenshinData {
-  format?: string;
-  version?: number;
-  kamera_version?: string;
-  source?: string;
-  characters?: Array<{
-    key: string;
-    level: number;
-    constellation: number;
-    weapon?: {
-      key: string;
-      level: number;
-      refinement: number;
-    };
-    artifacts?: Array<{
-      setKey: string;
-      slotKey: string;
-      level: number;
-      rarity: number;
-    }>;
-  }>;
-  weapons?: Array<{
-    key: string;
-    level: number;
-    refinement: number;
-  }>;
-  artifacts?: Array<{
-    setKey: string;
-    slotKey: string;
-    level: number;
-    rarity: number;
-  }>;
-  materials?: Record<string, number>;
-}
+import { useGenshinData } from "@/hooks/useGenshinData";
+import { parseGoodText } from "@/lib/genshin/parseGood";
 
 export default function DashboardPage() {
-  const [isClient, setIsClient] = useState(false);
   const { user, username, loading, error: authError } = useAuth();
+  const { data: genshinData, loadError, save } = useGenshinData();
   const router = useRouter();
-  const [genshinData, setGenshinData] = useState<GenshinData | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
-
-  useEffect(() => {
-    setIsClient(true);
-    const savedData = localStorage.getItem(`genshinData_${user?.uid}`);
-    if (savedData) {
-      try {
-        setGenshinData(JSON.parse(savedData));
-      } catch (error) {
-        console.error("Error parsing saved data:", error);
-        setFileError("Error loading saved data. Please upload a new file.");
-      }
-    }
-  }, [user]);
+  const [fileWarnings, setFileWarnings] = useState<string[]>([]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -70,53 +24,25 @@ export default function DashboardPage() {
     }
   }, [user, loading, router]);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const json = JSON.parse(e.target?.result as string);
-          if (validateGenshinData(json)) {
-            setGenshinData(json);
-            localStorage.setItem(
-              `genshinData_${user?.uid}`,
-              JSON.stringify(json)
-            );
-            setFileError(null);
-          } else {
-            throw new Error("Invalid Genshin Impact data structure");
-          }
-        } catch (error) {
-          console.error("Error parsing JSON:", error);
-          setFileError(
-            "Error importing JSON file. Please make sure it's a valid Genshin Impact data file."
-          );
-          setGenshinData(null);
-        }
-      };
-      reader.readAsText(file);
+    if (!file) return;
+    const result = parseGoodText(await file.text());
+    if (result.ok) {
+      save(result.data);
+      setFileError(null);
+      setFileWarnings(result.warnings);
+    } else {
+      setFileError(result.error);
+      setFileWarnings([]);
     }
   };
 
-  const validateGenshinData = (data: any): data is GenshinData => {
-    return (
-      data &&
-      (Array.isArray(data.characters) ||
-        Array.isArray(data.weapons) ||
-        Array.isArray(data.artifacts) ||
-        (typeof data.materials === "object" && data.materials !== null))
-    );
-  };
+  const errorMessage =
+    fileError ??
+    (loadError ? `Your saved data couldn't be loaded: ${loadError} Please upload a new file.` : null);
 
-  const handleInvalidData = () => {
-    setGenshinData(null);
-    setFileError(
-      "Invalid Genshin Impact data structure. Please upload a valid file."
-    );
-  };
-
-  if (!isClient || loading) {
+  if (loading) {
     return null;
   }
 
@@ -150,17 +76,13 @@ export default function DashboardPage() {
               Hello, {username || "User"}!
             </p>
             {genshinData && (
-              <Genshin
-                initialData={genshinData}
-                onInvalidData={handleInvalidData}
-                userId={user?.uid}
-              />
+              <Genshin key={user.uid} data={genshinData} userId={user.uid} />
             )}
             <div className="pt-8 mt-8 border-t border-gray-200 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7">
               <p className="text-xl">
                 {genshinData
                   ? "Data uploaded. Would you like to reupload the data?"
-                  : "Please import your Genshin JSON file. You can get this from using Inventory Kamera."}
+                  : "Please import your Genshin JSON file (GOOD format). You can export it with Inventory Kamera or Irminsul."}
               </p>
               <div>
                 <Input
@@ -170,11 +92,24 @@ export default function DashboardPage() {
                   className="mb-4"
                 />
               </div>
-              {fileError && (
+              {errorMessage && (
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
                   <AlertTitle>Error</AlertTitle>
-                  <AlertDescription>{fileError}</AlertDescription>
+                  <AlertDescription>{errorMessage}</AlertDescription>
+                </Alert>
+              )}
+              {fileWarnings.length > 0 && (
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Uploaded with some data skipped</AlertTitle>
+                  <AlertDescription>
+                    <ul className="list-disc pl-5">
+                      {fileWarnings.map((warning) => (
+                        <li key={warning}>{warning}</li>
+                      ))}
+                    </ul>
+                  </AlertDescription>
                 </Alert>
               )}
             </div>

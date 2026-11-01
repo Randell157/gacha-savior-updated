@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Card,
@@ -13,8 +13,7 @@ import Image from "next/image";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "./ui/button";
 import Link from "next/link";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { UserPlus, X } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -23,199 +22,72 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  cn,
   formatCharacterDisplayName,
+  formatCharacterIconFilename,
   formatWeaponDisplayName,
-  formatArtifactSetDisplayName,
   formatMaterialDisplayName,
 } from "@/lib/utils";
-
-interface Weapon {
-  key: string;
-  level: number;
-  refinement: number;
-  location?: string;
-}
-
-interface Artifact {
-  setKey: string;
-  slotKey: string;
-  level: number;
-  rarity: number;
-  location?: string;
-}
-
-interface Character {
-  key: string;
-  level: number;
-  constellation: number;
-  weapon?: Weapon;
-  artifacts?: Artifact[];
-}
-
-interface GenshinData {
-  format?: string;
-  version?: number;
-  kamera_version?: string;
-  source?: string;
-  characters?: Character[];
-  weapons?: Weapon[];
-  artifacts?: Artifact[];
-  materials?: Record<string, number>;
-}
+import type { GenshinData } from "@/lib/genshin/types";
+import { buildEquipmentIndex } from "@/lib/genshin/equipment";
 
 const SHOWCASE_SIZE = 5;
 const SHOWCASE_STORAGE_KEY = "genshinShowcase";
 
 interface GenshinProps {
-  initialData: GenshinData | null;
-  onInvalidData: () => void;
+  data: GenshinData;
   userId?: string | null;
 }
 
-function formatCharacterIconFilename(characterKey: string): string {
-  const specialNames: { [key: string]: string } = {
-    kaedeharakazuha: "Kaedehara_Kazuha",
-    hutao: "Hu_Tao",
-    ayaka: "Kamisato_Ayaka",
-    raidenshogun: "Raiden_Shogun",
-    yaemiko: "Yae_Miko",
-    yunjin: "Yun_Jin",
-    kukishinobu: "Kuki_Shinobu",
-    kujousara: "Kujou_Sara",
-    shikanoinheizou: "Shikanoin_Heizou",
-  };
-
-  const lowerCaseKey = characterKey.toLowerCase().replace(/\s+/g, "");
-
-  if (lowerCaseKey.startsWith("traveler")) {
-    return "Aether_Icon.png";
+/** Saved showcase slots, with characters no longer in the data cleared. */
+function readShowcase(userId: string | null | undefined, data: GenshinData) {
+  const empty: (string | null)[] = Array(SHOWCASE_SIZE).fill(null);
+  if (!userId) return empty;
+  try {
+    const stored = localStorage.getItem(`${SHOWCASE_STORAGE_KEY}_${userId}`);
+    const parsed = stored ? JSON.parse(stored) : null;
+    if (!Array.isArray(parsed) || parsed.length !== SHOWCASE_SIZE) return empty;
+    return parsed.map((k) =>
+      typeof k === "string" && data.characters.some((c) => c.key === k) ? k : null
+    );
+  } catch {
+    // ignore invalid stored data
+    return empty;
   }
-
-  if (lowerCaseKey in specialNames) {
-    return `${specialNames[lowerCaseKey]}_Icon.png`;
-  }
-
-  const formattedKey = characterKey.replace(/\s+/g, "_");
-  return `${formattedKey}_Icon.png`;
 }
 
-export default function Genshin({ initialData, onInvalidData, userId }: GenshinProps) {
-  const [data, setData] = useState<GenshinData | null>(initialData);
+// Only rendered client-side (the dashboard waits for auth), so localStorage
+// can be read while initializing state.
+export default function Genshin({ data, userId }: GenshinProps) {
   const [activeTab, setActiveTab] = useState("characters");
-  const [error, setError] = useState<string | null>(null);
   const [showcaseKeys, setShowcaseKeys] = useState<(string | null)[]>(() =>
-    Array(SHOWCASE_SIZE).fill(null)
+    readShowcase(userId, data)
   );
-  const skipNextSaveRef = useRef(true);
-
-  useEffect(() => {
-    if (initialData) {
-      validateData(initialData);
-    }
-  }, [initialData]);
-
-  useEffect(() => {
-    if (!userId || !data?.characters?.length) return;
-    try {
-      const stored = localStorage.getItem(`${SHOWCASE_STORAGE_KEY}_${userId}`);
-      if (stored) {
-        const parsed = JSON.parse(stored) as string[];
-        if (Array.isArray(parsed) && parsed.length === SHOWCASE_SIZE) {
-          const valid = parsed.map((k) => (k && data.characters?.some((c) => c.key === k) ? k : null));
-          setShowcaseKeys(valid);
-        }
-      }
-    } catch {
-      // ignore invalid stored data
-    }
-  }, [userId, data?.characters]);
 
   useEffect(() => {
     if (!userId) return;
-    if (skipNextSaveRef.current) {
-      skipNextSaveRef.current = false;
-      return;
-    }
     localStorage.setItem(`${SHOWCASE_STORAGE_KEY}_${userId}`, JSON.stringify(showcaseKeys));
   }, [userId, showcaseKeys]);
 
-  const validateData = (data: GenshinData | null) => {
-    if (!data) {
-      setError("No data provided. Please upload a JSON file.");
-      onInvalidData();
-      return;
-    }
+  const characterCount = data.characters.length;
+  const weaponCount = data.weapons.length;
+  const artifactCount = data.artifacts.length;
 
-    // Check if at least one of the data properties exists
-    if (
-      !data.characters &&
-      !data.weapons &&
-      !data.artifacts &&
-      !data.materials
-    ) {
-      setError("Invalid JSON structure. No valid data found in file.");
-      onInvalidData();
-      return;
-    }
+  const characterEquipment = buildEquipmentIndex(data);
 
-    setData(data);
-    setError(null);
-  };
-
-  if (error) {
-    return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Error</AlertTitle>
-        <AlertDescription>{error}</AlertDescription>
-      </Alert>
-    );
-  }
-
-  if (!data) {
-    return <p>Please upload a valid JSON file</p>;
-  }
-
-  const characterCount = data.characters?.length ?? 0;
-  const weaponCount = data.weapons?.length ?? 0;
-  const artifactCount = data.artifacts?.length ?? 0;
-
-  // Create a map of characters to their equipped items
-  const characterEquipment: { [key: string]: { weapon?: Weapon; artifacts?: Artifact[] } } = {};
-  (data.characters ?? []).forEach(char => {
-    characterEquipment[char.key] = { weapon: undefined, artifacts: [] };
-  });
-
-  (data.weapons ?? []).forEach(weapon => {
-    if (weapon.location && characterEquipment[weapon.location]) {
-      characterEquipment[weapon.location].weapon = weapon;
-    }
-  });
-
-  (data.artifacts ?? []).forEach(artifact => {
-    if (artifact.location && characterEquipment[artifact.location]) {
-      if (!characterEquipment[artifact.location].artifacts) {
-        characterEquipment[artifact.location].artifacts = [];
-      }
-      characterEquipment[artifact.location].artifacts!.push(artifact);
-    }
-  });
-
-  const allCharacters = (data.characters ?? []).sort((a, b) =>
+  const allCharacters = [...data.characters].sort((a, b) =>
     a.key.localeCompare(b.key)
   );
-  const showcaseCharacters = showcaseKeys
-    .filter((k): k is string => !!k)
-    .map((key) => {
-      const char = data.characters?.find((c) => c.key === key);
-      if (!char) return null;
-      return {
-        ...char,
-        weapon: characterEquipment[char.key]?.weapon,
-        artifacts: characterEquipment[char.key]?.artifacts,
-      };
-    })
-    .filter(Boolean) as Array<Character & { weapon?: Weapon; artifacts?: Artifact[] }>;
+  const showcaseSlots = showcaseKeys.map((key) => {
+    if (!key) return null;
+    const char = data.characters.find((c) => c.key === key);
+    if (!char) return null;
+    return {
+      ...char,
+      weapon: characterEquipment.get(char.key)?.weapon,
+      artifacts: characterEquipment.get(char.key)?.artifacts,
+    };
+  });
 
   const setShowcaseSlot = (index: number, characterKey: string | null) => {
     setShowcaseKeys((prev) => {
@@ -231,7 +103,7 @@ export default function Genshin({ initialData, onInvalidData, userId }: GenshinP
         !showcaseKeys.some((k, i) => i !== slotIndex && k === c.key)
     );
 
-  const topWeapons = (data.weapons ?? []).sort((a, b) => b.level - a.level).slice(0, 5);
+  const topWeapons = [...data.weapons].sort((a, b) => b.level - a.level).slice(0, 5);
 
 
 
@@ -294,107 +166,129 @@ export default function Genshin({ initialData, onInvalidData, userId }: GenshinP
             <CardHeader>
               <CardTitle>Character Showcase</CardTitle>
               <CardDescription>
-                Select up to 5 characters to display
+                Build a team of up to 5 characters. Each slot has its own
+                portrait, stats, and dropdown.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                  {Array.from({ length: SHOWCASE_SIZE }, (_, i) => (
-                    <Select
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+                {Array.from({ length: SHOWCASE_SIZE }, (_, i) => {
+                  const char = showcaseSlots[i];
+                  const displayName = char
+                    ? formatCharacterDisplayName(char.key)
+                    : null;
+                  return (
+                    <div
                       key={i}
-                      value={showcaseKeys[i] ?? "__none__"}
-                      onValueChange={(v) =>
-                        setShowcaseSlot(i, v === "__none__" ? null : v)
-                      }
+                      className={cn(
+                        "relative flex flex-col rounded-xl border p-3 min-h-[280px]",
+                        char
+                          ? "border-indigo-200 bg-indigo-50/40"
+                          : "border-dashed border-gray-300 bg-gray-50/70"
+                      )}
                     >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select character" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="__none__">
-                          Select character
-                        </SelectItem>
-                        {getOptionsForSlot(i).map((c) => (
-                          <SelectItem key={c.key} value={c.key}>
-                            {formatCharacterDisplayName(c.key)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  ))}
-                </div>
-                {showcaseCharacters.length > 0 ? (
-                  <ScrollArea className="h-[400px]">
-                    <ul>
-                      {showcaseCharacters.map((char, index) => (
-                        <li
-                          key={char.key}
-                          className="mb-6 pb-4 border-b border-gray-200 last:border-b-0"
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-semibold uppercase tracking-wide text-indigo-700">
+                          Slot {i + 1}
+                        </span>
+                        {char && (
+                          <button
+                            type="button"
+                            onClick={() => setShowcaseSlot(i, null)}
+                            className="rounded-full p-1 text-gray-500 hover:bg-white hover:text-red-600"
+                            aria-label={`Clear slot ${i + 1}`}
+                            title="Clear slot"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
+
+                      {char ? (
+                        <Link
+                          href={`/characters/${encodeURIComponent(char.key)}`}
+                          className="flex flex-col items-center text-center mb-3 group"
+                          title={`View ${displayName} details`}
                         >
-                          <div className="flex items-center space-x-4 mb-2">
+                          <div className="relative w-20 h-20 rounded-lg overflow-hidden ring-1 ring-indigo-200 bg-white mb-2 group-hover:ring-indigo-500">
                             <Image
                               src={`/character-portraits/${formatCharacterIconFilename(
                                 char.key
                               )}`}
-                              alt={formatCharacterDisplayName(char.key)}
-                              width={50}
-                              height={50}
+                              alt={displayName ?? char.key}
+                              fill
+                              className="object-cover"
                               onError={(e) => {
                                 e.currentTarget.onerror = null;
                                 e.currentTarget.src = "/placeholder.svg";
                               }}
                             />
-                            <div>
-                              <span className="font-bold text-lg">
-                                {formatCharacterDisplayName(char.key)}
-                              </span>
-                              <p className="text-sm text-gray-500">
-                                Level {char.level}, Constellation{" "}
-                                {char.constellation}
-                              </p>
-                            </div>
                           </div>
-                          {char.weapon && (
-                            <div className="ml-14 mb-2">
-                              <p className="text-sm">
-                                <span className="font-semibold">Weapon:</span>{" "}
-                                {formatWeaponDisplayName(char.weapon.key)} (Lv. {char.weapon.level}, R
-                                {char.weapon.refinement})
-                              </p>
-                            </div>
-                          )}
-                          {char.artifacts && char.artifacts.length > 0 ? (
-                            <div className="ml-14">
-                              <p className="text-sm font-semibold mb-1">
-                                Artifacts:
-                              </p>
-                              <ul className="list-disc list-inside">
-                                {char.artifacts.map((artifact, artifactIndex) => (
-                                  <li
-                                    key={artifactIndex}
-                                    className="text-sm ml-4"
-                                  >
-                                    {formatArtifactSetDisplayName(artifact.setKey)} {artifact.slotKey} (Lv.{" "}
-                                    {artifact.level}, {artifact.rarity}★)
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          ) : (
-                            <p className="ml-14 text-sm">
-                              No artifacts equipped.
-                            </p>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  </ScrollArea>
-                ) : (
-                  <p className="text-sm text-muted-foreground py-4">
-                    Select characters from the dropdowns above to show them here.
-                  </p>
-                )}
+                          <p className="font-semibold text-sm text-gray-900 leading-tight">
+                            {displayName}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Lv. {char.level} · C{char.constellation}
+                          </p>
+                        </Link>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center text-center mb-3 py-4">
+                          <div className="flex h-20 w-20 items-center justify-center rounded-lg border border-dashed border-gray-300 bg-white text-gray-400 mb-2">
+                            <UserPlus className="h-8 w-8" />
+                          </div>
+                          <p className="text-sm font-medium text-gray-500">
+                            Empty slot
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            Choose a character below
+                          </p>
+                        </div>
+                      )}
+
+                      {char && (
+                        <div className="text-xs text-gray-600 space-y-1 mb-3 px-1 flex-1">
+                          <p>
+                            <span className="font-medium">Weapon:</span>{" "}
+                            {char.weapon
+                              ? `${formatWeaponDisplayName(char.weapon.key)} (Lv. ${char.weapon.level}, R${char.weapon.refinement})`
+                              : "None"}
+                          </p>
+                          <p>
+                            <span className="font-medium">Artifacts:</span>{" "}
+                            {char.artifacts && char.artifacts.length > 0
+                              ? `${char.artifacts.length} equipped`
+                              : "None"}
+                          </p>
+                        </div>
+                      )}
+
+                      <Select
+                        value={showcaseKeys[i] ?? "__none__"}
+                        onValueChange={(v) =>
+                          setShowcaseSlot(i, v === "__none__" ? null : v)
+                        }
+                      >
+                        <SelectTrigger className="mt-auto h-9 text-xs">
+                          <SelectValue
+                            placeholder={
+                              char ? "Change character" : "Choose character"
+                            }
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__none__">
+                            {char ? "Clear slot" : "Choose character"}
+                          </SelectItem>
+                          {getOptionsForSlot(i).map((c) => (
+                            <SelectItem key={c.key} value={c.key}>
+                              {formatCharacterDisplayName(c.key)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
@@ -431,7 +325,7 @@ export default function Genshin({ initialData, onInvalidData, userId }: GenshinP
             </CardHeader>
             <CardContent>
               <ScrollArea className="h-[300px]">
-                {data.materials && Object.keys(data.materials).length > 0 ? (
+                {Object.keys(data.materials).length > 0 ? (
                   <ul>
                     {Object.entries(data.materials)
                       .sort(([, a], [, b]) => b - a)

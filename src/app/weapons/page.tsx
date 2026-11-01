@@ -1,43 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useAuth } from "@/contexts/AuthContext";
+import { useGenshinData } from "@/hooks/useGenshinData";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { formatWeaponDisplayName } from "@/lib/utils";
 
-interface Weapon {
-  key: string;
-  level: number;
-  refinement: number;
-}
-
-interface GenshinData {
-  weapons: Weapon[];
-}
-
 export default function WeaponsPage() {
-  const [genshinData, setGenshinData] = useState<GenshinData | null>(null);
+  const { data: genshinData } = useGenshinData();
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
-  const { user } = useAuth();
-
-  useEffect(() => {
-    if (user) {
-      const savedData = localStorage.getItem(`genshinData_${user.uid}`);
-      if (savedData) {
-        try {
-          const parsedData = JSON.parse(savedData);
-          setGenshinData(parsedData);
-        } catch (error) {
-          console.error("Error parsing Genshin data:", error);
-        }
-      }
-    }
-  }, [user?.uid]);
 
   const handleImageError = (weaponKey: string) => {
     setImageErrors((prev) => new Set(prev).add(weaponKey));
@@ -60,7 +35,7 @@ export default function WeaponsPage() {
           <div className="max-w-7xl mx-auto py-12 sm:px-6 lg:px-8">
             <div className="bg-white shadow overflow-hidden sm:rounded-lg p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {(genshinData.weapons ?? []).map((weapon, index) => (
+          {genshinData.weapons.map((weapon, index) => (
             <Card key={index}>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-4">

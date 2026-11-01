@@ -1,156 +1,92 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useAuth } from "@/contexts/AuthContext";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { useGenshinData } from "@/hooks/useGenshinData";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import { cn, formatCharacterDisplayName } from "@/lib/utils";
 import {
-  formatCharacterDisplayName,
-  formatWeaponDisplayName,
-  formatArtifactSetDisplayName,
-} from "@/lib/utils";
-
-interface Weapon {
-  key: string;
-  level: number;
-  refinement: number;
-  location?: string;
-}
-
-interface Artifact {
-  setKey: string;
-  slotKey: string;
-  level: number;
-  location?: string;
-}
-
-interface Character {
-  key: string;
-  level: number;
-  constellation: number;
-  weapon?: Weapon;
-  artifacts?: Artifact[];
-}
-
-interface GenshinData {
-  characters?: Character[];
-  weapons?: Weapon[];
-  artifacts?: Artifact[];
-}
-
-function formatArtifactName(artifact: Artifact): string {
-  if (artifact.setKey) {
-    return formatArtifactSetDisplayName(artifact.setKey);
-  }
-  return "Unknown Artifact";
-}
-
-function formatCharacterIconFilename(characterKey: string): string {
-  const specialNames: { [key: string]: string } = {
-    kaedeharakazuha: "Kaedehara_Kazuha",
-    hutao: "Hu_Tao",
-    ayaka: "Kamisato_Ayaka",
-    raidenshogun: "Raiden_Shogun",
-    yaemiko: "Yae_Miko",
-    yunjin: "Yun_Jin",
-    kukishinobu: "Kuki_Shinobu",
-    kujousara:"Kujou_Sara",
-    shikanoinheizou: "Shikanoin_Heizou"
-  };
-
-  const lowerCaseKey = characterKey.toLowerCase().replace(/\s+/g, "");
-
-  if (lowerCaseKey.startsWith("traveler")) {
-    return "Aether_Icon.png";
-  }
-
-  if (lowerCaseKey in specialNames) {
-    return `${specialNames[lowerCaseKey]}_Icon.png`;
-  }
-
-  // Handle cases where the character name might be two words
-  const formattedKey = characterKey.replace(/\s+/g, "_");
-  return `${formattedKey}_Icon.png`;
-}
+  GENSHIN_CHARACTERS,
+  normalizeCharacterKey,
+} from "@/lib/genshinCharacters";
+import type { GoodCharacter } from "@/lib/genshin/types";
 
 export default function CharactersPage() {
-  const [genshinData, setGenshinData] = useState<GenshinData | null>(null);
+  const { data: genshinData, loading } = useGenshinData();
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
-  const [sortOrder, setSortOrder] = useState("level-desc");
-  const { user } = useAuth();
+  const [sortOrder, setSortOrder] = useState("name-asc");
+  const [ownedFilter, setOwnedFilter] = useState("all");
 
-  useEffect(() => {
-    if (user) {
-      const savedData = localStorage.getItem(`genshinData_${user.uid}`);
-      if (savedData) {
-        try {
-          const parsedData = JSON.parse(savedData);
-          setGenshinData(parsedData);
-        } catch (error) {
-          console.error("Error parsing Genshin data:", error);
-        }
+  const ownedByNormalizedKey = useMemo(() => {
+    const map = new Map<string, GoodCharacter>();
+    for (const char of genshinData?.characters ?? []) {
+      const normalized = normalizeCharacterKey(char.key);
+      map.set(normalized, char);
+      if (normalized.startsWith("traveler")) {
+        map.set("traveler", char);
       }
     }
-  }, [user?.uid]);
+    return map;
+  }, [genshinData]);
 
-  const handleImageError = (characterKey: string) => {
-    setImageErrors((prev) => new Set(prev).add(characterKey));
-  };
-
-  const sortedCharacters = useMemo(() => {
-    if (!genshinData?.characters) return [];
-
-    const characterEquipment: { [key: string]: { weapon?: Weapon; artifacts: Artifact[] } } = {};
-
-    (genshinData.characters ?? []).forEach(char => {
-      characterEquipment[char.key] = { artifacts: [] };
+  const roster = useMemo(() => {
+    const list = GENSHIN_CHARACTERS.map((entry) => {
+      const owned = ownedByNormalizedKey.get(normalizeCharacterKey(entry.key));
+      return {
+        ...entry,
+        owned: !!owned,
+        ownedKey: owned?.key ?? entry.key,
+        level: owned?.level ?? -1,
+        constellation: owned?.constellation ?? -1,
+      };
+    }).filter((character) => {
+      if (ownedFilter === "owned") return character.owned;
+      if (ownedFilter === "unowned") return !character.owned;
+      return true;
     });
-
-    (genshinData.weapons ?? []).forEach(weapon => {
-      if (weapon.location && characterEquipment[weapon.location]) {
-        characterEquipment[weapon.location].weapon = weapon;
-      }
-    });
-
-    (genshinData.artifacts ?? []).forEach(artifact => {
-      if (artifact.location && characterEquipment[artifact.location]) {
-        characterEquipment[artifact.location].artifacts.push(artifact);
-      }
-    });
-
-    const charactersWithEquipment = (genshinData.characters ?? []).map(char => ({
-      ...char,
-      weapon: characterEquipment[char.key]?.weapon,
-      artifacts: characterEquipment[char.key]?.artifacts,
-    }));
-
-    const charactersCopy = [...charactersWithEquipment];
 
     switch (sortOrder) {
-      case "name-asc":
-        return charactersCopy.sort((a, b) => a.key.localeCompare(b.key));
       case "name-desc":
-        return charactersCopy.sort((a, b) => b.key.localeCompare(a.key));
+        return list.sort((a, b) =>
+          formatCharacterDisplayName(b.key).localeCompare(
+            formatCharacterDisplayName(a.key)
+          )
+        );
       case "level-asc":
-        return charactersCopy.sort((a, b) => a.level - b.level);
+        return list.sort((a, b) => a.level - b.level || a.key.localeCompare(b.key));
       case "level-desc":
-        return charactersCopy.sort((a, b) => b.level - a.level);
+        return list.sort((a, b) => b.level - a.level || a.key.localeCompare(b.key));
       case "constellation-asc":
-        return charactersCopy.sort((a, b) => a.constellation - b.constellation);
+        return list.sort(
+          (a, b) => a.constellation - b.constellation || a.key.localeCompare(b.key)
+        );
       case "constellation-desc":
-        return charactersCopy.sort((a, b) => b.constellation - a.constellation);
+        return list.sort(
+          (a, b) => b.constellation - a.constellation || a.key.localeCompare(b.key)
+        );
+      case "name-asc":
       default:
-        return charactersCopy;
+        return list.sort((a, b) =>
+          formatCharacterDisplayName(a.key).localeCompare(
+            formatCharacterDisplayName(b.key)
+          )
+        );
     }
-  }, [genshinData, sortOrder]);
+  }, [ownedByNormalizedKey, sortOrder, ownedFilter]);
 
-  if (!genshinData) {
-    return <p>Loading character data...</p>;
+  if (loading) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-1 min-h-screen bg-gradient-to-b from-indigo-100 to-purple-100 flex items-center justify-center">
+          <p className="text-gray-700">Loading character data...</p>
+        </main>
+        <Footer />
+      </div>
+    );
   }
 
   return (
@@ -161,89 +97,127 @@ export default function CharactersPage() {
           <header className="bg-white shadow">
             <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center flex-wrap gap-4">
               <h1 className="text-3xl font-bold text-indigo-900">All Characters</h1>
-              <div className="flex items-center space-x-2">
-                <label htmlFor="sort-order" className="text-sm font-medium">Sort by:</label>
-                <select
-                  id="sort-order"
-                  value={sortOrder}
-                  onChange={(e) => setSortOrder(e.target.value)}
-                  className="bg-white border border-gray-300 rounded-md shadow-sm p-2 text-sm"
-                >
-                  <option value="level-desc">Level (High to Low)</option>
-                  <option value="level-asc">Level (Low to High)</option>
-                  <option value="name-asc">Name (A-Z)</option>
-                  <option value="name-desc">Name (Z-A)</option>
-                  <option value="constellation-desc">Constellation (High to Low)</option>
-                  <option value="constellation-asc">Constellation (Low to High)</option>
-                </select>
+              <div className="flex items-center flex-wrap gap-4">
+                <div className="flex items-center space-x-2">
+                  <label htmlFor="sort-order" className="text-sm font-medium">
+                    Sort by:
+                  </label>
+                  <select
+                    id="sort-order"
+                    value={sortOrder}
+                    onChange={(e) => setSortOrder(e.target.value)}
+                    className="bg-white border border-gray-300 rounded-md shadow-sm p-2 text-sm"
+                  >
+                    <option value="name-asc">Name (A-Z)</option>
+                    <option value="name-desc">Name (Z-A)</option>
+                    <option value="level-desc">Level (High to Low)</option>
+                    <option value="level-asc">Level (Low to High)</option>
+                    <option value="constellation-desc">Constellation (High to Low)</option>
+                    <option value="constellation-asc">Constellation (Low to High)</option>
+                  </select>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <label htmlFor="owned-filter" className="text-sm font-medium">
+                    Filter:
+                  </label>
+                  <select
+                    id="owned-filter"
+                    value={ownedFilter}
+                    onChange={(e) => setOwnedFilter(e.target.value)}
+                    className="bg-white border border-gray-300 rounded-md shadow-sm p-2 text-sm"
+                  >
+                    <option value="all">All characters</option>
+                    <option value="owned">Obtained</option>
+                    <option value="unowned">Not obtained</option>
+                  </select>
+                </div>
               </div>
             </div>
           </header>
           <div className="max-w-7xl mx-auto py-12 sm:px-6 lg:px-8">
             <div className="bg-white shadow overflow-hidden sm:rounded-lg p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sortedCharacters.map((character, index) => (
-            <Card key={index}>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-4">
-                  <div className="relative w-12 h-12">
-                    <Image
-                      src={
-                        imageErrors.has(character.key)
-                          ? "/placeholder.svg"
-                          : `/character-portraits/${formatCharacterIconFilename(
-                              character.key
-                            )}`
-                      }
-                      alt={formatCharacterDisplayName(character.key)}
-                      layout="fill"
-                      objectFit="cover"
-                      className=""
-                      onError={() => handleImageError(character.key)}
-                    />
-                  </div>
-                  <span>{formatCharacterDisplayName(character.key)}</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-[300px]">
-                  <p>Level: {character.level}</p>
-                  <p>Constellation: {character.constellation}</p>
-
-                  <h3 className="font-semibold mt-4">Weapon</h3>
-                  {character.weapon ? (
+              {ownedFilter === "all" && (
+                <p className="text-sm text-gray-500 mb-6">
+                  Greyed-out portraits are characters you have not obtained yet.
+                </p>
+              )}
+              {roster.length === 0 ? (
+                <p className="text-sm text-gray-500 mb-6">
+                  No characters match this filter.
+                </p>
+              ) : (
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-4 justify-items-center">
+                {roster.map((character) => {
+                  const displayName = formatCharacterDisplayName(character.key);
+                  const portrait = (
                     <>
-                      <p>Name: {formatWeaponDisplayName(character.weapon.key)}</p>
-                      <p>Level: {character.weapon.level}</p>
-                      <p>Refinement: {character.weapon.refinement}</p>
-                    </>
-                  ) : (
-                    <p>No weapon data available</p>
-                  )}
-
-                  <h3 className="font-semibold mt-4">Artifacts</h3>
-                  {character.artifacts && character.artifacts.length > 0 ? (
-                    character.artifacts.map((artifact, artifactIndex) => (
-                      <div key={artifactIndex} className="mb-2">
-                        <p>
-                          {formatArtifactName(artifact)} ({artifact.slotKey})
-                        </p>
-                        <p>Level: {artifact.level}</p>
+                      <div
+                        className={cn(
+                          "relative w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden bg-indigo-50 ring-1",
+                          character.owned
+                            ? "ring-indigo-100 group-hover:ring-indigo-400"
+                            : "ring-gray-200"
+                        )}
+                      >
+                        <Image
+                          src={
+                            imageErrors.has(character.key)
+                              ? "/placeholder.svg"
+                              : `/character-portraits/${character.iconFile}`
+                          }
+                          alt={displayName}
+                          fill
+                          className={cn(
+                            "object-cover",
+                            !character.owned && "grayscale opacity-40"
+                          )}
+                          title={displayName}
+                          onError={() =>
+                            setImageErrors((prev) => new Set(prev).add(character.key))
+                          }
+                        />
                       </div>
-                    ))
-                  ) : (
-                    <p>No artifact data available</p>
-                  )}
-                </ScrollArea>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-        <div className="mt-8">
-          <Button asChild>
-            <Link href="/dashboard">Back to Dashboard</Link>
-          </Button>
-        </div>
+                      <span
+                        className={cn(
+                          "mt-2 w-full text-center text-xs sm:text-sm font-medium leading-tight line-clamp-2",
+                          character.owned ? "text-gray-800" : "text-gray-400"
+                        )}
+                      >
+                        {displayName}
+                      </span>
+                    </>
+                  );
+
+                  if (!character.owned) {
+                    return (
+                      <div
+                        key={character.key}
+                        title={`${displayName} (not obtained)`}
+                        className="flex flex-col items-center w-full max-w-[7.5rem] rounded-lg p-2 cursor-not-allowed"
+                      >
+                        {portrait}
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <Link
+                      key={character.key}
+                      href={`/characters/${encodeURIComponent(character.ownedKey)}`}
+                      title={displayName}
+                      className="group flex flex-col items-center w-full max-w-[7.5rem] rounded-lg p-2 transition-colors hover:bg-indigo-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                    >
+                      {portrait}
+                    </Link>
+                  );
+                })}
+              </div>
+              )}
+              <div className="mt-8">
+                <Button asChild>
+                  <Link href="/dashboard">Back to Dashboard</Link>
+                </Button>
+              </div>
             </div>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { GameProvider } from "@/contexts/GameContext";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
@@ -18,7 +19,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AuthProvider>{children}</AuthProvider>
+        <GameProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </GameProvider>
       </body>
     </html>
   );

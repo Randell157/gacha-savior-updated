@@ -3,11 +3,14 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, getFirestore } from "firebase/firestore";
+import { createUserWithEmailAndPassword, deleteUser } from "firebase/auth";
+import { doc, getFirestore, runTransaction } from "firebase/firestore";
 import { auth } from "@/lib/firebase";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+
+class UsernameTakenError extends Error {}
+
 export default function CreateAccountPage() {
   //Input States
   const [username, setUsername] = useState("");
@@ -37,6 +40,20 @@ export default function CreateAccountPage() {
       return;
     }
 
+    // Usernames are Firestore document IDs, and login treats anything with
+    // an "@" as an email, so rule those characters out.
+    const trimmedUsername = username.trim();
+    if (
+      !trimmedUsername ||
+      /[/@]/.test(trimmedUsername) ||
+      trimmedUsername === "." ||
+      trimmedUsername === ".."
+    ) {
+      setError('Usernames can\'t be empty or contain "/" or "@".');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       // Creating a new user account in Firebase
       const userCredential = await createUserWithEmailAndPassword(
@@ -47,22 +64,37 @@ export default function CreateAccountPage() {
       const user = userCredential.user;
       const db = getFirestore();
 
-      //Store user data in Firebase
-      await setDoc(doc(db, "users", user.uid), {
-        username,
-        email,
-        createdAt: new Date().toISOString(),
-      });
-
-      // Also store username in a separate collection for easy lookup
-      await setDoc(doc(db, "usernames", username), {
-        uid: user.uid,
-      });
+      // Claim the username and store the profile together. The transaction
+      // fails if someone already has the username, so it can't be overwritten.
+      try {
+        await runTransaction(db, async (transaction) => {
+          const usernameRef = doc(db, "usernames", trimmedUsername);
+          if ((await transaction.get(usernameRef)).exists()) {
+            throw new UsernameTakenError();
+          }
+          transaction.set(usernameRef, { uid: user.uid });
+          transaction.set(doc(db, "users", user.uid), {
+            username: trimmedUsername,
+            email,
+            createdAt: new Date().toISOString(),
+          });
+        });
+      } catch (claimError) {
+        // Don't leave behind a login with no username or profile.
+        await deleteUser(user).catch((deleteError) =>
+          console.error("Couldn't remove incomplete account:", deleteError)
+        );
+        throw claimError;
+      }
 
       //Redirect to dashboard
       router.push("/dashboard");
     } catch (error) {
-      setError("Failed to create account. Please try again.");
+      setError(
+        error instanceof UsernameTakenError
+          ? "That username is already taken. Please choose another."
+          : "Failed to create account. Please try again."
+      );
       console.error("Account creation failed:", error);
     } finally {
       setIsLoading(false);

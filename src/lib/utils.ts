@@ -19,6 +19,9 @@ const CHARACTER_DISPLAY_NAMES: Record<string, string> = {
   sangonomiyakokomi: "Sangonomiya Kokomi",
   kamisatoayato: "Kamisato Ayato",
   aratakiitto: "Arataki Itto",
+  lanyan: "Lan Yan",
+  yumemizukimizuki: "Yumemizuki Mizuki",
+  wonderlandmanekin: "Wonderland Manekin",
 }
 
 /** Display name for character keys: two-word names get a space (e.g. "Hu_Tao" or "HuTao" → "Hu Tao") */
@@ -52,4 +55,25 @@ export function formatArtifactSetDisplayName(setKey: string): string {
 /** Display name for material keys */
 export function formatMaterialDisplayName(key: string): string {
   return formatKeyWithSpaces(key)
+}
+
+const CHARACTER_ICON_SPECIAL_NAMES: Record<string, string> = {
+  kaedeharakazuha: "Kaedehara_Kazuha",
+  hutao: "Hu_Tao",
+  ayaka: "Kamisato_Ayaka",
+  raidenshogun: "Raiden_Shogun",
+  yaemiko: "Yae_Miko",
+  yunjin: "Yun_Jin",
+  kukishinobu: "Kuki_Shinobu",
+  kujousara: "Kujou_Sara",
+  shikanoinheizou: "Shikanoin_Heizou",
+}
+
+export function formatCharacterIconFilename(characterKey: string): string {
+  const lowerCaseKey = characterKey.toLowerCase().replace(/\s+/g, "")
+  if (lowerCaseKey.startsWith("traveler")) return "Aether_Icon.png"
+  if (lowerCaseKey in CHARACTER_ICON_SPECIAL_NAMES) {
+    return `${CHARACTER_ICON_SPECIAL_NAMES[lowerCaseKey]}_Icon.png`
+  }
+  return `${characterKey.replace(/\s+/g, "_")}_Icon.png`
 }

@@ -1,0 +1,153 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useGenshinData } from "@/hooks/useGenshinData";
+import { Button } from "@/components/ui/button";
+import Header from "@/components/header";
+import Footer from "@/components/footer";
+import {
+  formatArtifactSetDisplayName,
+  formatCharacterDisplayName,
+  formatCharacterIconFilename,
+  formatWeaponDisplayName,
+} from "@/lib/utils";
+import { buildEquipmentIndex } from "@/lib/genshin/equipment";
+
+export default function CharacterDetailPage() {
+  const params = useParams();
+  const rawKey = typeof params.key === "string" ? params.key : "";
+  const characterKey = decodeURIComponent(rawKey);
+  const { data: genshinData, loading } = useGenshinData();
+  const [imageError, setImageError] = useState(false);
+
+  const character = useMemo(() => {
+    return genshinData?.characters.find((c) => c.key === characterKey) ?? null;
+  }, [genshinData, characterKey]);
+
+  const equipment = useMemo(
+    () => (genshinData ? buildEquipmentIndex(genshinData).get(characterKey) : undefined),
+    [genshinData, characterKey]
+  );
+  const weapon = equipment?.weapon ?? null;
+  const artifacts = equipment?.artifacts ?? [];
+
+  if (loading) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-1 min-h-screen bg-gradient-to-b from-indigo-100 to-purple-100 flex items-center justify-center">
+          <p className="text-gray-700">Loading character...</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  const displayName = formatCharacterDisplayName(characterKey);
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <main className="flex-1">
+        <div className="min-h-screen bg-gradient-to-b from-indigo-100 to-purple-100">
+          <header className="bg-white shadow">
+            <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+              <h1 className="text-3xl font-bold text-indigo-900">{displayName}</h1>
+            </div>
+          </header>
+          <div className="max-w-7xl mx-auto py-12 sm:px-6 lg:px-8">
+            <div className="bg-white shadow overflow-hidden sm:rounded-lg p-6 sm:p-8">
+              {!character ? (
+                <p className="text-gray-600">
+                  Character not found in your uploaded data.
+                </p>
+              ) : (
+                <div className="flex flex-col sm:flex-row gap-8">
+                  <div className="relative w-36 h-36 sm:w-44 sm:h-44 shrink-0 rounded-xl overflow-hidden bg-indigo-50 ring-1 ring-indigo-100">
+                    <Image
+                      src={
+                        imageError
+                          ? "/placeholder.svg"
+                          : `/character-portraits/${formatCharacterIconFilename(
+                              character.key
+                            )}`
+                      }
+                      alt={displayName}
+                      fill
+                      className="object-cover"
+                      onError={() => setImageError(true)}
+                    />
+                  </div>
+                  <div className="space-y-6 flex-1 text-gray-800">
+                    <section>
+                      <h2 className="text-lg font-semibold text-indigo-900 mb-2">
+                        Character
+                      </h2>
+                      <p>Level: {character.level}</p>
+                      <p>Constellation: {character.constellation}</p>
+                      {character.ascension != null && (
+                        <p>Ascension: {character.ascension}</p>
+                      )}
+                      {character.talent && (
+                        <div className="mt-2">
+                          <p className="font-medium">Talents</p>
+                          <p>Normal Attack: {character.talent.auto ?? "—"}</p>
+                          <p>Elemental Skill: {character.talent.skill ?? "—"}</p>
+                          <p>Elemental Burst: {character.talent.burst ?? "—"}</p>
+                        </div>
+                      )}
+                    </section>
+                    <section>
+                      <h2 className="text-lg font-semibold text-indigo-900 mb-2">
+                        Weapon
+                      </h2>
+                      {weapon ? (
+                        <>
+                          <p>Name: {formatWeaponDisplayName(weapon.key)}</p>
+                          <p>Level: {weapon.level}</p>
+                          <p>Refinement: {weapon.refinement}</p>
+                        </>
+                      ) : (
+                        <p>No weapon equipped.</p>
+                      )}
+                    </section>
+                    <section>
+                      <h2 className="text-lg font-semibold text-indigo-900 mb-2">
+                        Artifacts
+                      </h2>
+                      {artifacts.length > 0 ? (
+                        <ul className="space-y-2">
+                          {artifacts.map((artifact, index) => (
+                            <li key={`${artifact.setKey}-${artifact.slotKey}-${index}`}>
+                              {formatArtifactSetDisplayName(artifact.setKey)}{" "}
+                              ({artifact.slotKey}) — Level {artifact.level}
+                              {artifact.rarity != null ? `, ${artifact.rarity}★` : ""}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>No artifacts equipped.</p>
+                      )}
+                    </section>
+                  </div>
+                </div>
+              )}
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Button asChild>
+                  <Link href="/characters">Back to Characters</Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link href="/dashboard">Back to Dashboard</Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+}
