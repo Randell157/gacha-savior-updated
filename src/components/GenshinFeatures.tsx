@@ -51,9 +51,9 @@ export default function Features() {
   return (
     <>
       <div className="max-w-7xl mx-auto py-12 sm:px-6 lg:px-8">
-        <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
+        <div className="bg-white dark:bg-slate-900 shadow overflow-hidden sm:rounded-lg mb-8">
           <div className="px-4 py-5 sm:px-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100 mb-4">
               Genshin Impact Dashboard Features
             </h2>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-2">
@@ -78,12 +78,12 @@ export default function Features() {
           </div>
         </div>
 
-        <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div className="bg-white dark:bg-slate-900 shadow overflow-hidden sm:rounded-lg">
           <div className="px-4 py-5 sm:px-6">
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100">
               Dashboard Preview Sample
             </h2>
-            <p className="mt-1 text-sm text-gray-500 mb-6">
+            <p className="mt-1 text-sm text-gray-500 dark:text-slate-400 mb-6">
               This is the real dashboard with a made-up account. Try changing the
               showcase slots. Create an account to see your own data.
             </p>

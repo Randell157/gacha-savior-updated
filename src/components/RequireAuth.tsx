@@ -4,14 +4,22 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGenshinData } from "@/hooks/useGenshinData";
-import { CenteredPage } from "@/components/PageShell";
+import PageSkeleton, { type SkeletonKind } from "@/components/PageSkeleton";
 
 /**
- * Wraps pages that need a signed-in user. Shows a loading screen until auth
- * and the user's saved data are ready, and sends signed-out visitors to
- * /login. Children only render once `useGenshinData()` has finished loading.
+ * Wraps pages that need a signed-in user. Shows a loading skeleton shaped like
+ * the page until auth and the user's saved data are ready, and sends
+ * signed-out visitors to /login. Children only render once `useGenshinData()`
+ * has finished loading.
  */
-export default function RequireAuth({ children }: { children: React.ReactNode }) {
+export default function RequireAuth({
+  skeleton,
+  children,
+}: {
+  /** Shape of the loading skeleton; defaults to a grid of cards */
+  skeleton?: SkeletonKind;
+  children: React.ReactNode;
+}) {
   const { user, loading: authLoading } = useAuth();
   const { loading: dataLoading } = useGenshinData();
   const router = useRouter();
@@ -23,17 +31,8 @@ export default function RequireAuth({ children }: { children: React.ReactNode })
   }, [authLoading, user, router]);
 
   if (authLoading || !user || dataLoading) {
-    return <LoadingPage />;
+    return <PageSkeleton kind={skeleton} />;
   }
 
   return <>{children}</>;
-}
-
-/** The loading screen shown while auth or saved data is loading. */
-export function LoadingPage() {
-  return (
-    <CenteredPage>
-      <p className="text-gray-700">Loading your data...</p>
-    </CenteredPage>
-  );
 }

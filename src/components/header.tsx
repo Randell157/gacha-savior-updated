@@ -11,6 +11,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -22,6 +24,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import Logo from "@/components/Logo";
+import { ThemeChoice, ThemeCycleButton } from "@/components/ThemeControls";
 import { ChevronDown, LogOut, Menu, Check, User } from "lucide-react";
 import { useState } from "react";
 
@@ -47,7 +51,7 @@ export default function Header() {
   };
 
   return (
-    <header className="px-4 lg:px-6 h-14 flex items-center justify-center border-b border-border/40 bg-white">
+    <header className="px-4 lg:px-6 h-14 flex items-center justify-center border-b border-border/40 bg-white dark:bg-slate-900">
       <div className="container flex items-center justify-between gap-4">
         <div className="flex items-center gap-2 min-w-0">
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
@@ -55,7 +59,7 @@ export default function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="shrink-0 -ml-2 text-indigo-900 hover:bg-indigo-50"
+                className="shrink-0 -ml-2 text-indigo-900 dark:text-indigo-200 hover:bg-indigo-50 dark:hover:bg-indigo-900/40"
                 aria-label="Open menu"
               >
                 <Menu className="h-5 w-5" />
@@ -69,14 +73,14 @@ export default function Header() {
                     key={link.href}
                     href={link.href}
                     onClick={() => setMenuOpen(false)}
-                    className="rounded-lg px-3 py-2.5 text-sm font-medium text-gray-900 hover:bg-indigo-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                    className="rounded-lg px-3 py-2.5 text-sm font-medium text-gray-900 dark:text-slate-100 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                   >
                     {link.label}
                   </Link>
                 ))}
               </nav>
               <SheetHeader>
-                <SheetTitle className="text-indigo-900">Games</SheetTitle>
+                <SheetTitle className="text-indigo-900 dark:text-indigo-200">Games</SheetTitle>
                 <SheetDescription>
                   Select a game to organize. More titles will be supported over
                   time.
@@ -95,8 +99,8 @@ export default function Header() {
                       }}
                       className={cn(
                         "flex w-full items-start gap-3 rounded-lg px-3 py-3 text-left text-sm transition-colors",
-                        "hover:bg-indigo-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
-                        isSelected && "bg-indigo-100/80 ring-1 ring-indigo-200"
+                        "hover:bg-indigo-50 dark:hover:bg-indigo-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
+                        isSelected && "bg-indigo-100/80 dark:bg-indigo-900/50 ring-1 ring-indigo-200 dark:ring-indigo-800"
                       )}
                     >
                       <span
@@ -111,7 +115,7 @@ export default function Header() {
                         {isSelected && <Check className="h-3 w-3" />}
                       </span>
                       <span className="min-w-0">
-                        <span className="block font-medium text-gray-900">
+                        <span className="block font-medium text-gray-900 dark:text-slate-100">
                           {game.name}
                         </span>
                         <span className="mt-0.5 block text-xs text-muted-foreground">
@@ -125,10 +129,11 @@ export default function Header() {
             </SheetContent>
           </Sheet>
           <Link
-            className="flex items-center justify-center font-bold truncate"
+            className="flex items-center gap-2 font-bold min-w-0"
             href={user ? "/dashboard" : "/"}
           >
-            Gacha Savior
+            <Logo />
+            <span className="truncate">Gacha Savior</span>
           </Link>
         </div>
         <nav className="flex items-center gap-4 sm:gap-6 shrink-0">
@@ -143,7 +148,7 @@ export default function Header() {
           ))}
           {loading ? (
             <span
-              className="h-4 w-16 rounded bg-gray-200 animate-pulse"
+              className="h-4 w-16 rounded bg-gray-200 dark:bg-slate-700 animate-pulse"
               aria-label="Loading account"
             />
           ) : user ? (
@@ -157,16 +162,24 @@ export default function Header() {
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent align="end" className="w-60">
                 <DropdownMenuItem asChild className="cursor-pointer">
                   <Link href="/profile">
                     <User className="mr-2 h-4 w-4" />
                     Profile
                   </Link>
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel className="pb-1 text-xs text-muted-foreground">
+                  Theme
+                </DropdownMenuLabel>
+                <div className="px-2 pb-2">
+                  <ThemeChoice />
+                </div>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={handleLogout}
-                  className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+                  className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50 dark:text-red-400 dark:focus:bg-red-950"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   Logout
@@ -174,12 +187,15 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Link
-              className="text-sm font-medium hover:underline underline-offset-4"
-              href="/login"
-            >
-              Login
-            </Link>
+            <>
+              <ThemeCycleButton />
+              <Link
+                className="text-sm font-medium hover:underline underline-offset-4"
+                href="/login"
+              >
+                Login
+              </Link>
+            </>
           )}
         </nav>
       </div>

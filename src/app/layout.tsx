@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { GameProvider } from "@/contexts/GameContext";
 import { GenshinDataProvider } from "@/contexts/GenshinDataContext";
+import { ThemeProvider } from "@/components/ThemeControls";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
@@ -18,13 +19,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    // next-themes sets the theme class on <html> before React hydrates.
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <GameProvider>
-          <AuthProvider>
-            <GenshinDataProvider>{children}</GenshinDataProvider>
-          </AuthProvider>
-        </GameProvider>
+        <ThemeProvider>
+          <GameProvider>
+            <AuthProvider>
+              <GenshinDataProvider>{children}</GenshinDataProvider>
+            </AuthProvider>
+          </GameProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

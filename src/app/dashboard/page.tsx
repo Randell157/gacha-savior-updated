@@ -4,18 +4,25 @@ import { useState } from "react";
 import Genshin from "@/components/Genshin";
 import PageShell from "@/components/PageShell";
 import RequireAuth from "@/components/RequireAuth";
-import { Input } from "@/components/ui/input";
+import { UploadBar, UploadDropZone } from "@/components/UploadArea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { useGenshinData } from "@/hooks/useGenshinData";
 import { parseGoodText } from "@/lib/genshin/parseGood";
+import type { GenshinData } from "@/lib/genshin/types";
 
 export default function DashboardPage() {
   return (
-    <RequireAuth>
+    <RequireAuth skeleton="dashboard">
       <Dashboard />
     </RequireAuth>
   );
+}
+
+/** "91 characters, 336 weapons and 1,717 artifacts" */
+function describeCounts(data: GenshinData) {
+  const n = (count: number, word: string) => `${count.toLocaleString()} ${word}`;
+  return `${n(data.characters.length, "characters")}, ${n(data.weapons.length, "weapons")} and ${n(data.artifacts.length, "artifacts")}`;
 }
 
 function Dashboard() {
@@ -31,12 +38,11 @@ function Dashboard() {
   } = useGenshinData();
   const [fileError, setFileError] = useState<string | null>(null);
   const [fileWarnings, setFileWarnings] = useState<string[]>([]);
+  const [savedSummary, setSavedSummary] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const input = event.target;
-    const file = input.files?.[0];
-    if (!file) return;
+  const handleFile = async (file: File) => {
+    setSavedSummary(null);
     const result = parseGoodText(await file.text());
     if (!result.ok) {
       setFileError(result.error);
@@ -48,6 +54,7 @@ function Dashboard() {
       await save(result.data);
       setFileError(null);
       setFileWarnings(result.warnings);
+      setSavedSummary(describeCounts(result.data));
     } catch (error) {
       setFileError(
         `Your file was read, but saving it failed: ${error instanceof Error ? error.message : error}`
@@ -55,7 +62,6 @@ function Dashboard() {
       setFileWarnings([]);
     } finally {
       setIsSaving(false);
-      input.value = "";
     }
   };
 
@@ -76,45 +82,27 @@ function Dashboard() {
 
   return (
     <PageShell title="Dashboard">
-      <p className="text-xl text-gray-700 sm:text-lg mb-6">
+      <p className="text-xl text-gray-700 dark:text-slate-300 sm:text-lg mb-6">
         Hello, {username || "User"}!
       </p>
-      {migratedFromLocal && (
-        <Alert className="mb-6">
-          <CheckCircle2 className="h-4 w-4" />
-          <AlertTitle>Your data was moved to your account</AlertTitle>
-          <AlertDescription>
-            Your upload used to be saved only in this browser. It&apos;s now
-            saved to your account, so it shows up wherever you log in.
-          </AlertDescription>
-        </Alert>
-      )}
-      {genshinData && (
-        <Genshin data={genshinData} showcase={showcase} onShowcaseChange={setShowcase} />
-      )}
-      <div className="pt-8 mt-8 border-t border-gray-200 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7">
-        <p className="text-xl">
-          {genshinData
-            ? "Data uploaded. Would you like to reupload the data?"
-            : "Please import your Genshin JSON file (GOOD format). You can export it with Inventory Kamera or Irminsul."}
-        </p>
-        {lastUploadedAt && (
-          <p className="text-sm text-gray-500">
-            Last uploaded {lastUploadedAt.toLocaleString()}
-          </p>
+      <div className="space-y-4 mb-6 empty:hidden">
+        {migratedFromLocal && (
+          <Alert>
+            <CheckCircle2 className="h-4 w-4" />
+            <AlertTitle>Your data was moved to your account</AlertTitle>
+            <AlertDescription>
+              Your upload used to be saved only in this browser. It&apos;s now
+              saved to your account, so it shows up wherever you log in.
+            </AlertDescription>
+          </Alert>
         )}
-        <div>
-          <Input
-            type="file"
-            accept=".json"
-            onChange={handleFileUpload}
-            disabled={isSaving}
-            className="mb-4"
-          />
-          {isSaving && (
-            <p className="text-sm text-gray-500">Saving to your account...</p>
-          )}
-        </div>
+        {savedSummary && (
+          <Alert className="border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950/40 text-green-800 dark:text-green-200 [&>svg]:text-green-600">
+            <CheckCircle2 className="h-4 w-4" />
+            <AlertTitle>Saved</AlertTitle>
+            <AlertDescription>{savedSummary}.</AlertDescription>
+          </Alert>
+        )}
         {errorMessage && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -136,6 +124,21 @@ function Dashboard() {
           </Alert>
         )}
       </div>
+      {genshinData ? (
+        <>
+          <div className="mb-8">
+            <UploadBar
+              onFile={handleFile}
+              disabled={isSaving}
+              lastUploadedAt={lastUploadedAt}
+              summary={describeCounts(genshinData)}
+            />
+          </div>
+          <Genshin data={genshinData} showcase={showcase} onShowcaseChange={setShowcase} />
+        </>
+      ) : (
+        <UploadDropZone onFile={handleFile} disabled={isSaving} />
+      )}
     </PageShell>
   );
 }

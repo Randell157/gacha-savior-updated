@@ -78,8 +78,8 @@ export default function LoginPage() {
 
   return (
     <CenteredPage>
-      <div className="w-full max-w-md bg-white shadow sm:rounded-lg px-6 py-8">
-        <h1 className="text-2xl font-bold text-indigo-900 text-center mb-6">
+      <div className="w-full max-w-md bg-white dark:bg-slate-900 shadow sm:rounded-lg px-6 py-8">
+        <h1 className="text-2xl font-bold text-indigo-900 dark:text-indigo-200 text-center mb-6">
           Enter Login Information
         </h1>
         <form className="space-y-6" onSubmit={handleSubmit}>
@@ -126,7 +126,7 @@ export default function LoginPage() {
           Don&apos;t have an account?{" "}
           <Link
             href="/create-account"
-            className="font-medium text-indigo-600 hover:text-indigo-500"
+            className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300"
           >
             Create one here
           </Link>

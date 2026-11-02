@@ -32,7 +32,7 @@ function Artifacts() {
   return (
     <PageShell title="All Artifacts">
       {artifacts.length === 0 && (
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-slate-400">
           No artifacts yet. Upload your data on the dashboard to see them here.
         </p>
       )}

@@ -293,9 +293,9 @@ Then:
 
 ---
 
-## UI additions (chosen 2026-11-02, not scheduled yet)
+## UI additions (chosen and built 2026-11-02)
 
-Picked from side-by-side mockups after Phase 2. Not yet placed on the roadmap.
+Picked from side-by-side mockups after Phase 2, then built and tested on the emulators in light and dark: sign-up, drag-and-drop upload, the dashboard, roster gradients, every weapons control, the theme menu and the loading skeletons. [CLAUDE.md](../CLAUDE.md) describes how they work. Nine recent characters still need their rarity filled in (listed in CLAUDE.md); their portraits show a plain background until then. The Cards / Table switch is built from two buttons rather than the shadcn ToggleGroup, whose install needs an interactive npm prompt under React 19.
 
 - **Dark mode**, as mocked: `next-themes` with Light / Dark / System in the account menu, and a moon icon button next to Login when signed out. The gradient becomes `indigo-950` → `purple-950`, panels and the title bar dark slate, headings `indigo-200`; buttons stay indigo, showcase slots keep a low-opacity indigo tint, unowned characters stay greyed out.
 - **Rarity styling: in-game gradients.** 5★ portraits get a gold gradient background and 4★ a purple one, on the roster, showcase and character pages. Needs a `rarity` field on each `GENSHIN_CHARACTERS` entry.

@@ -8,10 +8,10 @@ export default function ContactPage() {
   return (
     <PageShell title="Contact Me" panel="flush">
       <div className="px-4 py-5 sm:px-6">
-        <h2 className="text-2xl font-semibold text-gray-900">
+        <h2 className="text-2xl font-semibold text-gray-900 dark:text-slate-100">
           Want to improve the website?
         </h2>
-        <p className="mt-1 max-w-2xl text-sm text-gray-500">
+        <p className="mt-1 max-w-2xl text-sm text-gray-500 dark:text-slate-400">
           Here&apos;s where you can contact me. Use the contact form or email
         </p>
       </div>

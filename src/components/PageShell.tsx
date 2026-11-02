@@ -28,9 +28,9 @@ export default function PageShell({
 }: PageShellProps) {
   return (
     <ShellFrame>
-      <div className="bg-white shadow">
+      <div className="bg-white dark:bg-slate-900 shadow">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex flex-wrap justify-between items-center gap-4">
-          <h1 className="text-3xl font-bold text-indigo-900">{title}</h1>
+          <h1 className="text-3xl font-bold text-indigo-900 dark:text-indigo-200">{title}</h1>
           {actions && <div className="flex flex-wrap items-center gap-4">{actions}</div>}
         </div>
       </div>
@@ -40,7 +40,7 @@ export default function PageShell({
         <div className="max-w-7xl mx-auto py-12 sm:px-6 lg:px-8">
           <div
             className={cn(
-              "bg-white shadow overflow-hidden sm:rounded-lg",
+              "bg-white dark:bg-slate-900 shadow overflow-hidden sm:rounded-lg",
               panel === "padded" && "p-6 sm:p-8"
             )}
           >
@@ -65,11 +65,23 @@ export function CenteredPage({ children }: { children: React.ReactNode }) {
 
 function ShellFrame({ children }: { children: React.ReactNode }) {
   return (
+    <PageFrame>
+      <div className="min-h-screen bg-gradient-to-b from-indigo-100 dark:from-indigo-950 to-purple-100 dark:to-purple-950">
+        {children}
+      </div>
+    </PageFrame>
+  );
+}
+
+/**
+ * Just the header and footer, for pages that draw their own full-width
+ * layout (the home page). Everything else should use PageShell or CenteredPage.
+ */
+export function PageFrame({ children }: { children: React.ReactNode }) {
+  return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="flex-1 min-h-screen bg-gradient-to-b from-indigo-100 to-purple-100">
-        {children}
-      </main>
+      <main className="flex-1">{children}</main>
       <Footer />
     </div>
   );

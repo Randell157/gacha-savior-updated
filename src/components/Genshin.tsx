@@ -30,6 +30,7 @@ import {
 } from "@/lib/utils";
 import type { GenshinData } from "@/lib/genshin/types";
 import { buildEquipmentIndex } from "@/lib/genshin/equipment";
+import { getCharacterRarity, rarityBackground } from "@/lib/genshinCharacters";
 import { SHOWCASE_SIZE, type Showcase } from "@/lib/genshin/firestoreStore";
 
 interface GenshinProps {
@@ -95,7 +96,7 @@ export default function Genshin({
 
   return (
     <section>
-      <h2 className="text-lg font-semibold text-indigo-900 mb-4">Genshin Impact</h2>
+      <h2 className="text-lg font-semibold text-indigo-900 dark:text-indigo-200 mb-4">Genshin Impact</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <Card>
           <CardHeader>
@@ -165,7 +166,12 @@ export default function Genshin({
                     : null;
                   const portrait = char && (
                     <>
-                      <div className="relative w-20 h-20 rounded-lg overflow-hidden ring-1 ring-indigo-200 bg-white mb-2 group-hover:ring-indigo-500">
+                      <div
+                        className={cn(
+                          "relative w-20 h-20 rounded-lg overflow-hidden ring-1 ring-indigo-200 dark:ring-indigo-800 mb-2 group-hover:ring-indigo-500",
+                          rarityBackground(getCharacterRarity(char.key))
+                        )}
+                      >
                         <Image
                           src={`/character-portraits/${formatCharacterIconFilename(
                             char.key
@@ -180,10 +186,10 @@ export default function Genshin({
                           }}
                         />
                       </div>
-                      <p className="font-semibold text-sm text-gray-900 leading-tight">
+                      <p className="font-semibold text-sm text-gray-900 dark:text-slate-100 leading-tight">
                         {displayName}
                       </p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
                         Lv. {char.level} · C{char.constellation}
                       </p>
                     </>
@@ -194,19 +200,19 @@ export default function Genshin({
                       className={cn(
                         "relative flex flex-col rounded-xl border p-3 min-h-[280px]",
                         char
-                          ? "border-indigo-200 bg-indigo-50/40"
-                          : "border-dashed border-gray-300 bg-gray-50/70"
+                          ? "border-indigo-200 dark:border-indigo-800 bg-indigo-50/40 dark:bg-indigo-900/20"
+                          : "border-dashed border-gray-300 dark:border-slate-600 bg-gray-50/70 dark:bg-slate-800/40"
                       )}
                     >
                       <div className="flex items-center justify-between mb-3">
-                        <span className="text-xs font-semibold uppercase tracking-wide text-indigo-700">
+                        <span className="text-xs font-semibold uppercase tracking-wide text-indigo-700 dark:text-indigo-300">
                           Slot {i + 1}
                         </span>
                         {char && (
                           <button
                             type="button"
                             onClick={() => setShowcaseSlot(i, null)}
-                            className="rounded-full p-1 text-gray-500 hover:bg-white hover:text-red-600"
+                            className="rounded-full p-1 text-gray-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-red-600"
                             aria-label={`Clear slot ${i + 1}`}
                             title="Clear slot"
                           >
@@ -231,20 +237,20 @@ export default function Genshin({
                         )
                       ) : (
                         <div className="flex flex-col items-center justify-center text-center mb-3 py-4">
-                          <div className="flex h-20 w-20 items-center justify-center rounded-lg border border-dashed border-gray-300 bg-white text-gray-400 mb-2">
+                          <div className="flex h-20 w-20 items-center justify-center rounded-lg border border-dashed border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-gray-400 dark:text-slate-500 mb-2">
                             <UserPlus className="h-8 w-8" />
                           </div>
-                          <p className="text-sm font-medium text-gray-500">
+                          <p className="text-sm font-medium text-gray-500 dark:text-slate-400">
                             Empty slot
                           </p>
-                          <p className="text-xs text-gray-400 mt-1">
+                          <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">
                             Choose a character below
                           </p>
                         </div>
                       )}
 
                       {char && (
-                        <div className="text-xs text-gray-600 space-y-1 mb-3 px-1 flex-1">
+                        <div className="text-xs text-gray-600 dark:text-slate-400 space-y-1 mb-3 px-1 flex-1">
                           <p>
                             <span className="font-medium">Weapon:</span>{" "}
                             {char.weapon

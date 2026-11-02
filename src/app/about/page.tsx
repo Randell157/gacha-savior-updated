@@ -7,7 +7,7 @@ export default function AboutPage() {
     <PageShell title="About Gacha Savior" panel="flush">
       <div className="px-4 py-5 sm:px-6 flex items-center">
         <div className="flex-shrink-0 mr-4">
-          <div className="h-32 w-32 rounded-full overflow-hidden bg-gray-200">
+          <div className="h-32 w-32 rounded-full overflow-hidden bg-gray-200 dark:bg-slate-700">
             <Image
               src="/Pfp.jpg"
               alt="Creator's picture"
@@ -18,10 +18,10 @@ export default function AboutPage() {
           </div>
         </div>
         <div>
-          <h2 className="text-2xl font-semibold text-gray-900">
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-slate-100">
             Hello! I&apos;m Randell
           </h2>
-          <p className="mt-1 max-w-2xl text-sm text-gray-500">
+          <p className="mt-1 max-w-2xl text-sm text-gray-500 dark:text-slate-400">
             Undergraduate Student
           </p>
         </div>

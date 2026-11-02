@@ -8,6 +8,7 @@ import { useGenshinData } from "@/hooks/useGenshinData";
 import { Button } from "@/components/ui/button";
 import PageShell from "@/components/PageShell";
 import {
+  cn,
   formatArtifactSetDisplayName,
   formatCharacterDisplayName,
   formatCharacterIconFilename,
@@ -15,11 +16,12 @@ import {
 } from "@/lib/utils";
 import { buildEquipmentIndex } from "@/lib/genshin/equipment";
 import { formatSlotName } from "@/lib/genshin/stats";
+import { getCharacterRarity, rarityBackground } from "@/lib/genshinCharacters";
 import RequireAuth from "@/components/RequireAuth";
 
 export default function CharacterDetailPage() {
   return (
-    <RequireAuth>
+    <RequireAuth skeleton="detail">
       <CharacterDetail />
     </RequireAuth>
   );
@@ -48,12 +50,17 @@ function CharacterDetail() {
   return (
     <PageShell title={displayName}>
       {!character ? (
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-slate-400">
           Character not found in your uploaded data.
         </p>
       ) : (
         <div className="flex flex-col sm:flex-row gap-8">
-          <div className="relative w-36 h-36 sm:w-44 sm:h-44 shrink-0 rounded-xl overflow-hidden bg-indigo-50 ring-1 ring-indigo-100">
+          <div
+            className={cn(
+              "relative w-36 h-36 sm:w-44 sm:h-44 shrink-0 rounded-xl overflow-hidden ring-1 ring-indigo-100 dark:ring-indigo-900",
+              rarityBackground(getCharacterRarity(character.key))
+            )}
+          >
             <Image
               src={
                 imageError
@@ -69,9 +76,9 @@ function CharacterDetail() {
               onError={() => setImageError(true)}
             />
           </div>
-          <div className="space-y-6 flex-1 text-gray-800">
+          <div className="space-y-6 flex-1 text-gray-800 dark:text-slate-200">
             <section>
-              <h2 className="text-lg font-semibold text-indigo-900 mb-2">
+              <h2 className="text-lg font-semibold text-indigo-900 dark:text-indigo-200 mb-2">
                 Character
               </h2>
               <p>Level: {character.level}</p>
@@ -89,7 +96,7 @@ function CharacterDetail() {
               )}
             </section>
             <section>
-              <h2 className="text-lg font-semibold text-indigo-900 mb-2">
+              <h2 className="text-lg font-semibold text-indigo-900 dark:text-indigo-200 mb-2">
                 Weapon
               </h2>
               {weapon ? (
@@ -103,7 +110,7 @@ function CharacterDetail() {
               )}
             </section>
             <section>
-              <h2 className="text-lg font-semibold text-indigo-900 mb-2">
+              <h2 className="text-lg font-semibold text-indigo-900 dark:text-indigo-200 mb-2">
                 Artifacts
               </h2>
               {artifacts.length > 0 ? (
