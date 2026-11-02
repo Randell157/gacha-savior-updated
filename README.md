@@ -18,8 +18,29 @@ To use the site, export your Genshin account as a GOOD-format JSON file with [In
 
 Built with Next.js, React, TypeScript, Tailwind CSS and Firebase (Auth + Firestore). See `docs/DESIGN.md` for the roadmap.
 
-Using shadcn/ui component library with Lucide React Icons
+## Credits
 
-Genshin Impact Character Portraits via https://genshin-impact.fandom.com/wiki/Character/Gallery
+Gacha Savior is an unofficial fan project. It is not affiliated with or endorsed by HoYoverse.
 
-All characters belong to Hoyoverse
+### Game content
+
+- **Genshin Impact, Honkai: Star Rail and Zenless Zone Zero** are trademarks of HoYoverse (COGNOSPHERE PTE. LTD. / miHoYo). All characters, names, artwork and in-game text belong to HoYoverse.
+- **Character portraits** come from the [Genshin Impact Wiki character gallery](https://genshin-impact.fandom.com/wiki/Character/Gallery) on Fandom. The artwork itself is HoYoverse's.
+- **Game app icons** (`public/genshinappicon.png`, `starrailappicon.png`, `zzzappicon.png`) were cropped from the games' App Store listings. They are HoYoverse's.
+- **Artifact set names, bonuses and release versions** come from [genshin-db](https://github.com/theBowja/genshin-db) by theBowja (MIT License), extracted with `npm run data:genshin`. The underlying game text belongs to HoYoverse.
+
+### Account exports
+
+- Uploads use the **GOOD** (Genshin Open Object Description) format created by the [Genshin Optimizer](https://github.com/frzyc/genshin-optimizer) project.
+- Exports come from [Inventory Kamera](https://github.com/Andrewthe13th/Inventory_Kamera) or Irminsul. The sample exports in `public/sample-data/` were made with them.
+
+### Libraries and tools
+
+- [Next.js](https://nextjs.org/), [React](https://react.dev/) and [Tailwind CSS](https://tailwindcss.com/): MIT
+- [shadcn/ui](https://ui.shadcn.com/) components (MIT), built on [Radix UI](https://www.radix-ui.com/) (MIT) and [class-variance-authority](https://cva.style/) (Apache-2.0)
+- [Lucide](https://lucide.dev/) icons: ISC
+- [next-themes](https://github.com/pacocoursey/next-themes) for dark mode: MIT
+- [Firebase](https://firebase.google.com/) client and Admin SDKs: Apache-2.0
+- [Inter](https://rsms.me/inter/) typeface by Rasmus Andersson, via Google Fonts: SIL Open Font License 1.1
+- [sharp](https://sharp.pixelplumbing.com/) (Apache-2.0), used to crop the game icons
+- Hosted on [Vercel](https://vercel.com/)

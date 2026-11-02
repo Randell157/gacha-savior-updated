@@ -1,6 +1,8 @@
-/** Playable Genshin roster derived from portrait files (skins, Paimon, Aether/Lumine excluded). */
+import { formatCharacterIconFilename } from "@/lib/utils";
+
 /**
- * `rarity` is 4 or 5 (the Traveler counts as 5). It's left out for characters
+ * Playable Genshin roster derived from portrait files (skins, Paimon,
+ * Aether/Lumine excluded). `rarity` is 4 or 5 (the Traveler counts as 5). It's left out for characters
  * whose rarity hasn't been filled in yet; their portraits get no rarity colour.
  */
 export const GENSHIN_CHARACTERS: { key: string; iconFile: string; rarity?: 4 | 5 }[] = [
@@ -133,11 +135,28 @@ export function normalizeCharacterKey(key: string): string {
 const RARITY_BY_KEY = new Map(
   GENSHIN_CHARACTERS.map((c) => [normalizeCharacterKey(c.key), c.rarity])
 );
+const ICON_BY_KEY = new Map(
+  GENSHIN_CHARACTERS.map((c) => [normalizeCharacterKey(c.key), c.iconFile])
+);
+
+/** Matches a roster or GOOD key to its roster entry key; any Traveler variant is the Traveler. */
+function rosterKey(key: string): string {
+  const normalized = normalizeCharacterKey(key);
+  return normalized.startsWith("traveler") ? "traveler" : normalized;
+}
+
+/**
+ * Portrait path for any roster or GOOD character key, from the roster's own
+ * filename (so "AratakiItto" finds "Arataki_Itto_Icon.png"). Falls back to
+ * formatCharacterIconFilename for characters missing from the roster.
+ */
+export function getCharacterPortrait(key: string): string {
+  return `/character-portraits/${ICON_BY_KEY.get(rosterKey(key)) ?? formatCharacterIconFilename(key)}`;
+}
 
 /** Rarity of a roster or GOOD character key; any Traveler variant counts as the Traveler. */
 export function getCharacterRarity(key: string): 4 | 5 | undefined {
-  const normalized = normalizeCharacterKey(key);
-  return RARITY_BY_KEY.get(normalized.startsWith("traveler") ? "traveler" : normalized);
+  return RARITY_BY_KEY.get(rosterKey(key));
 }
 
 /**

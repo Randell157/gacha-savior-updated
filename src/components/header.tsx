@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
-import { GAMES, useGame } from "@/contexts/GameContext";
+import { GAMES, gameForPath } from "@/lib/games";
+import GameIcon from "@/components/GameIcon";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -37,7 +38,8 @@ const NAV_LINKS = [
 
 export default function Header() {
   const { user, username, loading } = useAuth();
-  const { selectedGameId, setSelectedGameId } = useGame();
+  // The picker highlights the game whose section you're in; none on the hub.
+  const currentGame = gameForPath(usePathname());
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -88,33 +90,40 @@ export default function Header() {
               </SheetHeader>
               <nav className="mt-8 flex flex-col gap-1" aria-label="Game selection">
                 {GAMES.map((game) => {
-                  const isSelected = game.id === selectedGameId;
+                  const isSelected = game.id === currentGame?.id;
+                  // Games without a section yet are shown but can't be picked.
+                  const available = Boolean(game.href);
                   return (
                     <button
                       key={game.id}
                       type="button"
+                      disabled={!available}
                       onClick={() => {
-                        setSelectedGameId(game.id);
+                        if (!game.href) return;
                         setMenuOpen(false);
+                        router.push(game.href);
                       }}
                       className={cn(
                         "flex w-full items-start gap-3 rounded-lg px-3 py-3 text-left text-sm transition-colors",
-                        "hover:bg-indigo-50 dark:hover:bg-indigo-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
+                        available
+                          ? "hover:bg-indigo-50 dark:hover:bg-indigo-900/40"
+                          : "cursor-not-allowed opacity-60",
                         isSelected && "bg-indigo-100/80 dark:bg-indigo-900/50 ring-1 ring-indigo-200 dark:ring-indigo-800"
                       )}
                     >
-                      <span
-                        className={cn(
-                          "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
-                          isSelected
-                            ? "border-indigo-600 bg-indigo-600 text-white"
-                            : "border-muted-foreground/30"
+                      <span className="relative shrink-0">
+                        <GameIcon game={game} size={40} className={cn(!available && "grayscale")} />
+                        {isSelected && (
+                          <span
+                            className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-indigo-600 text-white ring-2 ring-white dark:ring-slate-950"
+                            aria-hidden
+                          >
+                            <Check className="h-2.5 w-2.5" />
+                          </span>
                         )}
-                        aria-hidden
-                      >
-                        {isSelected && <Check className="h-3 w-3" />}
                       </span>
-                      <span className="min-w-0">
+                      <span className="min-w-0 self-center">
                         <span className="block font-medium text-gray-900 dark:text-slate-100">
                           {game.name}
                         </span>

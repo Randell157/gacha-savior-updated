@@ -2,11 +2,9 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { LayoutGrid, Rows3, Search } from "lucide-react";
 import { useGenshinData } from "@/hooks/useGenshinData";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -23,15 +21,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import PageShell from "@/components/PageShell";
+import GenshinShell from "@/components/GenshinShell";
 import RequireAuth from "@/components/RequireAuth";
+import Segmented from "@/components/Segmented";
+import CharacterAvatar from "@/components/CharacterAvatar";
 import {
   cn,
   formatCharacterDisplayName,
-  formatCharacterIconFilename,
   formatWeaponDisplayName,
 } from "@/lib/utils";
-import { getCharacterRarity, rarityBackground } from "@/lib/genshinCharacters";
 import type { GoodWeapon } from "@/lib/genshin/types";
 
 type SortKey = "level-desc" | "level-asc" | "name-asc" | "refinement-desc";
@@ -94,7 +92,7 @@ function Weapons() {
   }, [weapons, search, show, groupCopies, sort]);
 
   return (
-    <PageShell title="All Weapons">
+    <GenshinShell title="All Weapons">
       {weapons.length === 0 ? (
         <p className="text-gray-600 dark:text-slate-400">
           No weapons yet. Upload your data on the dashboard to see them here.
@@ -173,47 +171,7 @@ function Weapons() {
           )}
         </>
       )}
-      <div className="mt-8">
-        <Button asChild>
-          <Link href="/dashboard">Back to Dashboard</Link>
-        </Button>
-      </div>
-    </PageShell>
-  );
-}
-
-/** A row of joined toggle buttons, like the mockup's All / Equipped / Unequipped. */
-function Segmented<T extends string>({
-  label,
-  value,
-  onChange,
-  options,
-}: {
-  label: string;
-  value: T;
-  onChange: (value: T) => void;
-  options: { value: T; label: string; icon?: React.ReactNode }[];
-}) {
-  return (
-    <div role="group" aria-label={label} className="inline-flex rounded-md border p-0.5">
-      {options.map((option) => (
-        <button
-          key={option.value}
-          type="button"
-          aria-pressed={value === option.value}
-          onClick={() => onChange(option.value)}
-          className={cn(
-            "flex items-center gap-1.5 rounded px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
-            value === option.value
-              ? "bg-indigo-600 text-white"
-              : "text-gray-700 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/40"
-          )}
-        >
-          {option.icon}
-          {option.label}
-        </button>
-      ))}
-    </div>
+    </GenshinShell>
   );
 }
 
@@ -242,34 +200,6 @@ function CopiesBadge({ copies }: { copies: number }) {
   );
 }
 
-/** Small portrait of the character holding a weapon, shown beside its name. */
-function HolderIcon({ characterKey }: { characterKey: string }) {
-  const [failed, setFailed] = useState(false);
-  const label = `Equipped by ${formatCharacterDisplayName(characterKey)}`;
-  return (
-    <span
-      title={label}
-      className={cn(
-        "relative h-7 w-7 shrink-0 overflow-hidden rounded-full ring-2 ring-white dark:ring-slate-900",
-        rarityBackground(getCharacterRarity(characterKey))
-      )}
-    >
-      <Image
-        src={
-          failed
-            ? "/placeholder.svg"
-            : `/character-portraits/${formatCharacterIconFilename(characterKey)}`
-        }
-        alt={label}
-        fill
-        sizes="28px"
-        className="object-cover"
-        onError={() => setFailed(true)}
-      />
-    </span>
-  );
-}
-
 function WeaponCards({ rows }: { rows: WeaponRow[] }) {
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -280,7 +210,12 @@ function WeaponCards({ rows }: { rows: WeaponRow[] }) {
               <WeaponIcon weaponKey={weapon.key} name={name} />
               <span className="flex min-w-0 flex-1 items-center gap-2">
                 <span className="min-w-0">{name}</span>
-                {weapon.location && <HolderIcon characterKey={weapon.location} />}
+                {weapon.location && (
+                  <CharacterAvatar
+                    characterKey={weapon.location}
+                    label={`Equipped by ${formatCharacterDisplayName(weapon.location)}`}
+                  />
+                )}
               </span>
               <CopiesBadge copies={copies} />
             </CardTitle>

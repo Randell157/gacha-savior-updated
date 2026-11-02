@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Genshin from "@/components/Genshin";
+import { useAuth } from "@/contexts/AuthContext";
 import { SAMPLE_GENSHIN_DATA, SAMPLE_SHOWCASE } from "@/lib/genshin/sampleData";
 
 const features = [
@@ -47,6 +48,7 @@ const features = [
 
 export default function Features() {
   const [showcase, setShowcase] = useState(SAMPLE_SHOWCASE);
+  const { user } = useAuth();
 
   return (
     <>
@@ -85,13 +87,17 @@ export default function Features() {
             </h2>
             <p className="mt-1 text-sm text-gray-500 dark:text-slate-400 mb-6">
               This is the real dashboard with a made-up account. Try changing the
-              showcase slots. Create an account to see your own data.
+              showcase slots.{" "}
+              {user
+                ? "The count cards open your own pages."
+                : "Create an account to see your own data."}
             </p>
             <Genshin
               data={SAMPLE_GENSHIN_DATA}
               showcase={showcase}
               onShowcaseChange={setShowcase}
               preview
+              viewAllToSignUp={!user}
             />
           </div>
         </div>

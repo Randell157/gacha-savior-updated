@@ -11,9 +11,8 @@ import {
 } from "@/components/ui/card";
 import Image from "next/image";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "./ui/button";
 import Link from "next/link";
-import { UserPlus, X } from "lucide-react";
+import { ArrowRight, UserPlus, X } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -24,13 +23,12 @@ import {
 import {
   cn,
   formatCharacterDisplayName,
-  formatCharacterIconFilename,
   formatWeaponDisplayName,
   formatMaterialDisplayName,
 } from "@/lib/utils";
 import type { GenshinData } from "@/lib/genshin/types";
 import { buildEquipmentIndex } from "@/lib/genshin/equipment";
-import { getCharacterRarity, rarityBackground } from "@/lib/genshinCharacters";
+import { getCharacterPortrait, getCharacterRarity, rarityBackground } from "@/lib/genshinCharacters";
 import { SHOWCASE_SIZE, type Showcase } from "@/lib/genshin/firestoreStore";
 
 interface GenshinProps {
@@ -39,10 +37,17 @@ interface GenshinProps {
   showcase: Showcase;
   onShowcaseChange: (showcase: Showcase) => void;
   /**
-   * For the sample on /features: the "View All" buttons go to sign-up and
-   * showcase portraits aren't links, since the sample has no pages behind it.
+   * For the sample on /features: showcase portraits aren't links, since the
+   * sample characters have no pages behind them.
    */
   preview?: boolean;
+  /**
+   * Send the count cards to sign-up instead of the Genshin pages. The
+   * /features sample sets this for signed-out visitors only.
+   */
+  viewAllToSignUp?: boolean;
+  /** Show the "Genshin Impact" heading; off on /genshin, where it's already the page title */
+  heading?: boolean;
 }
 
 export default function Genshin({
@@ -50,8 +55,10 @@ export default function Genshin({
   showcase,
   onShowcaseChange,
   preview = false,
+  viewAllToSignUp = false,
+  heading = true,
 }: GenshinProps) {
-  const viewAllHref = (path: string) => (preview ? "/create-account" : path);
+  const viewAllHref = (path: string) => (viewAllToSignUp ? "/create-account" : path);
   const [activeTab, setActiveTab] = useState("characters");
   // Slots holding a character that isn't in the latest upload show as empty.
   const showcaseKeys = showcase.map((key) =>
@@ -61,6 +68,11 @@ export default function Genshin({
   const characterCount = data.characters.length;
   const weaponCount = data.weapons.length;
   const artifactCount = data.artifacts.length;
+  const summaryCards = [
+    { title: "Characters", count: characterCount, href: "/genshin/characters" },
+    { title: "Weapons", count: weaponCount, href: "/genshin/weapons" },
+    { title: "Artifacts", count: artifactCount, href: "/genshin/artifacts" },
+  ];
 
   const characterEquipment = buildEquipmentIndex(data);
 
@@ -96,50 +108,31 @@ export default function Genshin({
 
   return (
     <section>
-      <h2 className="text-lg font-semibold text-indigo-900 dark:text-indigo-200 mb-4">Genshin Impact</h2>
+      {heading && (
+        <h2 className="text-lg font-semibold text-indigo-900 dark:text-indigo-200 mb-4">Genshin Impact</h2>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Characters</CardTitle>
-            <CardDescription>Total owned</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold">{characterCount}</p>
-            <div className="mt-4">
-              <Button asChild>
-                <Link href={viewAllHref("/characters")}>View All Characters</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Weapons</CardTitle>
-            <CardDescription>Total owned</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold">{weaponCount}</p>
-            <div className="mt-4">
-              <Button asChild>
-                <Link href={viewAllHref("/weapons")}>View All Weapons</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Artifacts</CardTitle>
-            <CardDescription>Total owned</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold">{artifactCount}</p>
-            <div className="mt-4">
-              <Button asChild>
-                <Link href={viewAllHref("/artifacts")}>View All Artifacts</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        {summaryCards.map(({ title, count, href }) => (
+          <Link
+            key={title}
+            href={viewAllHref(href)}
+            className="group rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          >
+            <Card className="h-full transition-colors group-hover:border-indigo-500 dark:group-hover:border-indigo-400">
+              <CardHeader className="pb-2">
+                <CardTitle>{title}</CardTitle>
+                <CardDescription>Total owned</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-4xl font-bold">{count.toLocaleString()}</p>
+                <p className="mt-3 flex items-center gap-1 text-sm font-medium text-indigo-600 dark:text-indigo-300">
+                  Open
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -173,9 +166,7 @@ export default function Genshin({
                         )}
                       >
                         <Image
-                          src={`/character-portraits/${formatCharacterIconFilename(
-                            char.key
-                          )}`}
+                          src={getCharacterPortrait(char.key)}
                           alt={displayName ?? char.key}
                           fill
                           sizes="80px"
@@ -228,7 +219,7 @@ export default function Genshin({
                           </div>
                         ) : (
                           <Link
-                            href={`/characters/${encodeURIComponent(char.key)}`}
+                            href={`/genshin/characters/${encodeURIComponent(char.key)}`}
                             className="flex flex-col items-center text-center mb-3 group"
                             title={`View ${displayName} details`}
                           >

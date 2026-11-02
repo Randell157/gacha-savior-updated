@@ -37,7 +37,7 @@ Every phase keeps the site's existing look. New pages should look like they were
 - **Page shell:** `<Header />` and `<Footer />` around the content, with the indigo-to-purple gradient background (`bg-gradient-to-b from-indigo-100 to-purple-100`), a white title bar with an `indigo-900` heading, and content in white `shadow sm:rounded-lg` panels inside `max-w-7xl`.
 - **Components:** use the shadcn/ui pieces already in `src/components/ui/` (Card, Tabs, Select, Button, Alert, ScrollArea, Sheet) and lucide-react icons. If something new is needed, such as a badge, table or pagination, add it with the shadcn CLI in the same "default" style so it matches.
 - **Colours:** indigo stays the accent colour, as in the showcase slots (`border-indigo-200 bg-indigo-50/40`, `ring-indigo-500` on hover) and the header. New colours are only added where they carry meaning: element colours on character pages, artifact CV tiers and pity warnings. These stay soft (`-50`/`-100` backgrounds, `-700` text) so they sit comfortably with the indigo theme.
-- **Layout patterns to reuse:** the count cards with a button from the dashboard, the portrait grid from `/characters`, and the slot card from the showcase. For example, an artifact card in Phase 3 should look like a showcase slot, not like a new design.
+- **Layout patterns to reuse:** the count cards from the Genshin overview (the whole card is a link), the portrait grid from `/characters`, and the slot card from the showcase. For example, an artifact card in Phase 3 should look like a showcase slot, not like a new design.
 - **Small improvements are fine:** better spacing, mobile layouts, loading states and empty states, as long as the overall look stays the same.
 
 If a phase needs a pattern the site doesn't have yet, build it from these same pieces. Any bigger visual change is for the user to decide; don't make it as part of a phase.
@@ -50,7 +50,7 @@ Each phase builds on the one before it. Phase 2 comes first so later phases buil
 |---|---|---|---|
 | 0 | Groundwork: lint, shared types and parsing, env config, sign-up fix | — | **Done** (2026-11-01) |
 | 1 | Firestore storage and one shared data hook | 0 | **Done** (2026-11-02) |
-| 2 | UI review and consistency pass | 1 | **Done** (2026-11-02) |
+| 2 | UI review and consistency pass | 1 | **Done** (2026-11-02); still open for a few more UI changes the user is considering. Don't start Phase 3 until the user says so |
 | 3 | Artifact analysis | 1 | Planned |
 | 4 | Character and weapon detail pages | 1 | Planned |
 | 5 | Wish history tracker | 1 | Planned |
@@ -305,6 +305,17 @@ Picked from side-by-side mockups after Phase 2, then built and tested on the emu
 - **Logo: "GS" monogram** in a rounded indigo square, used in the header and as the favicon.
 - **Home page: the roster wall** (option D, chosen after the first mockup felt too generic). A dark indigo hero filled with real character portraits on their rarity gradients, a few greyed out like the Characters page, fading to solid at the bottom behind the heading "Which of your characters did you actually build?", a one-line pitch, and "Create an account" / "See the features" buttons. Below it, three steps on the usual gradient: scan your account with Inventory Kamera or Irminsul, upload it here, look around. Signed-in visitors go straight to the dashboard.
 
+## Games hub and per-game sections (built 2026-11-02)
+
+Done ahead of Phases 3–5 so their new pages land in the right place. Chosen from a mockup (Hub A).
+
+- `/dashboard` is now "Your games": a large Genshin Impact card (portrait strip, last upload, counts, showcase preview, "Open Genshin Impact") and "Coming soon" cards for Honkai: Star Rail and Zenless Zone Zero. Logging in lands here.
+- The Genshin pages moved under `/genshin` (`/genshin`, `/genshin/characters`, `/genshin/weapons`, `/genshin/artifacts`), with a breadcrumb back to the hub and section tabs. Old addresses redirect.
+- The ☰ picker opens a game's section; coming-soon games can't be picked.
+- Phases 3–5 now add their pages under `/genshin` (e.g. `/genshin/weapons/[key]`, `/genshin/wishes`) and a tab in `GenshinShell`.
+- Tested on the emulators: every redirect, the hub, tabs and breadcrumbs on each page, the picker, and a production build.
+- The overview's count cards dropped their "View all" buttons, which duplicated the section tabs: each whole card is now the link (Option A from a mockup).
+
 ---
 
 ## Phase 3: Artifact analysis
@@ -335,7 +346,7 @@ The tiers live in `src/lib/genshin/artifactScore.ts` so they're easy to adjust. 
 - A summary strip: the average CV of equipped artifacts, and how many unequipped level-20 pieces are below 20 CV (likely fodder).
 - Readable stat names come from the `STAT_LABELS` map added in Phase 2 (`src/lib/genshin/stats.ts`), which Phase 4 reuses too.
 - Set icons: `public/artifact-icons/` is empty today. Fill it from the Phase 4 build script, or show the set name until then.
-- Large inventories (1,700+ pieces): start with pagination at 60 per page. Add a virtualized list only if the page actually feels slow.
+- Large inventories (1,700+ pieces): start with pagination at 60 per page. Add a virtualized list only if the page actually feels slow. **Already in place (2026-11-02):** the page opens on equipped pieces grouped by character, and All / Unequipped load 60 at a time. Phase 3's filters and sorting should build on that toggle rather than replace it.
 
 **Done when** the user can find their weakest unequipped pieces and best pieces in a few clicks, and every character's equipped artifacts show a CV.
 
@@ -349,10 +360,11 @@ The tiers live in `src/lib/genshin/artifactScore.ts` so they're easy to adjust. 
 
 - `scripts/build-game-data.mjs` reads `genshin-db` and writes `src/data/genshin/characters.json` and `weapons.json`. Each character gets its element, weapon type, rarity, region, base stats at key levels, talent names and descriptions, and constellation names. Each weapon gets its type, rarity, base ATK, substat curve, and passive at each refinement.
 - It runs from `npm run data:genshin`. The JSON output is committed, so building the app never needs `genshin-db` installed.
+- **Started early (2026-11-02):** the script exists and writes `src/data/genshin/artifactSets.json` (set names and 2-/4-piece bonuses, genshin-db 5.2.14, 63 sets, every set in the sample exports matched). The equipped artifacts view uses it to show each character's active 2-piece and 4-piece bonuses. This phase extends the same script with characters and weapons.
 - Keys are matched with `normalizeCharacterKey`, and the script prints any roster character it couldn't match (for example, Traveler variants).
 - After each game patch: update `genshin-db`, rerun the script, and commit the result.
 
-### Character page (`/characters/[key]`)
+### Character page (`/genshin/characters/[key]`)
 
 - Header: portrait, name, element and weapon icons, rarity, level, ascension and constellation.
 - **Talents**: the user's Normal Attack, Skill and Burst levels from the GOOD `talent` field, with names and descriptions from the game data.
@@ -360,7 +372,7 @@ The tiers live in `src/lib/genshin/artifactScore.ts` so they're easy to adjust. 
 - **Equipped gear**: the weapon card linking to its page, and the five artifacts with their Phase 3 CV, plus active set bonuses (2-piece and 4-piece).
 - **Stats**: base HP, ATK and DEF at the character's level. Full final stats with every bonus included would need a complete damage calculator, so that's out of scope; the page says "Base stats" clearly.
 
-### Weapon page (`/weapons/[key]`)
+### Weapon page (`/genshin/weapons/[key]`)
 
 A new route. It shows base ATK and the substat at its level, the passive at the user's refinement, and who has it equipped. It also lists other copies the user owns, since `/weapons` can show duplicates.
 
@@ -372,7 +384,7 @@ A new route. It shows base ATK and the substat at its level, the passive at the 
 
 ### Import
 
-- A new route, `/wishes`, with a UIGF JSON upload. Support **UIGF v4** (the `hk4e: [{ uid, list }]` layout) first, and accept **v3** (`info` and `list`). Reject other games' sections with a clear message.
+- A new route, `/genshin/wishes`, with a UIGF JSON upload. Support **UIGF v4** (the `hk4e: [{ uid, list }]` layout) first, and accept **v3** (`info` and `list`). Reject other games' sections with a clear message.
 - **Merge, don't replace.** Pulls are identified by their `id`, so importing a newer export adds only the new pulls and keeps older ones the game no longer shows. The game only shows about 6 months of history, so keeping it is a key reason to use this feature.
 - If an export contains more than one game account (UID), ask which one to import.
 

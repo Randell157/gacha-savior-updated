@@ -6,17 +6,16 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useGenshinData } from "@/hooks/useGenshinData";
 import { Button } from "@/components/ui/button";
-import PageShell from "@/components/PageShell";
+import GenshinShell from "@/components/GenshinShell";
 import {
   cn,
   formatArtifactSetDisplayName,
   formatCharacterDisplayName,
-  formatCharacterIconFilename,
   formatWeaponDisplayName,
 } from "@/lib/utils";
 import { buildEquipmentIndex } from "@/lib/genshin/equipment";
 import { formatSlotName } from "@/lib/genshin/stats";
-import { getCharacterRarity, rarityBackground } from "@/lib/genshinCharacters";
+import { getCharacterPortrait, getCharacterRarity, rarityBackground } from "@/lib/genshinCharacters";
 import RequireAuth from "@/components/RequireAuth";
 
 export default function CharacterDetailPage() {
@@ -48,7 +47,7 @@ function CharacterDetail() {
   const displayName = formatCharacterDisplayName(characterKey);
 
   return (
-    <PageShell title={displayName}>
+    <GenshinShell title={displayName}>
       {!character ? (
         <p className="text-gray-600 dark:text-slate-400">
           Character not found in your uploaded data.
@@ -65,9 +64,7 @@ function CharacterDetail() {
               src={
                 imageError
                   ? "/placeholder.svg"
-                  : `/character-portraits/${formatCharacterIconFilename(
-                      character.key
-                    )}`
+                  : getCharacterPortrait(character.key)
               }
               alt={displayName}
               fill
@@ -132,12 +129,9 @@ function CharacterDetail() {
       )}
       <div className="mt-8 flex flex-wrap gap-3">
         <Button asChild>
-          <Link href="/characters">Back to Characters</Link>
-        </Button>
-        <Button asChild variant="outline">
-          <Link href="/dashboard">Back to Dashboard</Link>
+          <Link href="/genshin/characters">Back to Characters</Link>
         </Button>
       </div>
-    </PageShell>
+    </GenshinShell>
   );
 }

@@ -1,10 +1,20 @@
+import Link from "next/link";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { cn } from "@/lib/utils";
 
-interface PageShellProps {
+export interface Crumb {
+  label: string;
+  href: string;
+}
+
+export interface PageShellProps {
   /** Page heading, shown in the white title bar */
   title: React.ReactNode;
+  /** Links shown above the title, leading back up (e.g. "Your games / Genshin Impact") */
+  breadcrumbs?: Crumb[];
+  /** Navigation along the bottom of the title bar, such as a game's section tabs */
+  tabs?: React.ReactNode;
   /** Controls shown next to the title, such as sort and filter dropdowns */
   actions?: React.ReactNode;
   /**
@@ -22,6 +32,8 @@ interface PageShellProps {
  */
 export default function PageShell({
   title,
+  breadcrumbs,
+  tabs,
   actions,
   panel = "padded",
   children,
@@ -29,9 +41,27 @@ export default function PageShell({
   return (
     <ShellFrame>
       <div className="bg-white dark:bg-slate-900 shadow">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex flex-wrap justify-between items-center gap-4">
-          <h1 className="text-3xl font-bold text-indigo-900 dark:text-indigo-200">{title}</h1>
-          {actions && <div className="flex flex-wrap items-center gap-4">{actions}</div>}
+        <div className={cn("max-w-7xl mx-auto px-4 sm:px-6 lg:px-8", tabs ? "pt-5" : "py-6")}>
+          {breadcrumbs && breadcrumbs.length > 0 && (
+            <nav aria-label="Breadcrumb" className="mb-1 text-sm text-gray-500 dark:text-slate-400">
+              {breadcrumbs.map((crumb, i) => (
+                <span key={crumb.href}>
+                  {i > 0 && <span className="mx-1.5">/</span>}
+                  <Link
+                    href={crumb.href}
+                    className="font-medium text-indigo-600 dark:text-indigo-400 hover:underline underline-offset-2"
+                  >
+                    {crumb.label}
+                  </Link>
+                </span>
+              ))}
+            </nav>
+          )}
+          <div className="flex flex-wrap justify-between items-center gap-4">
+            <h1 className="text-3xl font-bold text-indigo-900 dark:text-indigo-200">{title}</h1>
+            {actions && <div className="flex flex-wrap items-center gap-4">{actions}</div>}
+          </div>
+          {tabs && <div className="mt-4">{tabs}</div>}
         </div>
       </div>
       {panel === "none" ? (

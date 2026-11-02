@@ -1,6 +1,5 @@
 import { Metadata } from "next";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { GameProvider } from "@/contexts/GameContext";
 import { GenshinDataProvider } from "@/contexts/GenshinDataContext";
 import { ThemeProvider } from "@/components/ThemeControls";
 import { Inter } from "next/font/google";
@@ -23,11 +22,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider>
-          <GameProvider>
-            <AuthProvider>
-              <GenshinDataProvider>{children}</GenshinDataProvider>
-            </AuthProvider>
-          </GameProvider>
+          <AuthProvider>
+            <GenshinDataProvider>{children}</GenshinDataProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
