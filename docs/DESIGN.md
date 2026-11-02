@@ -128,7 +128,7 @@ Firebase web config values are not secrets; they always end up in the browser. T
 > - The migration script renames, removes duplicates and reports conflicts, and is safe to run again.
 >
 > **Live rollout (in order):**
-> 1. Deploy `firestore.rules` (`npx firebase login`, then `npx firebase deploy --only firestore:rules`), or paste the file into the console. This must happen before the new site goes live, or saving to `users/{uid}/games/...` is denied.
+> 1. ~~Deploy `firestore.rules`~~ **Done 2026-11-01**: pasted into the console. The CLI's logged-in account (randell.justin.lapid@gmail.com) has no access to the project, so `firebase deploy` fails with 403 until the CLI logs in as the project owner. Verified: signed-out reads return 403 on every path, and a real login (zach) moved its localStorage upload into `users/{uid}/games/genshin`.
 > 2. Deploy the site (Vercel env needs `FIREBASE_SERVICE_ACCOUNT_KEY` plus the `NEXT_PUBLIC_FIREBASE_*` values).
 > 3. `npm run migrate:usernames` (dry run), resolve any conflicts it lists, then `npm run migrate:usernames -- --apply`.
 > 4. Afterwards: remove the exact-spelling fallback from the login route, and add the lowercase check to the `usernames` create rule.
