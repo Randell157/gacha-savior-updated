@@ -43,3 +43,6 @@ next-env.d.ts
 *-debug.log
 
 .vercel
+
+# Design mockups shown in the Claude desktop browser pane
+.mockups/

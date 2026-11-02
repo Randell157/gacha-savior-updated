@@ -314,6 +314,7 @@ Done ahead of Phases 3–5 so their new pages land in the right place. Chosen fr
 - The ☰ picker opens a game's section; coming-soon games can't be picked.
 - Phases 3–5 now add their pages under `/genshin` (e.g. `/genshin/weapons/[key]`, `/genshin/wishes`) and a tab in `GenshinShell`.
 - Tested on the emulators: every redirect, the hub, tabs and breadcrumbs on each page, the picker, and a production build.
+- The signed-out home page took in the Features page (from a mockup): rewritten feature cards under "What you can do", the sample dashboard, and a closing sign-up band. The header's Features link and "See the features" scroll there; `/features` stays for signed-in users.
 - The overview's count cards dropped their "View all" buttons, which duplicated the section tabs: each whole card is now the link (Option A from a mockup).
 
 ---

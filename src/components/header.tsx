@@ -38,6 +38,11 @@ const NAV_LINKS = [
 
 export default function Header() {
   const { user, username, loading } = useAuth();
+  // Signed out, the features live on the home page; signed in, the home page
+  // redirects to the hub, so the link keeps its own page.
+  const navLinks = user
+    ? NAV_LINKS
+    : NAV_LINKS.map((link) => (link.href === "/features" ? { ...link, href: "/#features" } : link));
   // The picker highlights the game whose section you're in; none on the hub.
   const currentGame = gameForPath(usePathname());
   const router = useRouter();
@@ -70,7 +75,7 @@ export default function Header() {
             <SheetContent side="left" className="w-[min(100%,20rem)] sm:max-w-sm">
               {/* On phones the page links live here instead of the top bar. */}
               <nav className="sm:hidden mb-6 border-b pb-4 flex flex-col gap-1" aria-label="Pages">
-                {NAV_LINKS.map((link) => (
+                {navLinks.map((link) => (
                   <Link
                     key={link.href}
                     href={link.href}
@@ -146,7 +151,7 @@ export default function Header() {
           </Link>
         </div>
         <nav className="flex items-center gap-4 sm:gap-6 shrink-0">
-          {NAV_LINKS.map((link) => (
+          {navLinks.map((link) => (
             <Link
               key={link.href}
               className="hidden sm:inline text-sm font-medium hover:underline underline-offset-4"

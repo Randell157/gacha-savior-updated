@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { PageFrame } from "@/components/PageShell";
+import { FeatureGrid, SampleDashboard } from "@/components/GenshinFeatures";
 import { GENSHIN_CHARACTERS, rarityBackground } from "@/lib/genshinCharacters";
 import { cn } from "@/lib/utils";
 
@@ -50,7 +51,7 @@ export default function Home() {
       <section className="relative overflow-hidden bg-indigo-950 min-h-[30rem]">
         <div
           aria-hidden
-          className="absolute inset-0 grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 content-start gap-2 p-3"
+          className="absolute inset-x-0 top-0 grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2 p-3"
         >
           {WALL.map((c) => (
             <div
@@ -90,7 +91,7 @@ export default function Home() {
                 variant="outline"
                 className="border-white/40 bg-transparent text-white hover:bg-white/10 hover:text-white"
               >
-                <Link href="/features">See the features</Link>
+                <Link href="#features">See the features</Link>
               </Button>
             </div>
             <p className="mt-4 text-sm text-indigo-200">
@@ -114,6 +115,37 @@ export default function Home() {
             </li>
           ))}
         </ol>
+      </section>
+      <section id="features" className="bg-indigo-50 dark:bg-slate-950">
+        <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-bold text-indigo-900 dark:text-indigo-200">What you can do</h2>
+          <p className="mt-1 mb-6 text-sm text-gray-600 dark:text-slate-400">
+            Everything the site does with your Genshin export today.
+          </p>
+          <FeatureGrid />
+        </div>
+      </section>
+      <section className="bg-gradient-to-b from-indigo-100 to-purple-100 dark:from-indigo-950 dark:to-purple-950">
+        <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-bold text-indigo-900 dark:text-indigo-200">Try it with a sample account</h2>
+          <p className="mt-1 mb-6 text-sm text-gray-600 dark:text-slate-400">
+            This is the real dashboard with a made-up account. Try changing the showcase slots.
+          </p>
+          <div className="rounded-lg bg-white dark:bg-slate-900 p-4 sm:p-6 shadow">
+            <SampleDashboard />
+          </div>
+        </div>
+      </section>
+      <section className="bg-indigo-950">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center gap-4 px-4 py-10 sm:px-6 lg:px-8">
+          <div className="flex-1 min-w-[16rem]">
+            <h2 className="text-xl font-bold text-white">Ready to see your own account?</h2>
+            <p className="mt-1 text-sm text-indigo-200">It takes one export file and about a minute.</p>
+          </div>
+          <Button asChild className="bg-white text-indigo-900 hover:bg-indigo-50">
+            <Link href="/create-account">Create an account</Link>
+          </Button>
+        </div>
       </section>
     </PageFrame>
   );

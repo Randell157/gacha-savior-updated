@@ -11,97 +11,108 @@ import {
 import Genshin from "@/components/Genshin";
 import { useAuth } from "@/contexts/AuthContext";
 import { SAMPLE_GENSHIN_DATA, SAMPLE_SHOWCASE } from "@/lib/genshin/sampleData";
+import { Flower2, Gamepad2, IdCard, LayoutGrid, Swords, Users } from "lucide-react";
 
-const features = [
+const FEATURES = [
   {
-    title: "Character Overview",
-    description: "View your Genshin Impact characters",
-    details: [
-      "Display total number of owned characters",
-      "List top 5 characters by level",
-      "Show character equipped weapons and artifacts",
-    ],
+    icon: Users,
+    title: "Character roster",
+    text: "Every character in the game, with the ones you own in colour. Sort and filter.",
   },
   {
-    title: "Weapons Overview",
-    description: "Keep track of your weapons obtained",
-    details: [
-      "Display total number of weapons in inventory",
-      "List top 5 weapons by level",
-      "Display weapon refinement levels",
-    ],
+    icon: IdCard,
+    title: "Character pages",
+    text: "Level, talents, constellations, and the weapon and artifacts they have on.",
   },
   {
+    icon: Swords,
+    title: "Weapons",
+    text: "Cards or a table, search and sort, and duplicate copies grouped together.",
+  },
+  {
+    icon: Flower2,
     title: "Artifacts",
-    description: "Organize and analyze your artifacts",
-    details: ["Show total number of owned artifacts"],
+    text: "Who's wearing what, their active set bonuses, and a filter for every set.",
   },
   {
-    title: "Materials",
-    description: "Display your materials and resources collected",
-    details: [
-      "Display total count of materials",
-      "List top materials by quantity",
-    ],
+    icon: LayoutGrid,
+    title: "Team showcase",
+    text: "Pin five characters to the top of your dashboard.",
+  },
+  {
+    icon: Gamepad2,
+    title: "More games soon",
+    text: "Honkai: Star Rail and Zenless Zone Zero are planned.",
   },
 ];
 
-export default function Features() {
+/** The feature cards, shared by the home page and /features. */
+export function FeatureGrid() {
+  return (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {FEATURES.map(({ icon: Icon, title, text }) => (
+        <Card key={title}>
+          <CardHeader className="pb-2">
+            <Icon className="h-6 w-6 text-indigo-600 dark:text-indigo-300" aria-hidden />
+            <CardTitle className="pt-2 text-base">{title}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CardDescription>{text}</CardDescription>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * The real Genshin overview with a made-up account. Signed out, its count
+ * cards lead to sign-up; signed in, they open the user's own pages.
+ */
+export function SampleDashboard() {
   const [showcase, setShowcase] = useState(SAMPLE_SHOWCASE);
   const { user } = useAuth();
 
   return (
-    <>
-      <div className="max-w-7xl mx-auto py-12 sm:px-6 lg:px-8">
-        <div className="bg-white dark:bg-slate-900 shadow overflow-hidden sm:rounded-lg mb-8">
-          <div className="px-4 py-5 sm:px-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100 mb-4">
-              Genshin Impact Dashboard Features
-            </h2>
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-2">
-              {features.map((feature, index) => (
-                <Card key={index}>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      {feature.title}
-                    </CardTitle>
-                    <CardDescription>{feature.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="list-disc pl-5 space-y-1">
-                      {feature.details.map((detail, detailIndex) => (
-                        <li key={detailIndex}>{detail}</li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </div>
+    <Genshin
+      data={SAMPLE_GENSHIN_DATA}
+      showcase={showcase}
+      onShowcaseChange={setShowcase}
+      preview
+      viewAllToSignUp={!user}
+    />
+  );
+}
 
-        <div className="bg-white dark:bg-slate-900 shadow overflow-hidden sm:rounded-lg">
-          <div className="px-4 py-5 sm:px-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100">
-              Dashboard Preview Sample
-            </h2>
-            <p className="mt-1 text-sm text-gray-500 dark:text-slate-400 mb-6">
-              This is the real dashboard with a made-up account. Try changing the
-              showcase slots.{" "}
-              {user
-                ? "The count cards open your own pages."
-                : "Create an account to see your own data."}
-            </p>
-            <Genshin
-              data={SAMPLE_GENSHIN_DATA}
-              showcase={showcase}
-              onShowcaseChange={setShowcase}
-              preview
-              viewAllToSignUp={!user}
-            />
-          </div>
+export default function Features() {
+  const { user } = useAuth();
+
+  return (
+    <div className="max-w-7xl mx-auto py-12 sm:px-6 lg:px-8">
+      <div className="bg-white dark:bg-slate-900 shadow overflow-hidden sm:rounded-lg mb-8">
+        <div className="px-4 py-5 sm:px-6">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100 mb-4">
+            What you can do
+          </h2>
+          <FeatureGrid />
         </div>
       </div>
-    </>
+
+      <div className="bg-white dark:bg-slate-900 shadow overflow-hidden sm:rounded-lg">
+        <div className="px-4 py-5 sm:px-6">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100">
+            Try it with a sample account
+          </h2>
+          <p className="mt-1 text-sm text-gray-500 dark:text-slate-400 mb-6">
+            This is the real dashboard with a made-up account. Try changing the
+            showcase slots.{" "}
+            {user
+              ? "The count cards open your own pages."
+              : "Create an account to see your own data."}
+          </p>
+          <SampleDashboard />
+        </div>
+      </div>
+    </div>
   );
 }
