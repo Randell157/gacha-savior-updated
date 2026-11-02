@@ -41,3 +41,5 @@ next-env.d.ts
 # Firebase emulator data and logs
 .emulator-data/
 *-debug.log
+
+.vercel

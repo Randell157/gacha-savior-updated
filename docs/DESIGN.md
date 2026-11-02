@@ -49,7 +49,7 @@ Each phase builds on the one before it. Phases 2, 3 and 4 depend on Phase 1 but 
 | Phase | Work | Depends on | Status |
 |---|---|---|---|
 | 0 | Groundwork: lint, shared types and parsing, env config, sign-up fix | — | **Done** (2026-11-01) |
-| 1 | Firestore storage and one shared data hook | 0 | **Built** (2026-11-01). Live rollout steps pending |
+| 1 | Firestore storage and one shared data hook | 0 | **Done** (2026-11-02) |
 | 2 | Artifact analysis | 1 | Planned |
 | 3 | Character and weapon detail pages | 1 | Planned |
 | 4 | Wish history tracker | 1 | Planned |
@@ -129,7 +129,7 @@ Firebase web config values are not secrets; they always end up in the browser. T
 >
 > **Live rollout (in order):**
 > 1. ~~Deploy `firestore.rules`~~ **Done 2026-11-01**: pasted into the console. The CLI's logged-in account (randell.justin.lapid@gmail.com) has no access to the project, so `firebase deploy` fails with 403 until the CLI logs in as the project owner. Verified: signed-out reads return 403 on every path, and a real login (zach) moved its localStorage upload into `users/{uid}/games/genshin`.
-> 2. Deploy the site (Vercel env needs `FIREBASE_SERVICE_ACCOUNT_KEY` plus the `NEXT_PUBLIC_FIREBASE_*` values).
+> 2. ~~Deploy the site~~ **Done 2026-11-02** as a new Vercel project, `gacha-savior-updated` (https://gacha-savior-updated.vercel.app/), deployed with the CLI from this folder. Checked signed out: every page returns 200, `/dashboard` redirects to `/login` with no console errors, and the username route answers an unknown name with 401 (so the Admin SDK key works). The old project at gachasavior.vercel.app was left running.
 > 3. ~~Migrate usernames~~ **Done 2026-11-01**, run before the site deploy: 8 checked, "Justin" and "Lapid" renamed. One conflict, "Randell" vs "randell" (two test accounts), was left as is: "randell" keeps the name, and the `Randell` account can still log in with its email. The stale `usernames/Randell` document was deleted in the console on 2026-11-02.
 > 4. ~~Remove the fallback and add the lowercase rule~~ **Done in code 2026-11-01**, tested on the emulator (capitalized claim 403, lowercase 200; any capitalization resolves; a leftover capitalized document no longer does). The updated `firestore.rules` was published in the console on 2026-11-02.
 
