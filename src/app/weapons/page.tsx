@@ -50,9 +50,9 @@ export default function WeaponsPage() {
                             )}.png`
                       }
                       alt={formatWeaponDisplayName(weapon.key)}
-                      layout="fill"
-                      objectFit="contain"
-                      className="rounded-md"
+                      fill
+                      sizes="48px"
+                      className="rounded-md object-contain"
                       onError={() => handleImageError(weapon.key)}
                     />
                   </div>

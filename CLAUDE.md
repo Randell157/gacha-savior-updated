@@ -23,11 +23,13 @@ npm run dev        # dev server at http://localhost:3000
 npm run build      # production build
 npm run lint       # eslint . (flat config in eslint.config.mjs)
 npx tsc --noEmit   # type check
+npx firebase ...   # Firebase CLI, installed as a dev dependency (emulators, rules deploys)
 ```
 
 - `eslint.config.mjs` sets `settings.react.version` explicitly. Without it, `eslint-plugin-react` crashes under ESLint 10 while trying to auto-detect the version. The React Compiler lint rules are on, including `react-hooks/set-state-in-effect`: read external state such as localStorage with `useSyncExternalStore` or a lazy `useState` initializer, not with `setState` inside `useEffect`.
 - **There are no tests** and no test framework. To check the parser by hand, Node 24 can import the `.ts` file directly: `node --input-type=module -e 'import { parseGoodText } from "./src/lib/genshin/parseGood.ts"; ...'`.
 - Copy `.env.example` to `.env.local` for the Firebase config. `src/lib/firebase.ts` throws at startup if any value is missing.
+- `npm audit` still reports issues that are known and accepted (checked 2026-11-01, Next 16.4.3). Moderate ones are in the ESLint toolchain, which is dev-only, and npm's suggested "fixes" would downgrade to years-old versions. High ones come from `@grpc/grpc-js` ~1.9 bundled with the `firebase` client; even the latest Firebase (13.1.0) still uses it, and the advisories concern gRPC servers and Node usage. Don't run `npm audit fix --force`.
 - On Windows, stop the dev server before running `npm install`. Files the server holds open can make npm silently skip packages; this once left out `@opentelemetry/api`, which `firebase-admin` needs, and the server crashed when the route loaded.
 
 ## Architecture
@@ -36,7 +38,7 @@ npx tsc --noEmit   # type check
 
 Every data page is a `"use client"` component. The only server code is the username lookup route (see Auth below).
 
-1. The user exports their account as a **GOOD format** JSON file using **Inventory Kamera** or **Irminsul**. Sample exports are in `public/sample-data/inventory-kamera/` (Irminsul, GOOD v3) and `src/public/` (Inventory Kamera, GOOD v2).
+1. The user exports their account as a **GOOD format** JSON file using **Inventory Kamera** or **Irminsul**. Sample exports are in `public/sample-data/inventory-kamera/`: `genshin_export_2026-02-11_12-16.json` (Irminsul, GOOD v3, 1,717 artifacts) and `genshinData_GOOD_2024_10_28_01_22.json` (Inventory Kamera, GOOD v2). The site serves them as static files, which is handy for test uploads.
 2. The dashboard (`src/app/dashboard/page.tsx`) reads the file and runs **`parseGoodText` / `parseGood`** (`src/lib/genshin/parseGood.ts`). The parser requires `format: "GOOD"`, drops invalid entries and unused fields (returning warnings, which the dashboard shows), turns empty `location` strings into `undefined`, and returns a normalized `GenshinData` in which every list is always present.
 3. **`useGenshinData()`** (`src/hooks/useGenshinData.ts`) is the only way pages read or write this data. It returns `{ data, loadError, loading, save }` and stores the normalized data in **`localStorage["genshinData_<firebase uid>"]`** through `useSyncExternalStore`, parsing it again on read. Phase 1 of the design doc swaps its internals for Firestore; pages shouldn't touch localStorage for this data directly.
 4. The types live in **`src/lib/genshin/types.ts`** (`GenshinData`, `GoodCharacter`, `GoodWeapon`, `GoodArtifact`, `GoodSubstat`). Import them from there rather than declaring local interfaces.
@@ -52,10 +54,10 @@ Other localStorage keys:
 - Firestore has two collections, written at sign-up (`create-account/page.tsx`):
   - `users/{uid}`: `{ username, email, createdAt }`
   - `usernames/{username}`: `{ uid }`, which lets people log in with a username.
-- **Firestore rules (set in the Firebase console, not in this repo):** signed-out visitors can read `usernames` but not `users`. Authenticated reads work.
+- **Firestore rules (set in the Firebase console, not in this repo yet; published 2026-11-01):** `users/{userId}` can be read and written only by its owner. This doesn't cover subcollections yet. `usernames/{name}` can be read only by signed-in users, can be *created* only with `{ uid: <your own uid> }`, and can never be updated or deleted. Signed-out visitors can't read anything. The project is on the Spark (free) plan.
 - **Username login:** `login/page.tsx` treats any identifier without an `@` as a username and POSTs it to **`/api/auth/resolve-username`** (`src/app/api/auth/resolve-username/route.ts`). The route looks up `usernames/{name}` and then `users/{uid}` with the Admin SDK and returns `{ email }`. Any failure returns the same 401 "Invalid username or password." Requests are rate-limited in memory to 10 per minute per IP, counted separately on each server instance. The page then signs in with `signInWithEmailAndPassword`. Username login can't read Firestore from the browser, because the rules block signed-out reads of `users`.
 - `src/lib/firebaseAdmin.ts` (guarded by `import "server-only"`) initializes `firebase-admin` from `FIREBASE_SERVICE_ACCOUNT_KEY`, which is the service account JSON **base64-encoded** onto one line. It exports `adminDb`, which bypasses security rules, so use it only in API routes. The downloaded key file (`*-firebase-adminsdk-*.json`) is gitignored. Never print it or the env value.
-- Sign-up creates the auth user, then claims `usernames/{username}` and writes `users/{uid}` in a single `runTransaction`. The transaction fails if the username already exists, and in that case the new auth user is deleted. Usernames can't be empty or contain `/` (it isn't allowed in a document ID) or `@` (login would treat the name as an email). Usernames are case-sensitive. Firestore security rules don't enforce any of this yet; that's planned for Phase 1.
+- Sign-up creates the auth user, then claims `usernames/{username}` and writes `users/{uid}` in a single `runTransaction`. The transaction fails if the username already exists, and in that case the new auth user is deleted. Usernames can't be empty or contain `/` (it isn't allowed in a document ID) or `@` (login would treat the name as an email). Usernames are case-sensitive. The security rules also stop a username from being overwritten or deleted outside the app.
 - `AuthContext` (`useAuth()`) provides `{ user, username, loading, error }`, with `username` read from `users/{uid}`. Protected pages redirect to `/login` themselves when `!loading && !user`; there is no middleware.
 
 ### Providers and the multi-game scaffold

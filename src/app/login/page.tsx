@@ -18,12 +18,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
-  const [isClient, setIsClient] = useState(false);
   const { user, loading } = useAuth();
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   const handleRedirect = useCallback(() => {
     if (!loading && user) {
@@ -74,14 +69,8 @@ export default function LoginPage() {
     }
   };
 
-  if (!isClient) {
-    return null; // Return null on the server side and during initial client-side render
-  }
-
-  if (typeof window === "undefined") {
-    return null;
-  }
-
+  // `user` is null on the server and until Firebase restores the session, so
+  // the server and first client render match.
   if (user) {
     return null;
   }

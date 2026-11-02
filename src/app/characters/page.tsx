@@ -167,6 +167,7 @@ export default function CharactersPage() {
                           }
                           alt={displayName}
                           fill
+                          sizes="(min-width: 640px) 96px, 80px"
                           className={cn(
                             "object-cover",
                             !character.owned && "grayscale opacity-40"

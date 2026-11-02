@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createUserWithEmailAndPassword, deleteUser } from "firebase/auth";
@@ -20,12 +20,6 @@ export default function CreateAccountPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
-  const [isClient, setIsClient] = useState(false);
-
-  //Client side rendering
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   //Form submission when button is clicked
   const handleSubmit = async (e: React.FormEvent) => {
@@ -100,14 +94,6 @@ export default function CreateAccountPage() {
       setIsLoading(false);
     }
   };
-
-  if (typeof window === "undefined") {
-    return null; // Return null on the server side
-  }
-
-  if (!isClient) {
-    return null; // Return null on the server side and during initial client-side render
-  }
 
   return (
     <div className="flex flex-col min-h-screen">

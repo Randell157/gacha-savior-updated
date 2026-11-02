@@ -217,6 +217,7 @@ export default function Genshin({ data, userId }: GenshinProps) {
                               )}`}
                               alt={displayName ?? char.key}
                               fill
+                              sizes="80px"
                               className="object-cover"
                               onError={(e) => {
                                 e.currentTarget.onerror = null;

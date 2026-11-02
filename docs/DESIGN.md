@@ -63,7 +63,7 @@ Each phase builds on the one before it. Phases 2, 3 and 4 depend on Phase 1 but 
 > - **`eslint-plugin-react` crashes under ESLint 10** unless `settings.react.version` is set, so the config pins it to `"19"`.
 > - **Usernames are still case-sensitive.** Lowercasing them now would lock out existing users whose usernames contain capitals. Phase 1 should lowercase them together with the server lookup route, including a migration of existing `usernames` documents.
 > - **Sign-up also rejects usernames containing `/` or `@`.** A `/` isn't allowed in a Firestore document ID, and a name with `@` could never log in, because login treats it as an email.
-> - The sign-up transaction blocks username takeover through the app, but Firestore security rules don't enforce it yet. The rules are still Phase 1 work.
+> - The sign-up transaction blocks username takeover through the app. Since 2026-11-01 the security rules block it outside the app too (see Phase 1, Security rules).
 
 ### 0.1 Fix lint
 
@@ -151,6 +151,25 @@ When a user logs in, if `localStorage["genshinData_<uid>"]` exists and there's n
 
 ### Security rules
 
+**Rules published as of 2026-11-01** (project on the Spark plan):
+
+```
+match /users/{userId} {
+  allow read, write: if request.auth != null && request.auth.uid == userId;
+}
+match /usernames/{username} {
+  allow read: if true;
+  allow write: if request.auth != null;
+}
+```
+
+Problems with these:
+- **Any signed-in user can overwrite or delete any username.** `allow write` covers update and delete, so someone could point another user's username at their own account directly through the Firebase SDK, skipping the sign-up transaction. This is the takeover that Phase 0.4 only blocks inside the app.
+- **`match /users/{userId}` doesn't cover subcollections.** The Phase 1 documents under `users/{uid}/games/...` would be denied, so the rule needs the `{doc=**}` wildcard.
+- **`usernames` doesn't need to be publicly readable any more.** Login goes through the server route, and sign-up reads it while signed in.
+
+Target rules:
+
 ```
 match /users/{uid}/{doc=**} {
   allow read, write: if request.auth != null && request.auth.uid == uid;
@@ -158,10 +177,13 @@ match /users/{uid}/{doc=**} {
 match /usernames/{name} {
   allow read: if request.auth != null;       // login lookups go through the server route
   allow create: if request.auth != null
-                && request.resource.data.uid == request.auth.uid;
+                && request.resource.data.uid == request.auth.uid
+                && request.resource.data.keys().hasOnly(["uid"]);
   allow update, delete: if false;            // usernames can't be taken over
 }
 ```
+
+**The `usernames` part was published on 2026-11-01.** Signed-out reads and writes now return 403, and username login still works through the server route. The `{doc=**}` change ships with the Firestore storage work. Phase 1 also moves the rules into a `firestore.rules` file in the repo, tested against the emulator and deployed with the Firebase CLI. Everything in this phase stays within the Spark plan's free limits: one upload is about 6–10 writes and one session about 6–10 reads.
 
 ### Username login through a server route
 

@@ -13,24 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { UserPlus } from "lucide-react";
-
-function formatCharacterIconFilename(characterKey: string): string {
-  const specialNames: { [key: string]: string } = {
-    kaedeharakazuha: "Kaedehara_Kazuha",
-    hutao: "Hu_Tao",
-    ayaka: "Kamisato_Ayaka",
-    raidenshogun: "Raiden_Shogun",
-    yaemiko: "Yae_Miko",
-    yunjin: "Yun_Jin",
-    kukishinobu: "Kuki_Shinobu",
-    kujousara: "Kujou_Sara",
-    shikanoinheizou: "Shikanoin_Heizou",
-  };
-  const lowerCaseKey = characterKey.toLowerCase().replace(/\s+/g, "");
-  if (lowerCaseKey.startsWith("traveler")) return "Aether_Icon.png";
-  if (lowerCaseKey in specialNames) return `${specialNames[lowerCaseKey]}_Icon.png`;
-  return `${characterKey.replace(/\s+/g, "_")}_Icon.png`;
-}
+import { formatCharacterIconFilename } from "@/lib/utils";
 
 const features = [
   {

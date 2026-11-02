@@ -51,9 +51,9 @@ export default function ArtifactsPage() {
                             )}.png`
                       }
                       alt={formatArtifactSetDisplayName(artifact.setKey)}
-                      layout="fill"
-                      objectFit="contain"
-                      className="rounded-md"
+                      fill
+                      sizes="48px"
+                      className="rounded-md object-contain"
                       onError={() => handleImageError(index)}
                     />
                   </div>

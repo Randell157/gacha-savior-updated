@@ -77,6 +77,7 @@ export default function CharacterDetailPage() {
                       }
                       alt={displayName}
                       fill
+                      sizes="(min-width: 640px) 176px, 144px"
                       className="object-cover"
                       onError={() => setImageError(true)}
                     />
