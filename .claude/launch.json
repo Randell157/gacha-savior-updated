@@ -6,6 +6,18 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 3000
+    },
+    {
+      "name": "emulators",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "emulators"],
+      "port": 4000
+    },
+    {
+      "name": "dev:emu",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:emu"],
+      "port": 3000
     }
   ]
 }

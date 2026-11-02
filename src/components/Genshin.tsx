@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Card,
@@ -30,44 +30,21 @@ import {
 } from "@/lib/utils";
 import type { GenshinData } from "@/lib/genshin/types";
 import { buildEquipmentIndex } from "@/lib/genshin/equipment";
-
-const SHOWCASE_SIZE = 5;
-const SHOWCASE_STORAGE_KEY = "genshinShowcase";
+import { SHOWCASE_SIZE, type Showcase } from "@/lib/genshin/firestoreStore";
 
 interface GenshinProps {
   data: GenshinData;
-  userId?: string | null;
+  /** Saved showcase slots (character keys), synced to the account */
+  showcase: Showcase;
+  onShowcaseChange: (showcase: Showcase) => void;
 }
 
-/** Saved showcase slots, with characters no longer in the data cleared. */
-function readShowcase(userId: string | null | undefined, data: GenshinData) {
-  const empty: (string | null)[] = Array(SHOWCASE_SIZE).fill(null);
-  if (!userId) return empty;
-  try {
-    const stored = localStorage.getItem(`${SHOWCASE_STORAGE_KEY}_${userId}`);
-    const parsed = stored ? JSON.parse(stored) : null;
-    if (!Array.isArray(parsed) || parsed.length !== SHOWCASE_SIZE) return empty;
-    return parsed.map((k) =>
-      typeof k === "string" && data.characters.some((c) => c.key === k) ? k : null
-    );
-  } catch {
-    // ignore invalid stored data
-    return empty;
-  }
-}
-
-// Only rendered client-side (the dashboard waits for auth), so localStorage
-// can be read while initializing state.
-export default function Genshin({ data, userId }: GenshinProps) {
+export default function Genshin({ data, showcase, onShowcaseChange }: GenshinProps) {
   const [activeTab, setActiveTab] = useState("characters");
-  const [showcaseKeys, setShowcaseKeys] = useState<(string | null)[]>(() =>
-    readShowcase(userId, data)
+  // Slots holding a character that isn't in the latest upload show as empty.
+  const showcaseKeys = showcase.map((key) =>
+    key && data.characters.some((c) => c.key === key) ? key : null
   );
-
-  useEffect(() => {
-    if (!userId) return;
-    localStorage.setItem(`${SHOWCASE_STORAGE_KEY}_${userId}`, JSON.stringify(showcaseKeys));
-  }, [userId, showcaseKeys]);
 
   const characterCount = data.characters.length;
   const weaponCount = data.weapons.length;
@@ -90,11 +67,9 @@ export default function Genshin({ data, userId }: GenshinProps) {
   });
 
   const setShowcaseSlot = (index: number, characterKey: string | null) => {
-    setShowcaseKeys((prev) => {
-      const next = [...prev];
-      next[index] = characterKey;
-      return next;
-    });
+    const next = [...showcaseKeys];
+    next[index] = characterKey;
+    onShowcaseChange(next);
   };
 
   const getOptionsForSlot = (slotIndex: number) =>

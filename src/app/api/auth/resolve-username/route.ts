@@ -41,7 +41,14 @@ export async function POST(request: Request) {
   }
 
   try {
-    const usernameDoc = await adminDb.collection("usernames").doc(username).get();
+    // Usernames are claimed in lowercase. Accounts created before that may
+    // still be stored with capitals until scripts/migrate-usernames.mjs runs,
+    // so fall back to the exact spelling.
+    const usernames = adminDb.collection("usernames");
+    let usernameDoc = await usernames.doc(username.toLowerCase()).get();
+    if (!usernameDoc.exists && username !== username.toLowerCase()) {
+      usernameDoc = await usernames.doc(username).get();
+    }
     const uid = usernameDoc.get("uid");
     if (typeof uid !== "string") {
       return NextResponse.json({ error: INVALID }, { status: 401 });

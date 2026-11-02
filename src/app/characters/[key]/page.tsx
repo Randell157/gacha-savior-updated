@@ -15,12 +15,21 @@ import {
   formatWeaponDisplayName,
 } from "@/lib/utils";
 import { buildEquipmentIndex } from "@/lib/genshin/equipment";
+import RequireAuth from "@/components/RequireAuth";
 
 export default function CharacterDetailPage() {
+  return (
+    <RequireAuth>
+      <CharacterDetail />
+    </RequireAuth>
+  );
+}
+
+function CharacterDetail() {
   const params = useParams();
   const rawKey = typeof params.key === "string" ? params.key : "";
   const characterKey = decodeURIComponent(rawKey);
-  const { data: genshinData, loading } = useGenshinData();
+  const { data: genshinData } = useGenshinData();
   const [imageError, setImageError] = useState(false);
 
   const character = useMemo(() => {
@@ -33,18 +42,6 @@ export default function CharacterDetailPage() {
   );
   const weapon = equipment?.weapon ?? null;
   const artifacts = equipment?.artifacts ?? [];
-
-  if (loading) {
-    return (
-      <div className="flex flex-col min-h-screen">
-        <Header />
-        <main className="flex-1 min-h-screen bg-gradient-to-b from-indigo-100 to-purple-100 flex items-center justify-center">
-          <p className="text-gray-700">Loading character...</p>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
 
   const displayName = formatCharacterDisplayName(characterKey);
 

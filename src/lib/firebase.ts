@@ -1,6 +1,16 @@
 import { initializeApp , getApp, getApps} from "firebase/app";
-import { getFirestore } from "firebase/firestore";
-import { getAuth, setPersistence, browserLocalPersistence } from "firebase/auth";
+import {
+  connectFirestoreEmulator,
+  getFirestore,
+  initializeFirestore,
+  type Firestore,
+} from "firebase/firestore";
+import {
+  browserLocalPersistence,
+  connectAuthEmulator,
+  getAuth,
+  setPersistence,
+} from "firebase/auth";
 
 // Each variable is read by its full name so Next.js can inline it into the
 // browser bundle. Values come from .env.local locally and from the Vercel
@@ -24,9 +34,26 @@ if (missing.length) {
 }
 
 // Initialize Firebase
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const isFirstInit = !getApps().length;
+const app = isFirstInit ? initializeApp(firebaseConfig) : getApp();
+
+// Parsed game data uses `undefined` for missing optional fields, which
+// Firestore rejects unless told to skip them. initializeFirestore can only run
+// once per app, so hot reloads fall back to the existing instance.
+let db: Firestore;
+try {
+  db = initializeFirestore(app, { ignoreUndefinedProperties: true });
+} catch {
+  db = getFirestore(app);
+}
 const auth = getAuth(app);
+
+// `npm run dev:emu` points the app at the local Firebase emulators
+// (`npm run emulators`) instead of the real project.
+if (process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === "true" && isFirstInit) {
+  connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true });
+  connectFirestoreEmulator(db, "127.0.0.1", 8080);
+}
 
 // Set persistence to local
 setPersistence(auth, browserLocalPersistence)

@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Gacha Savior is a CS capstone project: a website where players track and organize their gacha game accounts. Genshin Impact is the only supported game so far. Honkai: Star Rail and Zenless Zone Zero are planned and appear as "Coming soon" in the game picker. The site is deployed on Vercel at https://gachasavior.vercel.app/.
 
-Stack: Next.js 16 (App Router), React 19, TypeScript (strict), Tailwind CSS 3, shadcn/ui (Radix + lucide-react icons), and Firebase (Auth + Firestore).
+Stack: Next.js 16 (App Router), React 19, TypeScript (strict), Tailwind CSS 3, shadcn/ui (Radix + lucide-react icons), and Firebase (Auth + Firestore). The Firebase project is on the Spark (free) plan.
 
 Planned work is in [docs/DESIGN.md](docs/DESIGN.md), organized into phases with a "Done when" check for each. Read the relevant phase before starting feature work.
 
@@ -14,19 +14,25 @@ The project is local-only for now: there is no git remote. Don't push. A new Git
 
 ## Keeping this file current
 
-Update this file in the same change whenever a change makes it wrong or incomplete: new routes, contexts or `src/lib` modules; changes to the data flow or Firestore model; new or fixed commands (for example once lint works again); new conventions. When a design phase is finished, move what it built from "planned" into the Architecture section here, and mark the phase done in `docs/DESIGN.md`. Keep this file describing how the code works today, not plans.
+Update this file in the same change whenever a change makes it wrong or incomplete: new routes, contexts or `src/lib` modules; changes to the data flow or Firestore model; new or fixed commands; new conventions. When a design phase is finished, move what it built from "planned" into the Architecture section here, and mark the phase done in `docs/DESIGN.md`. Keep this file describing how the code works today, not plans.
 
 ## Commands
 
 ```bash
-npm run dev        # dev server at http://localhost:3000
-npm run build      # production build
-npm run lint       # eslint . (flat config in eslint.config.mjs)
-npx tsc --noEmit   # type check
-npx firebase ...   # Firebase CLI, installed as a dev dependency (emulators, rules deploys)
+npm run dev          # dev server at http://localhost:3000, using the real Firebase project
+npm run emulators    # local Auth (9099) + Firestore (8080) emulators, UI at http://localhost:4000
+npm run dev:emu      # dev server pointed at the emulators (start `npm run emulators` first)
+npm run build        # production build
+npm run lint         # eslint . (flat config in eslint.config.mjs)
+npx tsc --noEmit     # type check
+npm run migrate:usernames [-- --apply]       # one-time username lowercase migration (live project; dry run by default)
+npm run migrate:usernames:emu [-- --apply]   # same, against the emulator
+npx firebase deploy --only firestore:rules   # publish firestore.rules (needs `npx firebase login`)
 ```
 
-- `eslint.config.mjs` sets `settings.react.version` explicitly. Without it, `eslint-plugin-react` crashes under ESLint 10 while trying to auto-detect the version. The React Compiler lint rules are on, including `react-hooks/set-state-in-effect`: read external state such as localStorage with `useSyncExternalStore` or a lazy `useState` initializer, not with `setState` inside `useEffect`.
+- **Use the emulators for anything that signs in or writes data.** They run under the demo project `demo-gachasavior`, which can't reach the real project. `dev:emu` uses `cross-env` to override `NEXT_PUBLIC_FIREBASE_PROJECT_ID` and set `NEXT_PUBLIC_USE_FIREBASE_EMULATORS`, `FIRESTORE_EMULATOR_HOST` and `FIREBASE_AUTH_EMULATOR_HOST`. In that mode `firebaseAdmin.ts` needs no service account. Emulator data is exported to `.emulator-data/` (gitignored) on exit and imported on the next start. To read emulator data directly, send REST requests with `Authorization: Bearer owner` to `http://127.0.0.1:8080/v1/projects/demo-gachasavior/databases/(default)/documents/...`.
+- `.claude/launch.json` has `dev`, `emulators` and `dev:emu` configurations for previewing in the Claude desktop app.
+- `eslint.config.mjs` sets `settings.react.version` explicitly. Without it, `eslint-plugin-react` crashes under ESLint 10 while trying to auto-detect the version. The React Compiler lint rules are on, including `react-hooks/set-state-in-effect`: don't call `setState` synchronously in an effect body. Read external state with `useSyncExternalStore` or a lazy `useState` initializer, and set state from async callbacks.
 - **There are no tests** and no test framework. To check the parser by hand, Node 24 can import the `.ts` file directly: `node --input-type=module -e 'import { parseGoodText } from "./src/lib/genshin/parseGood.ts"; ...'`.
 - Copy `.env.example` to `.env.local` for the Firebase config. `src/lib/firebase.ts` throws at startup if any value is missing.
 - `npm audit` still reports issues that are known and accepted (checked 2026-11-01, Next 16.4.3). Moderate ones are in the ESLint toolchain, which is dev-only, and npm's suggested "fixes" would downgrade to years-old versions. High ones come from `@grpc/grpc-js` ~1.9 bundled with the `firebase` client; even the latest Firebase (13.1.0) still uses it, and the advisories concern gRPC servers and Node usage. Don't run `npm audit fix --force`.
@@ -34,43 +40,56 @@ npx firebase ...   # Firebase CLI, installed as a dev dependency (emulators, rul
 
 ## Architecture
 
-### Data flow: everything is client-side, and the user's game data lives in localStorage
+### Data flow: uploads are parsed in the browser and stored in Firestore
 
 Every data page is a `"use client"` component. The only server code is the username lookup route (see Auth below).
 
 1. The user exports their account as a **GOOD format** JSON file using **Inventory Kamera** or **Irminsul**. Sample exports are in `public/sample-data/inventory-kamera/`: `genshin_export_2026-02-11_12-16.json` (Irminsul, GOOD v3, 1,717 artifacts) and `genshinData_GOOD_2024_10_28_01_22.json` (Inventory Kamera, GOOD v2). The site serves them as static files, which is handy for test uploads.
 2. The dashboard (`src/app/dashboard/page.tsx`) reads the file and runs **`parseGoodText` / `parseGood`** (`src/lib/genshin/parseGood.ts`). The parser requires `format: "GOOD"`, drops invalid entries and unused fields (returning warnings, which the dashboard shows), turns empty `location` strings into `undefined`, and returns a normalized `GenshinData` in which every list is always present.
-3. **`useGenshinData()`** (`src/hooks/useGenshinData.ts`) is the only way pages read or write this data. It returns `{ data, loadError, loading, save }` and stores the normalized data in **`localStorage["genshinData_<firebase uid>"]`** through `useSyncExternalStore`, parsing it again on read. Phase 1 of the design doc swaps its internals for Firestore; pages shouldn't touch localStorage for this data directly.
-4. The types live in **`src/lib/genshin/types.ts`** (`GenshinData`, `GoodCharacter`, `GoodWeapon`, `GoodArtifact`, `GoodSubstat`). Import them from there rather than declaring local interfaces.
-5. Equipped items are linked to a character by `weapon.location` / `artifact.location` matching `character.key`, not by being nested inside the character. Use **`buildEquipmentIndex(data)`** (`src/lib/genshin/equipment.ts`) to get each character's weapon and artifacts.
+3. **`src/lib/genshin/firestoreStore.ts`** saves and loads the upload:
+   - `users/{uid}/games/genshin` holds `format`, `version`, `source`, `uploadedAt`, `counts`, `artifactChunkCount`, `characters`, `weapons`, `materials` and `showcase` (5 character keys or null).
+   - `users/{uid}/games/genshin/artifactChunks/{0..n}` holds `{ items: GoodArtifact[] }`, up to 400 per chunk, because a large export goes past the 1 MiB document limit.
+   - `saveGenshin` writes everything in a single `writeBatch` and deletes chunks left over from a bigger earlier upload. `loadGenshin` reads the main document and its chunks, then runs the result back through `parseGood`.
+   - Firestore is initialized with `ignoreUndefinedProperties: true`, because the parsed data uses `undefined` for missing optional fields.
+4. **`GenshinDataProvider`** (`src/contexts/GenshinDataContext.tsx`) loads the data once per login and shares it with every page. **`useGenshinData()`** (`src/hooks/useGenshinData.ts`) is the only way pages read or write it, and returns `{ data, showcase, setShowcase, loading, loadError, lastUploadedAt, migratedFromLocal, save }`. `save` is async. `setShowcase` updates the screen first and undoes the change if the write fails.
+5. **Moving data from localStorage:** before Phase 1, uploads lived in `localStorage["genshinData_<uid>"]` (with `genshinShowcase_<uid>`). On login, if the user has no Firestore document and those keys exist, the provider uploads them, deletes the keys, and the dashboard shows a "moved to your account" notice.
+6. The types live in **`src/lib/genshin/types.ts`** (`GenshinData`, `GoodCharacter`, `GoodWeapon`, `GoodArtifact`, `GoodSubstat`). Import them from there rather than declaring local interfaces.
+7. Equipped items are linked to a character by `weapon.location` / `artifact.location` matching `character.key`, not by being nested inside the character. Use **`buildEquipmentIndex(data)`** (`src/lib/genshin/equipment.ts`) to get each character's weapon and artifacts.
 
-Other localStorage keys:
-- `genshinShowcase_<uid>`: the 5-slot character showcase on the dashboard. `Genshin.tsx` reads it in a lazy `useState` initializer, which is safe because the dashboard only renders `Genshin` in the browser, after auth has loaded.
-- `gachasavior-selected-game`: the selected game (`GameContext`, through `useSyncExternalStore`).
+The only other localStorage key is `gachasavior-selected-game`, the selected game (`GameContext`, through `useSyncExternalStore`).
+
+### Protected pages
+
+`src/components/RequireAuth.tsx` wraps the dashboard, `/weapons`, `/artifacts` and `/characters/[key]`. It shows a "Loading your data..." screen until auth and `useGenshinData()` are both ready, and sends signed-out visitors to `/login` with `router.replace`. Inside it, pages can assume `loading` is false. The pattern is `export default function Page() { return <RequireAuth><Content /></RequireAuth>; }`. The `/characters` roster stays public; signed out, every character shows as unowned.
 
 ### Auth and Firestore
 
-- `src/lib/firebase.ts` initializes the app from the `NEXT_PUBLIC_FIREBASE_*` environment variables (`.env.local` locally, the Vercel project settings when deployed), sets `browserLocalPersistence`, and exports `app`, `db` and `auth`. Each variable must be read as a literal `process.env.NEXT_PUBLIC_...` so Next.js can inline it.
-- Firestore has two collections, written at sign-up (`create-account/page.tsx`):
-  - `users/{uid}`: `{ username, email, createdAt }`
-  - `usernames/{username}`: `{ uid }`, which lets people log in with a username.
-- **Firestore rules (set in the Firebase console, not in this repo yet; published 2026-11-01):** `users/{userId}` can be read and written only by its owner. This doesn't cover subcollections yet. `usernames/{name}` can be read only by signed-in users, can be *created* only with `{ uid: <your own uid> }`, and can never be updated or deleted. Signed-out visitors can't read anything. The project is on the Spark (free) plan.
-- **Username login:** `login/page.tsx` treats any identifier without an `@` as a username and POSTs it to **`/api/auth/resolve-username`** (`src/app/api/auth/resolve-username/route.ts`). The route looks up `usernames/{name}` and then `users/{uid}` with the Admin SDK and returns `{ email }`. Any failure returns the same 401 "Invalid username or password." Requests are rate-limited in memory to 10 per minute per IP, counted separately on each server instance. The page then signs in with `signInWithEmailAndPassword`. Username login can't read Firestore from the browser, because the rules block signed-out reads of `users`.
-- `src/lib/firebaseAdmin.ts` (guarded by `import "server-only"`) initializes `firebase-admin` from `FIREBASE_SERVICE_ACCOUNT_KEY`, which is the service account JSON **base64-encoded** onto one line. It exports `adminDb`, which bypasses security rules, so use it only in API routes. The downloaded key file (`*-firebase-adminsdk-*.json`) is gitignored. Never print it or the env value.
-- Sign-up creates the auth user, then claims `usernames/{username}` and writes `users/{uid}` in a single `runTransaction`. The transaction fails if the username already exists, and in that case the new auth user is deleted. Usernames can't be empty or contain `/` (it isn't allowed in a document ID) or `@` (login would treat the name as an email). Usernames are case-sensitive. The security rules also stop a username from being overwritten or deleted outside the app.
-- `AuthContext` (`useAuth()`) provides `{ user, username, loading, error }`, with `username` read from `users/{uid}`. Protected pages redirect to `/login` themselves when `!loading && !user`; there is no middleware.
+- `src/lib/firebase.ts` initializes the app from the `NEXT_PUBLIC_FIREBASE_*` environment variables (`.env.local` locally, the Vercel project settings when deployed), sets `browserLocalPersistence`, connects to the emulators when `NEXT_PUBLIC_USE_FIREBASE_EMULATORS=true`, and exports `app`, `db` and `auth`. Each variable must be read as a literal `process.env.NEXT_PUBLIC_...` so Next.js can inline it.
+- Collections:
+  - `users/{uid}`: `{ username, email, createdAt }`. `username` is kept as typed, for display.
+  - `users/{uid}/games/genshin/...`: see Data flow.
+  - `usernames/{lowercased name}`: `{ uid }`, which lets people log in with a username.
+- **Security rules live in `firestore.rules`**, and `firebase.json` points the CLI and emulator at it:
+  - `users/{uid}` and everything under it: only the owner can read or write.
+  - `usernames`: signed-in users can read; anyone signed in can *create* `{ uid: <own uid> }` only; nothing can update or delete.
+  - Everything else is denied.
+  - Test rule changes on the emulator before deploying. The live project only picks up changes once they're deployed.
+- **Username login:** `login/page.tsx` treats any identifier without an `@` as a username and POSTs it to **`/api/auth/resolve-username`** (`src/app/api/auth/resolve-username/route.ts`). The route looks up `usernames/{name.toLowerCase()}` (falling back to the exact spelling for documents not yet migrated), then `users/{uid}`, using the Admin SDK, and returns `{ email }`. Any failure returns the same 401 "Invalid username or password." Requests are rate-limited in memory to 10 per minute per IP, counted separately on each server instance. The page then signs in with `signInWithEmailAndPassword`.
+- `src/lib/firebaseAdmin.ts` (guarded by `import "server-only"`) initializes `firebase-admin` from `FIREBASE_SERVICE_ACCOUNT_KEY`, which is the service account JSON **base64-encoded** onto one line. In emulator mode it uses no key. It exports `adminDb`, which bypasses security rules, so use it only in API routes and scripts. The downloaded key file (`*-firebase-adminsdk-*.json`) is gitignored. Never print it or the env value.
+- **Sign-up** creates the auth user, then claims `usernames/{lowercased name}` and writes `users/{uid}` in a single `runTransaction`. The transaction fails if the name is taken, matching "Zach" against "zach"; in that case the new auth user is deleted. Usernames can't be empty or contain `/` (it isn't allowed in a document ID) or `@` (login would treat the name as an email).
+- **`scripts/migrate-usernames.mjs`** renames older `usernames` documents that have capital letters to lowercase. Names that would collide between different accounts are listed and left unchanged. It does a dry run unless given `--apply`, and is safe to run again.
+- `AuthContext` (`useAuth()`) provides `{ user, username, loading, error }`. It listens to `users/{uid}` with `onSnapshot`, so the name appears even though sign-up writes the profile just after the account is created.
 
 ### Providers and the multi-game scaffold
 
-`src/app/layout.tsx` wraps the app as `GameProvider > AuthProvider`. `GameContext` (`useGame()`, with `GameId = "genshin" | "hsr" | "zzz"` and the `GAMES` list) is currently used only by the game-picker drawer in `header.tsx`. No page changes based on the selected game yet. The Genshin pages and `/characters`-style routes assume Genshin.
+`src/app/layout.tsx` wraps the app as `GameProvider > AuthProvider > GenshinDataProvider`. `GameContext` (`useGame()`, with `GameId = "genshin" | "hsr" | "zzz"` and the `GAMES` list) is currently used only by the game-picker drawer in `header.tsx`. No page changes based on the selected game yet. The Firestore model keeps each game's data under `users/{uid}/games/{gameId}`, ready for more games.
 
 ### Character names and portraits
 
 - `src/lib/genshinCharacters.ts` has `GENSHIN_CHARACTERS`, the full playable roster with portrait filenames. The `/characters` page shows the whole roster, with owned characters (from the upload) marked against unowned ones. Matching uses `normalizeCharacterKey` (lowercase, removes spaces, `_`, `'` and `-`). Any Traveler variant maps to the `traveler` entry.
 - Portraits are `public/character-portraits/<Name>_Icon.png`, taken from the Genshin fandom wiki. **When a new character is released:** add the PNG, add an entry to `GENSHIN_CHARACTERS`, and if the name is two words, add it to `CHARACTER_DISPLAY_NAMES` in `src/lib/utils.ts`.
 - `src/lib/utils.ts` holds `cn()` and the display-name helpers. `formatKeyWithSpaces` turns PascalCase GOOD keys into spaced words. `formatCharacterIconFilename` turns a GOOD key into its portrait filename.
-- `GenshinFeatures.tsx` (the public `/features` page, which shows a mock dashboard preview) has its own older copy of `formatCharacterIconFilename` instead of importing the one in `utils.ts`.
-- Images fall back to `/placeholder.svg` through `onError`.
+- `public/weapon-icons/` and `public/artifact-icons/` are empty, so those images fall back to `/placeholder.svg` through `onError`. Images using `fill` set `sizes` to their displayed size.
 
 ### UI conventions
 
@@ -80,4 +99,3 @@ The user wants to keep the current look. New pages and features should match it 
 - `src/components/ui/` holds generated shadcn/ui components (style "default", base color slate, CSS variables). Add new ones with the shadcn CLI rather than writing them by hand.
 - Use the `@/*` import alias for `./src/*`.
 - ESLint settings: unused variables are allowed if prefixed with `_`, and `any` is allowed.
-- `.claude/launch.json` defines a `dev` configuration (`npm run dev` on port 3000) for previewing the app in the Claude desktop app.

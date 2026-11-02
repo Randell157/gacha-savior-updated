@@ -7,7 +7,7 @@ import React, {
   useState,
 } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 
 interface AuthContextType {
@@ -36,25 +36,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
 
   useEffect(() => {
+    let unsubscribeProfile: (() => void) | undefined;
+
     const unsubscribe = onAuthStateChanged(
       auth,
-      async (user) => {
+      (user) => {
+        unsubscribeProfile?.();
+        unsubscribeProfile = undefined;
         setUser(user);
-        setLoading(true);
-          if (user) {
-            try {
-              const userDoc = await getDoc(doc(db, "users", user.uid));
-              if (userDoc.exists()) {
-                setUsername(userDoc.data().username);
-              }
-            } catch (err) {
-              console.error("Error fetching user data:", err);
-              setError("Failed to fetch user data. Please try again.");
-            }
-          } else {
-            setUsername(null);
-          }
+        if (!user) {
+          setUsername(null);
           setLoading(false);
+          return;
+        }
+        setLoading(true);
+        // Listen instead of reading once: right after sign-up, the profile is
+        // written a moment after the account exists.
+        unsubscribeProfile = onSnapshot(
+          doc(db, "users", user.uid),
+          (snapshot) => {
+            setUsername(snapshot.exists() ? snapshot.data().username ?? null : null);
+            setLoading(false);
+          },
+          (err) => {
+            // Signing out can cancel the listener with a permission error.
+            if (auth.currentUser?.uid !== user.uid) return;
+            console.error("Error fetching user data:", err);
+            setError("Failed to fetch user data. Please try again.");
+            setLoading(false);
+          }
+        );
       },
       (err) => {
         console.error("Auth state change error:", err);
@@ -65,6 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     return () => {
       unsubscribe();
+      unsubscribeProfile?.();
     };
   }, []);
 

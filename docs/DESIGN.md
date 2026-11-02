@@ -49,7 +49,7 @@ Each phase builds on the one before it. Phases 2, 3 and 4 depend on Phase 1 but 
 | Phase | Work | Depends on | Status |
 |---|---|---|---|
 | 0 | Groundwork: lint, shared types and parsing, env config, sign-up fix | — | **Done** (2026-11-01) |
-| 1 | Firestore storage and one shared data hook | 0 | Next (username lookup route already built) |
+| 1 | Firestore storage and one shared data hook | 0 | **Built** (2026-11-01). Live rollout steps pending |
 | 2 | Artifact analysis | 1 | Planned |
 | 3 | Character and weapon detail pages | 1 | Planned |
 | 4 | Wish history tracker | 1 | Planned |
@@ -109,6 +109,29 @@ Firebase web config values are not secrets; they always end up in the browser. T
 ---
 
 ## Phase 1: Firestore storage
+
+> **Built (2026-11-01) and tested against the Firebase emulators.** [CLAUDE.md](../CLAUDE.md) describes how the code works now. Where the build differed from the plan:
+> - **Emulators first.** `firebase.json`, `firestore.rules`, and `npm run emulators` / `npm run dev:emu` were added so every sign-in and write could be tested locally under the demo project `demo-gachasavior`.
+> - **`RequireAuth` waits for the user's data too**, not just auth, so pages inside it never handle a loading state. `/characters` stays public.
+> - **The showcase is stored in the main document** (`showcase` field), not as a separate document.
+> - **`AuthContext` now listens to the profile with `onSnapshot`.** Reading it once showed "Hello, User!" right after sign-up, because the profile is written just after the account is created.
+> - **Usernames can be lowercase-only in the rules later.** Requiring it now would break sign-ups on the currently deployed site, which still writes names as typed. Add `username == username.lower()` to the create rule once the new code is live and the migration has run.
+>
+> **Tested on the emulator:**
+> - All 19 rule checks pass: cross-user reads and writes, username takeover, extra fields, signed-out access.
+> - Sign-up stores a lowercase claim and keeps the display name. A different capitalization is rejected, and no orphaned login is left behind.
+> - Logging in as "TESTUSER" works.
+> - A 1,717-artifact upload saves as the main document plus 5 chunks. A smaller re-upload deletes the extra chunks and keeps the showcase.
+> - Reloading restores everything from Firestore, and the showcase syncs.
+> - Signed-out visits to protected pages redirect to login.
+> - Old localStorage data moves over and its keys are removed.
+> - The migration script renames, removes duplicates and reports conflicts, and is safe to run again.
+>
+> **Live rollout (in order):**
+> 1. Deploy `firestore.rules` (`npx firebase login`, then `npx firebase deploy --only firestore:rules`), or paste the file into the console. This must happen before the new site goes live, or saving to `users/{uid}/games/...` is denied.
+> 2. Deploy the site (Vercel env needs `FIREBASE_SERVICE_ACCOUNT_KEY` plus the `NEXT_PUBLIC_FIREBASE_*` values).
+> 3. `npm run migrate:usernames` (dry run), resolve any conflicts it lists, then `npm run migrate:usernames -- --apply`.
+> 4. Afterwards: remove the exact-spelling fallback from the login route, and add the lowercase check to the `usernames` create rule.
 
 ### Data model
 

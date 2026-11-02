@@ -37,3 +37,7 @@ next-env.d.ts
 
 # Firebase Admin service account keys (never commit)
 *-firebase-adminsdk-*.json
+
+# Firebase emulator data and logs
+.emulator-data/
+*-debug.log

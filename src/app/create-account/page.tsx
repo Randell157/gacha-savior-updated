@@ -4,8 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createUserWithEmailAndPassword, deleteUser } from "firebase/auth";
-import { doc, getFirestore, runTransaction } from "firebase/firestore";
-import { auth } from "@/lib/firebase";
+import { doc, runTransaction } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 
@@ -56,13 +56,14 @@ export default function CreateAccountPage() {
         password
       );
       const user = userCredential.user;
-      const db = getFirestore();
 
       // Claim the username and store the profile together. The transaction
       // fails if someone already has the username, so it can't be overwritten.
+      // The claim is stored lowercase so "Zach" and "zach" count as the same
+      // name; the profile keeps it as typed, for display.
       try {
         await runTransaction(db, async (transaction) => {
-          const usernameRef = doc(db, "usernames", trimmedUsername);
+          const usernameRef = doc(db, "usernames", trimmedUsername.toLowerCase());
           if ((await transaction.get(usernameRef)).exists()) {
             throw new UsernameTakenError();
           }

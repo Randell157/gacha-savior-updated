@@ -17,8 +17,15 @@ function loadServiceAccount() {
   return JSON.parse(Buffer.from(encoded, "base64").toString("utf8"));
 }
 
-const adminApp = getApps().length
-  ? getApp()
-  : initializeApp({ credential: cert(loadServiceAccount()) });
+// Against the emulators (`npm run dev:emu` sets FIRESTORE_EMULATOR_HOST), the
+// Admin SDK needs no key, only the same demo project ID the browser uses.
+function createApp() {
+  if (process.env.FIRESTORE_EMULATOR_HOST) {
+    return initializeApp({ projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID });
+  }
+  return initializeApp({ credential: cert(loadServiceAccount()) });
+}
+
+const adminApp = getApps().length ? getApp() : createApp();
 
 export const adminDb = getFirestore(adminApp);

@@ -9,19 +9,25 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import RequireAuth from "@/components/RequireAuth";
 import { formatArtifactSetDisplayName } from "@/lib/utils";
 
 export default function ArtifactsPage() {
+  return (
+    <RequireAuth>
+      <Artifacts />
+    </RequireAuth>
+  );
+}
+
+function Artifacts() {
   const { data: genshinData } = useGenshinData();
   const [imageErrors, setImageErrors] = useState<Set<number>>(new Set());
+  const artifacts = genshinData?.artifacts ?? [];
 
   const handleImageError = (index: number) => {
     setImageErrors((prev) => new Set(prev).add(index));
   };
-
-  if (!genshinData) {
-    return <p>Loading artifact data...</p>;
-  }
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -35,8 +41,13 @@ export default function ArtifactsPage() {
           </header>
           <div className="max-w-7xl mx-auto py-12 sm:px-6 lg:px-8">
             <div className="bg-white shadow overflow-hidden sm:rounded-lg p-6">
+        {artifacts.length === 0 && (
+          <p className="text-gray-600">
+            No artifacts yet. Upload your data on the dashboard to see them here.
+          </p>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {genshinData.artifacts.map((artifact, index) => (
+          {artifacts.map((artifact, index) => (
             <Card key={index}>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-4">
