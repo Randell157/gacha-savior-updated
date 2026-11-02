@@ -115,7 +115,7 @@ Firebase web config values are not secrets; they always end up in the browser. T
 > - **`RequireAuth` waits for the user's data too**, not just auth, so pages inside it never handle a loading state. `/characters` stays public.
 > - **The showcase is stored in the main document** (`showcase` field), not as a separate document.
 > - **`AuthContext` now listens to the profile with `onSnapshot`.** Reading it once showed "Hello, User!" right after sign-up, because the profile is written just after the account is created.
-> - **Usernames can be lowercase-only in the rules later.** Requiring it now would break sign-ups on the currently deployed site, which still writes names as typed. Add `username == username.lower()` to the create rule once the new code is live and the migration has run.
+> - **The lowercase-only rule came after the migration.** The `usernames` create rule now also requires `username == username.lower()`. Once published, it refuses sign-ups for names with capitals on the old deployed site, which writes names as typed; the new code always claims the lowercase name.
 >
 > **Tested on the emulator:**
 > - All 19 rule checks pass: cross-user reads and writes, username takeover, extra fields, signed-out access.
@@ -130,8 +130,8 @@ Firebase web config values are not secrets; they always end up in the browser. T
 > **Live rollout (in order):**
 > 1. ~~Deploy `firestore.rules`~~ **Done 2026-11-01**: pasted into the console. The CLI's logged-in account (randell.justin.lapid@gmail.com) has no access to the project, so `firebase deploy` fails with 403 until the CLI logs in as the project owner. Verified: signed-out reads return 403 on every path, and a real login (zach) moved its localStorage upload into `users/{uid}/games/genshin`.
 > 2. Deploy the site (Vercel env needs `FIREBASE_SERVICE_ACCOUNT_KEY` plus the `NEXT_PUBLIC_FIREBASE_*` values).
-> 3. `npm run migrate:usernames` (dry run), resolve any conflicts it lists, then `npm run migrate:usernames -- --apply`.
-> 4. Afterwards: remove the exact-spelling fallback from the login route, and add the lowercase check to the `usernames` create rule.
+> 3. ~~Migrate usernames~~ **Done 2026-11-01**, run before the site deploy: 8 checked, "Justin" and "Lapid" renamed. One conflict, "Randell" vs "randell" (two test accounts), was left as is: "randell" keeps the name, and the `Randell` account can still log in with its email. The stale `usernames/Randell` document was deleted in the console on 2026-11-02.
+> 4. ~~Remove the fallback and add the lowercase rule~~ **Done in code 2026-11-01**, tested on the emulator (capitalized claim 403, lowercase 200; any capitalization resolves; a leftover capitalized document no longer does). **Still to do:** publish the updated `firestore.rules` in the console.
 
 ### Data model
 
@@ -218,12 +218,12 @@ Some existing `usernames` documents contain capital letters (confirmed 2026-11-0
 
 - **Storage:** the `usernames` document ID becomes the lowercased name. `users/{uid}.username` keeps the name exactly as the person typed it, for display.
 - **Sign-up** claims `usernames/{name.toLowerCase()}`, so "Zach" and "zach" can't both be registered.
-- **Login route** looks up the lowercased name first and falls back to the exact name, so nobody is locked out before the migration has run. Remove the fallback once the migration is done.
+- **Login route** looks up only the lowercased name. Until the migration ran it also fell back to the exact name; that fallback was removed afterwards.
 - **Migration script:** `scripts/migrate-usernames.mjs` runs once, locally, with the Admin SDK. It does a dry run by default and only prints counts and conflicts; `--apply` performs the changes. For each document whose ID has capitals:
   - If no lowercase document exists, create it with the same `{ uid }` and delete the original, in one batch.
   - If a lowercase document already exists for a different account (two people registered "Zach" and "zach"), skip it and list it. **The user decides** which account keeps the name. The script never chooses.
 - **Order:** deploy the sign-up and route changes first, run the dry run, resolve any conflicts, run `--apply`, then remove the fallback. Test the whole sequence against the emulator before touching the live project.
-- The security rules stay as they are. The Admin SDK isn't limited by `allow update, delete: if false`, and new sign-ups still create documents with their own `uid`.
+- The Admin SDK isn't limited by `allow update, delete: if false`, so the migration needed no rule change. After it ran, the create rule gained `username == username.lower()`.
 
 Today, logging in with a username reads `users/{uid}` to get the email *before* the user is signed in. The rules above block that read, and allowing it would let anyone read everyone's email address. Instead, the email lookup moves to the server:
 
