@@ -61,7 +61,7 @@ Each phase builds on the one before it. Phases 2, 3 and 4 depend on Phase 1 but 
 > **Done (2026-11-01).** Every step below is built; [CLAUDE.md](../CLAUDE.md) describes how the code works now. Where the build differed from the plan:
 > - **The shared data hook was built early.** Five ESLint errors came from pages reading localStorage inside `useEffect`. Rather than fixing each page, they now all use `useGenshinData()` (`src/hooks/useGenshinData.ts`), which is still backed by localStorage. Phase 1 only has to replace what's inside that hook.
 > - **`eslint-plugin-react` crashes under ESLint 10** unless `settings.react.version` is set, so the config pins it to `"19"`.
-> - **Usernames are still case-sensitive.** Lowercasing them now would lock out existing users whose usernames contain capitals. Phase 1 should lowercase them together with the server lookup route, including a migration of existing `usernames` documents.
+> - **Usernames are still case-sensitive.** Lowercasing them now would lock out existing users whose usernames contain capitals, and some do. Phase 1 handles it with a migration (see "Case-insensitive usernames").
 > - **Sign-up also rejects usernames containing `/` or `@`.** A `/` isn't allowed in a Firestore document ID, and a name with `@` could never log in, because login treats it as an email.
 > - The sign-up transaction blocks username takeover through the app. Since 2026-11-01 the security rules block it outside the app too (see Phase 1, Security rules).
 
@@ -187,7 +187,20 @@ match /usernames/{name} {
 
 ### Username login through a server route
 
-> **Built early (2026-11-01).** Username login had stopped working: the project's Firestore rules already block signed-out reads of `users/{uid}`, so the browser could no longer look up the email. The route, `src/lib/firebaseAdmin.ts`, and the login page change below are now in place, with the service account key stored base64-encoded in `FIREBASE_SERVICE_ACCOUNT_KEY`. Still to do in Phase 1: lowercase usernames (with a migration), and update the rules so `usernames` requires sign-in to read.
+> **Built early (2026-11-01).** Username login had stopped working: the project's Firestore rules already block signed-out reads of `users/{uid}`, so the browser could no longer look up the email. The route, `src/lib/firebaseAdmin.ts`, and the login page change below are now in place, with the service account key stored base64-encoded in `FIREBASE_SERVICE_ACCOUNT_KEY`. The rule requiring sign-in to read `usernames` was published the same day. Still to do in Phase 1: make usernames case-insensitive (see below).
+
+### Case-insensitive usernames
+
+Some existing `usernames` documents contain capital letters (confirmed 2026-11-01), so this change needs a migration.
+
+- **Storage:** the `usernames` document ID becomes the lowercased name. `users/{uid}.username` keeps the name exactly as the person typed it, for display.
+- **Sign-up** claims `usernames/{name.toLowerCase()}`, so "Zach" and "zach" can't both be registered.
+- **Login route** looks up the lowercased name first and falls back to the exact name, so nobody is locked out before the migration has run. Remove the fallback once the migration is done.
+- **Migration script:** `scripts/migrate-usernames.mjs` runs once, locally, with the Admin SDK. It does a dry run by default and only prints counts and conflicts; `--apply` performs the changes. For each document whose ID has capitals:
+  - If no lowercase document exists, create it with the same `{ uid }` and delete the original, in one batch.
+  - If a lowercase document already exists for a different account (two people registered "Zach" and "zach"), skip it and list it. **The user decides** which account keeps the name. The script never chooses.
+- **Order:** deploy the sign-up and route changes first, run the dry run, resolve any conflicts, run `--apply`, then remove the fallback. Test the whole sequence against the emulator before touching the live project.
+- The security rules stay as they are. The Admin SDK isn't limited by `allow update, delete: if false`, and new sign-ups still create documents with their own `uid`.
 
 Today, logging in with a username reads `users/{uid}` to get the email *before* the user is signed in. The rules above block that read, and allowing it would let anyone read everyone's email address. Instead, the email lookup moves to the server:
 
