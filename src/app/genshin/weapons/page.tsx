@@ -203,6 +203,8 @@ function CopiesBadge({ copies }: { copies: number }) {
 function WeaponCards({ rows }: { rows: WeaponRow[] }) {
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {/* The card titles are h3s; this keeps the heading levels in order for screen readers. */}
+      <h2 className="sr-only">Weapons</h2>
       {rows.map(({ id, weapon, name, copies }) => (
         <Card key={id}>
           <CardHeader className="pb-3">

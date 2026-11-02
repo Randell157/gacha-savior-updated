@@ -20,6 +20,7 @@ function useFilePicker({ onFile, disabled }: UploadProps) {
       ref={inputRef}
       type="file"
       accept=".json,application/json"
+      aria-label="Upload a GOOD export (.json)"
       className="sr-only"
       tabIndex={-1}
       disabled={disabled}

@@ -159,7 +159,7 @@ export default function CharactersPage() {
                       ? "/placeholder.svg"
                       : `/character-portraits/${character.iconFile}`
                   }
-                  alt={displayName}
+                  alt=""
                   fill
                   sizes="(min-width: 640px) 96px, 80px"
                   className="object-cover"
@@ -172,7 +172,7 @@ export default function CharactersPage() {
               <span
                 className={cn(
                   "mt-2 w-full text-center text-xs sm:text-sm font-medium leading-tight line-clamp-2",
-                  character.owned ? "text-gray-800 dark:text-slate-200" : "text-gray-400 dark:text-slate-500"
+                  character.owned ? "text-gray-800 dark:text-slate-200" : "text-gray-500 dark:text-slate-400"
                 )}
               >
                 {displayName}

@@ -110,8 +110,17 @@ function ShellFrame({ children }: { children: React.ReactNode }) {
 export function PageFrame({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col min-h-screen">
+      {/* Only visible on keyboard focus: lets keyboard users jump past the header. */}
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[100] focus:rounded-md focus:bg-white dark:focus:bg-slate-900 focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-indigo-700 dark:focus:text-indigo-200 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      >
+        Skip to content
+      </a>
       <Header />
-      <main className="flex-1">{children}</main>
+      <main id="main" tabIndex={-1} className="flex-1 focus:outline-none">
+        {children}
+      </main>
       <Footer />
     </div>
   );

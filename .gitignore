@@ -46,3 +46,6 @@ next-env.d.ts
 
 # Design mockups shown in the Claude desktop browser pane
 .mockups/
+
+# Snapshots and logs from the playwright Claude Code plugin
+.playwright-mcp/

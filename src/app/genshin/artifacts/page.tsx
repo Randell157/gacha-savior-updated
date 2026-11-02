@@ -268,7 +268,13 @@ function EquippedRow({
           );
         })}
       </div>
-      <div className="flex gap-3 overflow-x-auto pb-1 lg:contents">
+      {/* Scrolls sideways below lg, so it takes focus for keyboard scrolling. */}
+      <div
+        tabIndex={0}
+        role="group"
+        aria-label={`${name}'s artifacts`}
+        className="flex gap-3 overflow-x-auto pb-1 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 lg:contents"
+      >
         {SLOT_ORDER.map((slot) => {
           const piece = pieces.find((p) => p.slotKey === slot);
           return piece ? (
@@ -276,7 +282,7 @@ function EquippedRow({
           ) : (
             <div
               key={slot}
-              className="flex w-44 shrink-0 items-center justify-center rounded-lg border border-dashed border-gray-300 dark:border-slate-600 p-3 text-center text-xs text-gray-400 dark:text-slate-500 lg:w-auto"
+              className="flex w-44 shrink-0 items-center justify-center rounded-lg border border-dashed border-gray-300 dark:border-slate-600 p-3 text-center text-xs text-gray-500 dark:text-slate-400 lg:w-auto"
             >
               No {formatSlotName(slot).split(" ")[0].toLowerCase()}
             </div>
@@ -316,6 +322,7 @@ function SetBonusText({ text }: { text: string }) {
       {long && (
         <button
           type="button"
+          aria-expanded={expanded}
           onClick={() => setExpanded((v) => !v)}
           className="mt-0.5 font-medium text-indigo-600 dark:text-indigo-400 hover:underline underline-offset-2"
         >

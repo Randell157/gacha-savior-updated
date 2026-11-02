@@ -8,7 +8,9 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Gacha Savior",
+  // Pages are client components, so each route's title comes from a small
+  // layout.tsx next to its page.tsx.
+  title: { default: "Gacha Savior", template: "%s · Gacha Savior" },
   description: "Gacha Savior Website",
 };
 

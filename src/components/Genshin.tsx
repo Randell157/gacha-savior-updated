@@ -108,9 +108,10 @@ export default function Genshin({
 
   return (
     <section>
-      {heading && (
-        <h2 className="text-lg font-semibold text-indigo-900 dark:text-indigo-200 mb-4">Genshin Impact</h2>
-      )}
+      {/* Kept for screen readers when hidden, so the card titles (h3) don't skip a level. */}
+      <h2 className={heading ? "text-lg font-semibold text-indigo-900 dark:text-indigo-200 mb-4" : "sr-only"}>
+        Genshin Impact
+      </h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         {summaryCards.map(({ title, count, href }) => (
           <Link
@@ -234,7 +235,7 @@ export default function Genshin({
                           <p className="text-sm font-medium text-gray-500 dark:text-slate-400">
                             Empty slot
                           </p>
-                          <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">
+                          <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
                             Choose a character below
                           </p>
                         </div>
@@ -263,7 +264,7 @@ export default function Genshin({
                           setShowcaseSlot(i, v === "__none__" ? null : v)
                         }
                       >
-                        <SelectTrigger className="mt-auto h-9 text-xs">
+                        <SelectTrigger className="mt-auto h-9 text-xs" aria-label={`Showcase slot ${i + 1}`}>
                           <SelectValue
                             placeholder={
                               char ? "Change character" : "Choose character"
