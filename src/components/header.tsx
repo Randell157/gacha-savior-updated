@@ -22,8 +22,14 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { ChevronDown, LogOut, Menu, Check } from "lucide-react";
+import { ChevronDown, LogOut, Menu, Check, User } from "lucide-react";
 import { useState } from "react";
+
+const NAV_LINKS = [
+  { href: "/features", label: "Features" },
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
+];
 
 export default function Header() {
   const { user, username, loading } = useAuth();
@@ -50,12 +56,25 @@ export default function Header() {
                 variant="ghost"
                 size="icon"
                 className="shrink-0 -ml-2 text-indigo-900 hover:bg-indigo-50"
-                aria-label="Open games menu"
+                aria-label="Open menu"
               >
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-[min(100%,20rem)] sm:max-w-sm">
+              {/* On phones the page links live here instead of the top bar. */}
+              <nav className="sm:hidden mb-6 border-b pb-4 flex flex-col gap-1" aria-label="Pages">
+                {NAV_LINKS.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMenuOpen(false)}
+                    className="rounded-lg px-3 py-2.5 text-sm font-medium text-gray-900 hover:bg-indigo-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </nav>
               <SheetHeader>
                 <SheetTitle className="text-indigo-900">Games</SheetTitle>
                 <SheetDescription>
@@ -113,28 +132,20 @@ export default function Header() {
           </Link>
         </div>
         <nav className="flex items-center gap-4 sm:gap-6 shrink-0">
-          <Link
-            className="text-sm font-medium hover:underline underline-offset-4"
-            href="/features"
-          >
-            Features
-          </Link>
-          <Link
-            className="text-sm font-medium hover:underline underline-offset-4"
-            href="/about"
-          >
-            About
-          </Link>
-          <Link
-            className="text-sm font-medium hover:underline underline-offset-4"
-            href="/contact"
-          >
-            Contact
-          </Link>
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              className="hidden sm:inline text-sm font-medium hover:underline underline-offset-4"
+              href={link.href}
+            >
+              {link.label}
+            </Link>
+          ))}
           {loading ? (
-            <span className="text-sm font-medium text-muted-foreground">
-              Login
-            </span>
+            <span
+              className="h-4 w-16 rounded bg-gray-200 animate-pulse"
+              aria-label="Loading account"
+            />
           ) : user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -147,9 +158,15 @@ export default function Header() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link href="/profile">
+                    <User className="mr-2 h-4 w-4" />
+                    Profile
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={handleLogout}
-                  className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950"
+                  className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   Logout

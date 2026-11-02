@@ -37,9 +37,20 @@ interface GenshinProps {
   /** Saved showcase slots (character keys), synced to the account */
   showcase: Showcase;
   onShowcaseChange: (showcase: Showcase) => void;
+  /**
+   * For the sample on /features: the "View All" buttons go to sign-up and
+   * showcase portraits aren't links, since the sample has no pages behind it.
+   */
+  preview?: boolean;
 }
 
-export default function Genshin({ data, showcase, onShowcaseChange }: GenshinProps) {
+export default function Genshin({
+  data,
+  showcase,
+  onShowcaseChange,
+  preview = false,
+}: GenshinProps) {
+  const viewAllHref = (path: string) => (preview ? "/create-account" : path);
   const [activeTab, setActiveTab] = useState("characters");
   // Slots holding a character that isn't in the latest upload show as empty.
   const showcaseKeys = showcase.map((key) =>
@@ -83,8 +94,8 @@ export default function Genshin({ data, showcase, onShowcaseChange }: GenshinPro
 
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Genshin Impact </h1>
+    <section>
+      <h2 className="text-lg font-semibold text-indigo-900 mb-4">Genshin Impact</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <Card>
           <CardHeader>
@@ -95,7 +106,7 @@ export default function Genshin({ data, showcase, onShowcaseChange }: GenshinPro
             <p className="text-4xl font-bold">{characterCount}</p>
             <div className="mt-4">
               <Button asChild>
-                <Link href="/characters">View All Characters</Link>
+                <Link href={viewAllHref("/characters")}>View All Characters</Link>
               </Button>
             </div>
           </CardContent>
@@ -109,7 +120,7 @@ export default function Genshin({ data, showcase, onShowcaseChange }: GenshinPro
             <p className="text-4xl font-bold">{weaponCount}</p>
             <div className="mt-4">
               <Button asChild>
-                <Link href="/weapons">View All Weapons</Link>
+                <Link href={viewAllHref("/weapons")}>View All Weapons</Link>
               </Button>
             </div>
           </CardContent>
@@ -123,7 +134,7 @@ export default function Genshin({ data, showcase, onShowcaseChange }: GenshinPro
             <p className="text-4xl font-bold">{artifactCount}</p>
             <div className="mt-4">
               <Button asChild>
-                <Link href="/artifacts">View All Artifacts</Link>
+                <Link href={viewAllHref("/artifacts")}>View All Artifacts</Link>
               </Button>
             </div>
           </CardContent>
@@ -152,6 +163,31 @@ export default function Genshin({ data, showcase, onShowcaseChange }: GenshinPro
                   const displayName = char
                     ? formatCharacterDisplayName(char.key)
                     : null;
+                  const portrait = char && (
+                    <>
+                      <div className="relative w-20 h-20 rounded-lg overflow-hidden ring-1 ring-indigo-200 bg-white mb-2 group-hover:ring-indigo-500">
+                        <Image
+                          src={`/character-portraits/${formatCharacterIconFilename(
+                            char.key
+                          )}`}
+                          alt={displayName ?? char.key}
+                          fill
+                          sizes="80px"
+                          className="object-cover"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = "/placeholder.svg";
+                          }}
+                        />
+                      </div>
+                      <p className="font-semibold text-sm text-gray-900 leading-tight">
+                        {displayName}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Lv. {char.level} · C{char.constellation}
+                      </p>
+                    </>
+                  );
                   return (
                     <div
                       key={i}
@@ -180,33 +216,19 @@ export default function Genshin({ data, showcase, onShowcaseChange }: GenshinPro
                       </div>
 
                       {char ? (
-                        <Link
-                          href={`/characters/${encodeURIComponent(char.key)}`}
-                          className="flex flex-col items-center text-center mb-3 group"
-                          title={`View ${displayName} details`}
-                        >
-                          <div className="relative w-20 h-20 rounded-lg overflow-hidden ring-1 ring-indigo-200 bg-white mb-2 group-hover:ring-indigo-500">
-                            <Image
-                              src={`/character-portraits/${formatCharacterIconFilename(
-                                char.key
-                              )}`}
-                              alt={displayName ?? char.key}
-                              fill
-                              sizes="80px"
-                              className="object-cover"
-                              onError={(e) => {
-                                e.currentTarget.onerror = null;
-                                e.currentTarget.src = "/placeholder.svg";
-                              }}
-                            />
+                        preview ? (
+                          <div className="flex flex-col items-center text-center mb-3">
+                            {portrait}
                           </div>
-                          <p className="font-semibold text-sm text-gray-900 leading-tight">
-                            {displayName}
-                          </p>
-                          <p className="text-xs text-gray-500 mt-1">
-                            Lv. {char.level} · C{char.constellation}
-                          </p>
-                        </Link>
+                        ) : (
+                          <Link
+                            href={`/characters/${encodeURIComponent(char.key)}`}
+                            className="flex flex-col items-center text-center mb-3 group"
+                            title={`View ${displayName} details`}
+                          >
+                            {portrait}
+                          </Link>
+                        )
                       ) : (
                         <div className="flex flex-col items-center justify-center text-center mb-3 py-4">
                           <div className="flex h-20 w-20 items-center justify-center rounded-lg border border-dashed border-gray-300 bg-white text-gray-400 mb-2">
@@ -320,6 +342,6 @@ export default function Genshin({ data, showcase, onShowcaseChange }: GenshinPro
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </section>
   );
 }

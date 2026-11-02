@@ -4,8 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGenshinData } from "@/hooks/useGenshinData";
-import Header from "@/components/header";
-import Footer from "@/components/footer";
+import { CenteredPage } from "@/components/PageShell";
 
 /**
  * Wraps pages that need a signed-in user. Shows a loading screen until auth
@@ -24,16 +23,17 @@ export default function RequireAuth({ children }: { children: React.ReactNode })
   }, [authLoading, user, router]);
 
   if (authLoading || !user || dataLoading) {
-    return (
-      <div className="flex flex-col min-h-screen">
-        <Header />
-        <main className="flex-1 min-h-screen bg-gradient-to-b from-indigo-100 to-purple-100 flex items-center justify-center">
-          <p className="text-gray-700">Loading your data...</p>
-        </main>
-        <Footer />
-      </div>
-    );
+    return <LoadingPage />;
   }
 
   return <>{children}</>;
+}
+
+/** The loading screen shown while auth or saved data is loading. */
+export function LoadingPage() {
+  return (
+    <CenteredPage>
+      <p className="text-gray-700">Loading your data...</p>
+    </CenteredPage>
+  );
 }

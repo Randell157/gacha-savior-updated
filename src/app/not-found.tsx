@@ -1,16 +1,19 @@
 import Link from "next/link";
-import React from "react";
+import { Button } from "@/components/ui/button";
+import { CenteredPage } from "@/components/PageShell";
 
-const motFound = () => {
+export default function NotFound() {
   return (
-    <div>
-      <h2>404: Page not found</h2>
-      <p>Could not find requested page</p>
-      <Link className="" href="/">
-        <button>Home</button>
-      </Link>
-    </div>
+    <CenteredPage>
+      <div className="w-full max-w-md bg-white shadow sm:rounded-lg px-6 py-8 text-center">
+        <h1 className="text-2xl font-bold text-indigo-900">Page not found</h1>
+        <p className="mt-2 text-sm text-gray-500">
+          We couldn&apos;t find the page you were looking for.
+        </p>
+        <Button asChild className="mt-6">
+          <Link href="/">Go home</Link>
+        </Button>
+      </div>
+    </CenteredPage>
   );
-};
-
-export default motFound;
+}

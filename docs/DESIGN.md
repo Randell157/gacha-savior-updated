@@ -37,22 +37,23 @@ Every phase keeps the site's existing look. New pages should look like they were
 - **Page shell:** `<Header />` and `<Footer />` around the content, with the indigo-to-purple gradient background (`bg-gradient-to-b from-indigo-100 to-purple-100`), a white title bar with an `indigo-900` heading, and content in white `shadow sm:rounded-lg` panels inside `max-w-7xl`.
 - **Components:** use the shadcn/ui pieces already in `src/components/ui/` (Card, Tabs, Select, Button, Alert, ScrollArea, Sheet) and lucide-react icons. If something new is needed, such as a badge, table or pagination, add it with the shadcn CLI in the same "default" style so it matches.
 - **Colours:** indigo stays the accent colour, as in the showcase slots (`border-indigo-200 bg-indigo-50/40`, `ring-indigo-500` on hover) and the header. New colours are only added where they carry meaning: element colours on character pages, artifact CV tiers and pity warnings. These stay soft (`-50`/`-100` backgrounds, `-700` text) so they sit comfortably with the indigo theme.
-- **Layout patterns to reuse:** the count cards with a button from the dashboard, the portrait grid from `/characters`, and the slot card from the showcase. For example, an artifact card in Phase 2 should look like a showcase slot, not like a new design.
+- **Layout patterns to reuse:** the count cards with a button from the dashboard, the portrait grid from `/characters`, and the slot card from the showcase. For example, an artifact card in Phase 3 should look like a showcase slot, not like a new design.
 - **Small improvements are fine:** better spacing, mobile layouts, loading states and empty states, as long as the overall look stays the same.
 
 If a phase needs a pattern the site doesn't have yet, build it from these same pieces. Any bigger visual change is for the user to decide; don't make it as part of a phase.
 
 ## Roadmap
 
-Each phase builds on the one before it. Phases 2, 3 and 4 depend on Phase 1 but not on each other, so their order can change.
+Each phase builds on the one before it. Phase 2 comes first so later phases build on a consistent UI. Phases 3, 4 and 5 depend on Phase 1 but not on each other, so their order can change.
 
 | Phase | Work | Depends on | Status |
 |---|---|---|---|
 | 0 | Groundwork: lint, shared types and parsing, env config, sign-up fix | — | **Done** (2026-11-01) |
 | 1 | Firestore storage and one shared data hook | 0 | **Done** (2026-11-02) |
-| 2 | Artifact analysis | 1 | Planned |
-| 3 | Character and weapon detail pages | 1 | Planned |
-| 4 | Wish history tracker | 1 | Planned |
+| 2 | UI review and consistency pass | 1 | **Done** (2026-11-02) |
+| 3 | Artifact analysis | 1 | Planned |
+| 4 | Character and weapon detail pages | 1 | Planned |
+| 5 | Wish history tracker | 1 | Planned |
 
 ---
 
@@ -146,7 +147,7 @@ users/{uid}/games/genshin                { source, format, version, uploadedAt,
                                            weapons: Weapon[],
                                            materials: Record<string, number> }
 users/{uid}/games/genshin/artifactChunks/{0..n}   { items: Artifact[] }   (at most 400 per chunk)
-users/{uid}/games/genshin/wishes/...     Phase 4
+users/{uid}/games/genshin/wishes/...     Phase 5
 ```
 
 - `games/{gameId}` keeps the model ready for `hsr` and `zzz` later.
@@ -241,7 +242,72 @@ Option considered and rejected: storing the email in `usernames/{name}`, which w
 
 ---
 
-## Phase 2: Artifact analysis
+## Phase 2: UI review and consistency pass
+
+Go over every page before adding features, so Phases 3–5 build on one consistent set of pieces. The look stays the same (see "UI style"); this phase fixes what's broken or inconsistent and pulls repeated code into shared components. Reviewed 2026-11-02 in code and in the browser, at desktop and phone widths.
+
+> **Built (2026-11-02) and tested on the emulators** at desktop and phone widths: sign-up, upload, every page, the phone menu and the account menu, with no console errors. [CLAUDE.md](../CLAUDE.md) describes the result. Every finding below is fixed except the weapon and artifact placeholder images, which stay until Phase 4 adds real icons. Weapon cards now also show who has the weapon equipped.
+
+### Findings: broken or clearly wrong
+
+- **404 page has no styling.** `not-found.tsx` is bare text and a plain button, with no header, footer or background.
+- **Header on phones:** the "Gacha Savior" link gets squeezed to a couple of letters because the Features, About, Contact and account links take all the width.
+- **Header flashes "Login" while auth loads.** The greyed-out "Login" looks like the user was signed out, then switches to their name a moment later.
+- **`/profile` is a stub.** It just says "Profile page." and nothing links to it.
+- **Footer says © 2024.**
+- **Invalid HTML:** Home, About and Contact put a `<main>` inside another `<main>`.
+- **Login form label** points at `id="email"`, but the input's id is `identifier`, so screen readers don't connect them.
+- **Raw data keys on screen:** the artifacts page shows `hp_`, `critDMG_: 7.8`, `sands`; weapon and material names elsewhere are already made readable.
+- **Dashboard error screen** (when the profile fails to load) drops the header, footer and background.
+
+### Findings: inconsistent
+
+- **Two primary button styles.** Login and Create Account use hand-styled indigo buttons and inputs; every other page uses the shadcn `Button`, whose default is near-black (slate-900).
+- **Two kinds of dropdown.** `/characters` uses native `<select>`s; the dashboard uses the shadcn `Select`.
+- **Page shell copied into every page.** About 20 lines (Header, gradient, white title bar, panel, Footer) are repeated in 13 files, with drifting padding (`py-8` vs `py-12`, panel `p-6` vs `p-8` vs `px-4 py-8 sm:p-8 lg:p-10`).
+- **Two headings on the dashboard:** the page title "Dashboard" and then a large "Genshin Impact" heading inside the panel.
+- **Loading text differs:** "Loading your data..." (protected pages) vs "Loading character data..." (`/characters`).
+- **Weapon and artifact cards** show a placeholder image on every card, since no icons exist yet (Phase 4 adds them).
+
+### Not a UI bug
+
+- Some characters show "No weapon equipped." The Irminsul sample export has 15 characters with no weapon in the file (Amber, Lisa, Thoma and others); the Inventory Kamera export has none missing. The page could say "No weapon in your export" instead.
+
+### Plan
+
+**Decisions (2026-11-02),** chosen from side-by-side mockups:
+
+- **Buttons:** primary buttons are indigo everywhere (`bg-indigo-600`, `hover:bg-indigo-700`), set once as the shadcn `Button` default rather than per page.
+- **Phone header:** below the `sm` breakpoint, Features, About and Contact move into the ☰ side menu, above the game list. The bar keeps the logo and the account menu. Desktop is unchanged.
+- **Profile:** build a simple `/profile` page (username, email, joined date from `users/{uid}.createdAt`, last upload), protected by `RequireAuth`, using the same row layout as About and Contact, and linked from the account menu above Logout.
+- **Dashboard:** "Genshin Impact" becomes a smaller section heading (`text-lg font-semibold text-indigo-900`).
+
+Then:
+
+1. A shared `PageShell` component (title, optional actions next to the title, content panel) that every page uses, keeping today's look.
+2. Fix everything under "broken or clearly wrong".
+3. Unify buttons, inputs and dropdowns on the shadcn components.
+4. Readable stat names through `STAT_LABELS` in `src/lib/genshin/stats.ts` (moved here from Phase 3, which reuses it).
+
+**Done when** every page uses the shared shell and components, the phone header shows the full logo, and no page shows a raw data key.
+
+---
+
+## UI additions (chosen 2026-11-02, not scheduled yet)
+
+Picked from side-by-side mockups after Phase 2. Not yet placed on the roadmap.
+
+- **Dark mode**, as mocked: `next-themes` with Light / Dark / System in the account menu, and a moon icon button next to Login when signed out. The gradient becomes `indigo-950` → `purple-950`, panels and the title bar dark slate, headings `indigo-200`; buttons stay indigo, showcase slots keep a low-opacity indigo tint, unowned characters stay greyed out.
+- **Rarity styling: in-game gradients.** 5★ portraits get a gold gradient background and 4★ a purple one, on the roster, showcase and character pages. Needs a `rarity` field on each `GENSHIN_CHARACTERS` entry.
+- **Upload area: drop zone + compact bar.** Before the first upload, a drag-and-drop zone with a "How do I export my account?" section. After it, a compact bar (last upload, counts, "Upload new export" button). A confirmation message after each successful save.
+- **Weapons page: cards and table, with a toggle.** A toolbar with search, sort, an All / Equipped / Unequipped switch and "Group copies" (×N), plus a Cards / Table view toggle. Cards show level and refinement badges and who has the weapon equipped; the table has sortable columns.
+- **Loading skeletons** shaped like the dashboard and the character grid, replacing "Loading your data...".
+- **Logo: "GS" monogram** in a rounded indigo square, used in the header and as the favicon.
+- **Home page: the roster wall** (option D, chosen after the first mockup felt too generic). A dark indigo hero filled with real character portraits on their rarity gradients, a few greyed out like the Characters page, fading to solid at the bottom behind the heading "Which of your characters did you actually build?", a one-line pitch, and "Create an account" / "See the features" buttons. Below it, three steps on the usual gradient: scan your account with Inventory Kamera or Irminsul, upload it here, look around. Signed-in visitors go straight to the dashboard.
+
+---
+
+## Phase 3: Artifact analysis
 
 Rebuild `/artifacts` from a plain list into a tool for finding good and bad artifacts.
 
@@ -267,15 +333,15 @@ The tiers live in `src/lib/genshin/artifactScore.ts` so they're easy to adjust. 
 - A grid of cards showing the set, slot, main stat, substats with readable names (`critDMG_` becomes "CRIT DMG%"), level, rarity, CV with its tier colour, and who has it equipped.
 - Filters for set, slot, main stat, rarity, equipped or unequipped, and locked or unlocked. Sorting by CV, level or set.
 - A summary strip: the average CV of equipped artifacts, and how many unequipped level-20 pieces are below 20 CV (likely fodder).
-- Readable stat names come from one `STAT_LABELS` map in `src/lib/genshin/stats.ts`, which Phase 3 reuses.
-- Set icons: `public/artifact-icons/` is empty today. Fill it from the Phase 3 build script, or show the set name until then.
+- Readable stat names come from the `STAT_LABELS` map added in Phase 2 (`src/lib/genshin/stats.ts`), which Phase 4 reuses too.
+- Set icons: `public/artifact-icons/` is empty today. Fill it from the Phase 4 build script, or show the set name until then.
 - Large inventories (1,700+ pieces): start with pagination at 60 per page. Add a virtualized list only if the page actually feels slow.
 
 **Done when** the user can find their weakest unequipped pieces and best pieces in a few clicks, and every character's equipped artifacts show a CV.
 
 ---
 
-## Phase 3: Character and weapon detail pages
+## Phase 4: Character and weapon detail pages
 
 ### Game data, prepared at build time
 
@@ -291,7 +357,7 @@ The tiers live in `src/lib/genshin/artifactScore.ts` so they're easy to adjust. 
 - Header: portrait, name, element and weapon icons, rarity, level, ascension and constellation.
 - **Talents**: the user's Normal Attack, Skill and Burst levels from the GOOD `talent` field, with names and descriptions from the game data.
 - **Constellations**: all six, with the unlocked ones highlighted.
-- **Equipped gear**: the weapon card linking to its page, and the five artifacts with their Phase 2 CV, plus active set bonuses (2-piece and 4-piece).
+- **Equipped gear**: the weapon card linking to its page, and the five artifacts with their Phase 3 CV, plus active set bonuses (2-piece and 4-piece).
 - **Stats**: base HP, ATK and DEF at the character's level. Full final stats with every bonus included would need a complete damage calculator, so that's out of scope; the page says "Base stats" clearly.
 
 ### Weapon page (`/weapons/[key]`)
@@ -302,7 +368,7 @@ A new route. It shows base ATK and the substat at its level, the passive at the 
 
 ---
 
-## Phase 4: Wish history tracker
+## Phase 5: Wish history tracker
 
 ### Import
 
@@ -333,7 +399,7 @@ Pull history can reach thousands of entries, so it's chunked by pool, the same w
 
 - For each pool: current pity (pulls since the last 5★ and 4★), total pulls, number of 5★s, and average pulls per 5★.
 - The 5★ history as a list showing how many pulls each one took, coloured by whether it came early or close to hard pity.
-- On the Character Event pool: whether each 5★ won or lost the 50/50, worked out by comparing it with the standard 5★ roster from the Phase 3 data. Since version 5.0, the game's "Capturing Radiance" rule changes the odds after repeated losses, so the next pull's guarantee status is shown as an *estimate* with a short note.
+- On the Character Event pool: whether each 5★ won or lost the 50/50, worked out by comparing it with the standard 5★ roster from the Phase 4 data. Since version 5.0, the game's "Capturing Radiance" rule changes the odds after repeated losses, so the next pull's guarantee status is shown as an *estimate* with a short note.
 - A simple pulls-per-month chart (using the dataviz guidance), added after the core stats.
 
 **Done when** importing two overlapping exports gives the right merged total with no duplicate pulls, and pity matches what the game shows.

@@ -1,32 +1,43 @@
-import Header from "@/components/header";
-import Footer from "@/components/footer";
+"use client";
+
 import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
+import { useGenshinData } from "@/hooks/useGenshinData";
 import { Button } from "@/components/ui/button";
+import PageShell from "@/components/PageShell";
+import RequireAuth from "@/components/RequireAuth";
+import { DetailRow, DetailRows } from "@/components/DetailRows";
 
 export default function ProfilePage() {
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      <main className="flex-1">
-        <div className="min-h-screen bg-gradient-to-b from-indigo-100 to-purple-100">
-          <header className="bg-white shadow">
-            <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-              <h1 className="text-3xl font-bold text-indigo-900">Profile</h1>
-            </div>
-          </header>
-          <div className="max-w-7xl mx-auto py-12 sm:px-6 lg:px-8">
-            <div className="bg-white shadow overflow-hidden sm:rounded-lg p-6">
-              <p className="text-gray-600">Profile page.</p>
-              <div className="mt-6">
-                <Button asChild>
-                  <Link href="/dashboard">Back to Dashboard</Link>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-      <Footer />
-    </div>
+    <RequireAuth>
+      <Profile />
+    </RequireAuth>
+  );
+}
+
+function Profile() {
+  const { user, username, createdAt } = useAuth();
+  const { lastUploadedAt } = useGenshinData();
+  const joined = createdAt ? new Date(createdAt) : null;
+
+  return (
+    <PageShell title="Profile" panel="flush">
+      <DetailRows>
+        <DetailRow label="Username">{username ?? "—"}</DetailRow>
+        <DetailRow label="Email">{user?.email ?? "—"}</DetailRow>
+        <DetailRow label="Joined">
+          {joined && !Number.isNaN(joined.getTime()) ? joined.toLocaleDateString() : "—"}
+        </DetailRow>
+        <DetailRow label="Last upload">
+          {lastUploadedAt ? lastUploadedAt.toLocaleString() : "Nothing uploaded yet"}
+        </DetailRow>
+      </DetailRows>
+      <div className="px-4 py-5 sm:px-6 border-t border-gray-200">
+        <Button asChild>
+          <Link href="/dashboard">Back to Dashboard</Link>
+        </Button>
+      </div>
+    </PageShell>
   );
 }

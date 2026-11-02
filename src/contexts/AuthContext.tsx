@@ -13,6 +13,8 @@ import { auth, db } from "@/lib/firebase";
 interface AuthContextType {
   user: User | null;
   username: string | null;
+  /** When the account was created (users/{uid}.createdAt, an ISO string) */
+  createdAt: string | null;
   loading: boolean;
   error: string | null;
 }
@@ -20,6 +22,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   username: null,
+  createdAt: null,
   loading: true,
   error: null,
 });
@@ -31,6 +34,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [user, setUser] = useState<User | null>(null);
   const [username, setUsername] = useState<string | null>(null);
+  const [createdAt, setCreatedAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,6 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         setUser(user);
         if (!user) {
           setUsername(null);
+          setCreatedAt(null);
           setLoading(false);
           return;
         }
@@ -55,7 +60,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         unsubscribeProfile = onSnapshot(
           doc(db, "users", user.uid),
           (snapshot) => {
-            setUsername(snapshot.exists() ? snapshot.data().username ?? null : null);
+            const profile = snapshot.exists() ? snapshot.data() : undefined;
+            setUsername(profile?.username ?? null);
+            setCreatedAt(typeof profile?.createdAt === "string" ? profile.createdAt : null);
             setLoading(false);
           },
           (err) => {
@@ -81,7 +88,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, username, loading, error }}>
+    <AuthContext.Provider value={{ user, username, createdAt, loading, error }}>
       {children}
     </AuthContext.Provider>
   );

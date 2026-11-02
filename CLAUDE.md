@@ -60,7 +60,7 @@ The only other localStorage key is `gachasavior-selected-game`, the selected gam
 
 ### Protected pages
 
-`src/components/RequireAuth.tsx` wraps the dashboard, `/weapons`, `/artifacts` and `/characters/[key]`. It shows a "Loading your data..." screen until auth and `useGenshinData()` are both ready, and sends signed-out visitors to `/login` with `router.replace`. Inside it, pages can assume `loading` is false. The pattern is `export default function Page() { return <RequireAuth><Content /></RequireAuth>; }`. The `/characters` roster stays public; signed out, every character shows as unowned.
+`src/components/RequireAuth.tsx` wraps the dashboard, `/profile`, `/weapons`, `/artifacts` and `/characters/[key]`. It shows a "Loading your data..." screen (`LoadingPage`, also exported for `/characters`) until auth and `useGenshinData()` are both ready, and sends signed-out visitors to `/login` with `router.replace`. Inside it, pages can assume `loading` is false. The pattern is `export default function Page() { return <RequireAuth><Content /></RequireAuth>; }`. The `/characters` roster stays public; signed out, every character shows as unowned.
 
 ### Auth and Firestore
 
@@ -78,7 +78,7 @@ The only other localStorage key is `gachasavior-selected-game`, the selected gam
 - `src/lib/firebaseAdmin.ts` (guarded by `import "server-only"`) initializes `firebase-admin` from `FIREBASE_SERVICE_ACCOUNT_KEY`, which is the service account JSON **base64-encoded** onto one line. In emulator mode it uses no key. It exports `adminDb`, which bypasses security rules, so use it only in API routes and scripts. The downloaded key file (`*-firebase-adminsdk-*.json`) is gitignored. Never print it or the env value.
 - **Sign-up** creates the auth user, then claims `usernames/{lowercased name}` and writes `users/{uid}` in a single `runTransaction`. The transaction fails if the name is taken, matching "Zach" against "zach"; in that case the new auth user is deleted. Usernames can't be empty or contain `/` (it isn't allowed in a document ID) or `@` (login would treat the name as an email).
 - **`scripts/migrate-usernames.mjs`** renames older `usernames` documents that have capital letters to lowercase. Names that would collide between different accounts are listed and left unchanged. It does a dry run unless given `--apply`, and is safe to run again. It was run on the live project on 2026-11-01, and every `usernames` document is now lowercase. The one conflict (`Randell`, a test account) was resolved by deleting its username document; that account logs in by email.
-- `AuthContext` (`useAuth()`) provides `{ user, username, loading, error }`. It listens to `users/{uid}` with `onSnapshot`, so the name appears even though sign-up writes the profile just after the account is created.
+- `AuthContext` (`useAuth()`) provides `{ user, username, createdAt, loading, error }` (`createdAt` is the ISO string from `users/{uid}`, shown on `/profile`). It listens to `users/{uid}` with `onSnapshot`, so the name appears even though sign-up writes the profile just after the account is created.
 
 ### Providers and the multi-game scaffold
 
@@ -88,14 +88,21 @@ The only other localStorage key is `gachasavior-selected-game`, the selected gam
 
 - `src/lib/genshinCharacters.ts` has `GENSHIN_CHARACTERS`, the full playable roster with portrait filenames. The `/characters` page shows the whole roster, with owned characters (from the upload) marked against unowned ones. Matching uses `normalizeCharacterKey` (lowercase, removes spaces, `_`, `'` and `-`). Any Traveler variant maps to the `traveler` entry.
 - Portraits are `public/character-portraits/<Name>_Icon.png`, taken from the Genshin fandom wiki. **When a new character is released:** add the PNG, add an entry to `GENSHIN_CHARACTERS`, and if the name is two words, add it to `CHARACTER_DISPLAY_NAMES` in `src/lib/utils.ts`.
+- `src/lib/genshin/stats.ts` turns GOOD stat and slot keys into readable text: `formatStatName` ("critDMG_" → "CRIT DMG", "hp_" → "HP%"), `formatStat` (name plus value, with "%" for percentage stats) and `formatSlotName` ("sands" → "Sands of Eon"). Never show a raw GOOD key on a page.
 - `src/lib/utils.ts` holds `cn()` and the display-name helpers. `formatKeyWithSpaces` turns PascalCase GOOD keys into spaced words. `formatCharacterIconFilename` turns a GOOD key into its portrait filename.
+- **The dashboard preview on `/features`** renders the real dashboard component (`src/components/Genshin.tsx`) with a made-up account from `src/lib/genshin/sampleData.ts` (`SAMPLE_GENSHIN_DATA`, `SAMPLE_SHOWCASE`), so it always matches the dashboard. Its `preview` prop points the "View All" buttons at `/create-account` and turns off the showcase portrait links. The showcase there is local state and isn't saved.
 - `public/weapon-icons/` and `public/artifact-icons/` are empty, so those images fall back to `/placeholder.svg` through `onError`. Images using `fill` set `sizes` to their displayed size.
 
 ### UI conventions
 
 The user wants to keep the current look. New pages and features should match it closely, and redesigns need the user's approval first. The full style guidance is in the "UI style" section of `docs/DESIGN.md`.
 
-- Pages put their content between `<Header />` and `<Footer />`, with an indigo-to-purple gradient background (`bg-gradient-to-b from-indigo-100 to-purple-100`) and white `shadow sm:rounded-lg` cards.
+- **Every page uses `src/components/PageShell.tsx`** rather than placing `<Header />` and `<Footer />` itself:
+  - `<PageShell title actions? panel?>`: header, the indigo-to-purple gradient, the white title bar (`actions` sit next to the title, as the sort and filter dropdowns do on `/characters`), the content panel, and footer. `panel` is `"padded"` (default), `"flush"` (no padding, for row layouts) or `"none"` (the page draws its own panels, like `/features`).
+  - `<CenteredPage>`: the same frame with content centred, used by login, create-account, the 404 page and the loading screen.
+  - `src/components/DetailRows.tsx` (`DetailRows`, `DetailRow`): the label/value rows on About, Contact and Profile.
+- **Buttons are indigo.** The shadcn `Button` default variant is `bg-indigo-600 hover:bg-indigo-700` (edited in `src/components/ui/button.tsx`), so pages don't set button colours themselves. Use the shadcn `Input` and `Select` rather than native elements.
+- **Header** (`src/components/header.tsx`): Features, About and Contact sit in the top bar from the `sm` breakpoint up; on phones they move into the ☰ side menu above the game list. The account menu has Profile and Logout. While auth loads, a grey placeholder shows instead of a "Login" link.
 - `src/components/ui/` holds generated shadcn/ui components (style "default", base color slate, CSS variables). Add new ones with the shadcn CLI rather than writing them by hand.
 - Use the `@/*` import alias for `./src/*`.
 - ESLint settings: unused variables are allowed if prefixed with `_`, and `any` is allowed.
