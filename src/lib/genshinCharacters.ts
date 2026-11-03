@@ -2,15 +2,15 @@ import { formatCharacterIconFilename } from "@/lib/utils";
 
 /**
  * Playable Genshin roster derived from portrait files (skins, Paimon,
- * Aether/Lumine excluded). `rarity` is 4 or 5 (the Traveler counts as 5). It's left out for characters
- * whose rarity hasn't been filled in yet; their portraits get no rarity colour.
+ * Aether/Lumine excluded). `rarity` is 4 or 5, as genshin-db lists it (the
+ * Traveler and the Wonderland Manekin count as 5).
  */
-export const GENSHIN_CHARACTERS: { key: string; iconFile: string; rarity?: 4 | 5 }[] = [
+export const GENSHIN_CHARACTERS: { key: string; iconFile: string; rarity: 4 | 5 }[] = [
   { key: "Aino", iconFile: "Aino_Icon.png", rarity: 4 },
   { key: "Albedo", iconFile: "Albedo_Icon.png", rarity: 5 },
   { key: "Alhaitham", iconFile: "Alhaitham_Icon.png", rarity: 5 },
   { key: "Aloy", iconFile: "Aloy_Icon.png", rarity: 5 },
-  { key: "Alyosha", iconFile: "Alyosha_Icon.png" },
+  { key: "Alyosha", iconFile: "Alyosha_Icon.png", rarity: 4 },
   { key: "Amber", iconFile: "Amber_Icon.png", rarity: 4 },
   { key: "AratakiItto", iconFile: "Arataki_Itto_Icon.png", rarity: 5 },
   { key: "Arlecchino", iconFile: "Arlecchino_Icon.png", rarity: 5 },
@@ -68,9 +68,9 @@ export const GENSHIN_CHARACTERS: { key: string; iconFile: string; rarity?: 4 | 5
   { key: "LanYan", iconFile: "Lan_Yan_Icon.png", rarity: 4 },
   { key: "Lauma", iconFile: "Lauma_Icon.png", rarity: 5 },
   { key: "Layla", iconFile: "Layla_Icon.png", rarity: 4 },
-  { key: "Linnea", iconFile: "Linnea_Icon.png" },
+  { key: "Linnea", iconFile: "Linnea_Icon.png", rarity: 5 },
   { key: "Lisa", iconFile: "Lisa_Icon.png", rarity: 4 },
-  { key: "Lohen", iconFile: "Lohen_Icon.png" },
+  { key: "Lohen", iconFile: "Lohen_Icon.png", rarity: 5 },
   { key: "Lynette", iconFile: "Lynette_Icon.png", rarity: 4 },
   { key: "Lyney", iconFile: "Lyney_Icon.png", rarity: 5 },
   { key: "Mavuika", iconFile: "Mavuika_Icon.png", rarity: 5 },
@@ -81,18 +81,18 @@ export const GENSHIN_CHARACTERS: { key: string; iconFile: string; rarity?: 4 | 5
   { key: "Navia", iconFile: "Navia_Icon.png", rarity: 5 },
   { key: "Nefer", iconFile: "Nefer_Icon.png", rarity: 5 },
   { key: "Neuvillette", iconFile: "Neuvillette_Icon.png", rarity: 5 },
-  { key: "Nicole", iconFile: "Nicole_Icon.png" },
+  { key: "Nicole", iconFile: "Nicole_Icon.png", rarity: 5 },
   { key: "Nilou", iconFile: "Nilou_Icon.png", rarity: 5 },
   { key: "Ningguang", iconFile: "Ningguang_Icon.png", rarity: 4 },
   { key: "Noelle", iconFile: "Noelle_Icon.png", rarity: 4 },
-  { key: "Odette", iconFile: "Odette_Icon.png" },
+  { key: "Odette", iconFile: "Odette_Icon.png", rarity: 5 },
   { key: "Ororon", iconFile: "Ororon_Icon.png", rarity: 4 },
-  { key: "Prune", iconFile: "Prune_Icon.png" },
+  { key: "Prune", iconFile: "Prune_Icon.png", rarity: 4 },
   { key: "Qiqi", iconFile: "Qiqi_Icon.png", rarity: 5 },
   { key: "RaidenShogun", iconFile: "Raiden_Shogun_Icon.png", rarity: 5 },
   { key: "Razor", iconFile: "Razor_Icon.png", rarity: 4 },
   { key: "Rosaria", iconFile: "Rosaria_Icon.png", rarity: 4 },
-  { key: "Sandrone", iconFile: "Sandrone_Icon.png" },
+  { key: "Sandrone", iconFile: "Sandrone_Icon.png", rarity: 5 },
   { key: "SangonomiyaKokomi", iconFile: "Sangonomiya_Kokomi_Icon.png", rarity: 5 },
   { key: "Sayu", iconFile: "Sayu_Icon.png", rarity: 4 },
   { key: "Sethos", iconFile: "Sethos_Icon.png", rarity: 4 },
@@ -109,7 +109,7 @@ export const GENSHIN_CHARACTERS: { key: string; iconFile: string; rarity?: 4 | 5
   { key: "Varka", iconFile: "Varka_Icon.png", rarity: 5 },
   { key: "Venti", iconFile: "Venti_Icon.png", rarity: 5 },
   { key: "Wanderer", iconFile: "Wanderer_Icon.png", rarity: 5 },
-  { key: "WonderlandManekin", iconFile: "Wonderland_Manekin_Icon.png" },
+  { key: "WonderlandManekin", iconFile: "Wonderland_Manekin_Icon.png", rarity: 5 },
   { key: "Wriothesley", iconFile: "Wriothesley_Icon.png", rarity: 5 },
   { key: "Xiangling", iconFile: "Xiangling_Icon.png", rarity: 4 },
   { key: "Xianyun", iconFile: "Xianyun_Icon.png", rarity: 5 },
@@ -125,7 +125,7 @@ export const GENSHIN_CHARACTERS: { key: string; iconFile: string; rarity?: 4 | 5
   { key: "YumemizukiMizuki", iconFile: "Yumemizuki_Mizuki_Icon.png", rarity: 5 },
   { key: "YunJin", iconFile: "Yun_Jin_Icon.png", rarity: 4 },
   { key: "Zhongli", iconFile: "Zhongli_Icon.png", rarity: 5 },
-  { key: "Zibai", iconFile: "Zibai_Icon.png" },
+  { key: "Zibai", iconFile: "Zibai_Icon.png", rarity: 5 },
 ];
 
 export function normalizeCharacterKey(key: string): string {

@@ -27,7 +27,7 @@ Gacha Savior is an unofficial fan project. It is not affiliated with or endorsed
 - **Genshin Impact, Honkai: Star Rail and Zenless Zone Zero** are trademarks of HoYoverse (COGNOSPHERE PTE. LTD. / miHoYo). All characters, names, artwork and in-game text belong to HoYoverse.
 - **Character portraits** come from the [Genshin Impact Wiki character gallery](https://genshin-impact.fandom.com/wiki/Character/Gallery) on Fandom. The artwork itself is HoYoverse's.
 - **Game app icons** (`public/genshinappicon.png`, `starrailappicon.png`, `zzzappicon.png`) were cropped from the games' App Store listings. They are HoYoverse's.
-- **Artifact set names, bonuses and release versions** come from [genshin-db](https://github.com/theBowja/genshin-db) by theBowja (MIT License), extracted with `npm run data:genshin`. The underlying game text belongs to HoYoverse.
+- **Artifact set names, bonuses and release versions** come from [genshin-db](https://github.com/theBowja/genshin-db) by theBowja (MIT License), extracted with `npm run data:genshin`. Character rarities were looked up in it too. The underlying game text belongs to HoYoverse.
 
 ### Account exports
 
