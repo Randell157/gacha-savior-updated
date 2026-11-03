@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import Image from "next/image";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowRight, UserPlus, X } from "lucide-react";
 import {
@@ -37,8 +38,11 @@ interface GenshinProps {
   showcase: Showcase;
   onShowcaseChange: (showcase: Showcase) => void;
   /**
-   * For the sample on /features: showcase portraits aren't links, since the
-   * sample characters have no pages behind them.
+   * For the sample on the home page and /features: showcase portraits aren't
+   * links, since the sample characters have no pages behind them. Card titles
+   * are a step smaller so the page's own headings lead, and on phones the
+   * counts sit in one compact row and only the first two slots show until
+   * "Show all" is pressed.
    */
   preview?: boolean;
   /**
@@ -60,6 +64,7 @@ export default function Genshin({
 }: GenshinProps) {
   const viewAllHref = (path: string) => (viewAllToSignUp ? "/create-account" : path);
   const [activeTab, setActiveTab] = useState("characters");
+  const [showAllSlots, setShowAllSlots] = useState(!preview);
   // Slots holding a character that isn't in the latest upload show as empty.
   const showcaseKeys = showcase.map((key) =>
     key && data.characters.some((c) => c.key === key) ? key : null
@@ -112,7 +117,7 @@ export default function Genshin({
       <h2 className={heading ? "text-lg font-semibold text-indigo-900 dark:text-indigo-200 mb-4" : "sr-only"}>
         Genshin Impact
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className={cn("grid mb-6", preview ? "grid-cols-3 gap-2 sm:gap-4" : "grid-cols-1 md:grid-cols-3 gap-4")}>
         {summaryCards.map(({ title, count, href }) => (
           <Link
             key={title}
@@ -120,13 +125,18 @@ export default function Genshin({
             className="group rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
           >
             <Card className="h-full transition-colors group-hover:border-indigo-500 dark:group-hover:border-indigo-400">
-              <CardHeader className="pb-2">
-                <CardTitle>{title}</CardTitle>
-                <CardDescription>Total owned</CardDescription>
+              <CardHeader className={cn("pb-2", preview && "p-3 pb-2 sm:p-6 sm:pb-2")}>
+                <CardTitle className={cn(preview && "text-sm sm:text-lg")}>{title}</CardTitle>
+                <CardDescription className={cn(preview && "hidden sm:block")}>Total owned</CardDescription>
               </CardHeader>
-              <CardContent>
-                <p className="text-4xl font-bold">{count.toLocaleString()}</p>
-                <p className="mt-3 flex items-center gap-1 text-sm font-medium text-indigo-600 dark:text-indigo-300">
+              <CardContent className={cn(preview && "p-3 pt-0 sm:p-6 sm:pt-0")}>
+                <p className={cn("font-bold", preview ? "text-2xl sm:text-4xl" : "text-4xl")}>{count.toLocaleString()}</p>
+                <p
+                  className={cn(
+                    "flex items-center gap-1 font-medium text-indigo-600 dark:text-indigo-300",
+                    preview ? "mt-1 text-xs sm:mt-3 sm:text-sm" : "mt-3 text-sm"
+                  )}
+                >
                   Open
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </p>
@@ -145,7 +155,7 @@ export default function Genshin({
         <TabsContent value="characters">
           <Card>
             <CardHeader>
-              <CardTitle>Character Showcase</CardTitle>
+              <CardTitle className={cn(preview && "text-lg")}>Character Showcase</CardTitle>
               <CardDescription>
                 Build a team of up to 5 characters. Each slot has its own
                 portrait, stats, and dropdown.
@@ -191,6 +201,7 @@ export default function Genshin({
                       key={i}
                       className={cn(
                         "relative flex flex-col rounded-xl border p-3 min-h-[280px]",
+                        !showAllSlots && i >= 2 && "hidden sm:flex",
                         char
                           ? "border-indigo-200 dark:border-indigo-800 bg-indigo-50/40 dark:bg-indigo-900/20"
                           : "border-dashed border-gray-300 dark:border-slate-600 bg-gray-50/70 dark:bg-slate-800/40"
@@ -286,6 +297,16 @@ export default function Genshin({
                   );
                 })}
               </div>
+              {!showAllSlots && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="mt-3 w-full sm:hidden"
+                  onClick={() => setShowAllSlots(true)}
+                >
+                  Show all {SHOWCASE_SIZE} slots
+                </Button>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
