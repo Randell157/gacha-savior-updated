@@ -34,6 +34,14 @@ export function artifactSetName(setKey: string): string {
   return getArtifactSet(setKey)?.name ?? formatArtifactSetDisplayName(setKey);
 }
 
+/**
+ * A piece's icon from `npm run icons:artifacts` (its set's icon for that slot),
+ * or null for a set newer than the game data.
+ */
+export function artifactIcon(setKey: string, slotKey: string): string | null {
+  return getArtifactSet(setKey) ? `/artifact-icons/${artifactSetId(setKey)}-${slotKey}.webp` : null;
+}
+
 /** Compares game versions numerically, so "4.10" comes after "4.6". */
 export function compareVersions(a: string, b: string): number {
   const [aMajor, aMinor = 0] = a.split(".").map(Number);

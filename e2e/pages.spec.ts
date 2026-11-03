@@ -69,7 +69,8 @@ test.describe("signed in with the sample upload", () => {
     await expect(page.getByText("Level: 70")).toBeVisible();
     await expect(page.getByText("Flame-Forged Insight")).toBeVisible();
     await expect(page.getByText("4-star")).toBeAttached();
-    await expect(page.getByText(/Silken Moons Serenade \(Flower of Life\)/)).toBeVisible();
+    await expect(page.getByText("Silken Moon's Serenade").first()).toBeVisible();
+    await expect(page.getByText("Flower of Life · 5★ · Lv. 20")).toBeVisible();
   });
 
   test("a character that isn't in the upload says so", async () => {
@@ -101,6 +102,8 @@ test.describe("signed in with the sample upload", () => {
     const show = page.getByRole("group", { name: "Show" });
     await expect(show.getByRole("button", { name: "Equipped (378)" })).toHaveAttribute("aria-pressed", "true");
     await expect(page.getByRole("link", { name: "Aino" })).toBeVisible();
+    // Each piece shows its set's icon for its slot.
+    await expect(page.locator('main img[src*="artifact-icons%2Fsilkenmoonsserenade-flower.webp"]').first()).toBeVisible();
 
     await show.getByRole("button", { name: "All (1,717)" }).click();
     await expect(page.getByRole("button", { name: "Show 60 more" })).toBeVisible();

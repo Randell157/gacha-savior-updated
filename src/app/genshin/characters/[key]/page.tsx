@@ -7,12 +7,10 @@ import { useParams } from "next/navigation";
 import { useGenshinData } from "@/hooks/useGenshinData";
 import { Button } from "@/components/ui/button";
 import GenshinShell from "@/components/GenshinShell";
-import {
-  cn,
-  formatArtifactSetDisplayName,
-  formatCharacterDisplayName,
-} from "@/lib/utils";
+import { cn, formatCharacterDisplayName } from "@/lib/utils";
 import { buildEquipmentIndex } from "@/lib/genshin/equipment";
+import { artifactSetName } from "@/lib/genshin/artifactSets";
+import ArtifactIcon from "@/components/ArtifactIcon";
 import { getWeapon, weaponName } from "@/lib/genshin/weapons";
 import WeaponIcon from "@/components/WeaponIcon";
 import { formatSlotName } from "@/lib/genshin/stats";
@@ -128,10 +126,19 @@ function CharacterDetail() {
               {artifacts.length > 0 ? (
                 <ul className="space-y-2">
                   {artifacts.map((artifact, index) => (
-                    <li key={`${artifact.setKey}-${artifact.slotKey}-${index}`}>
-                      {formatArtifactSetDisplayName(artifact.setKey)}{" "}
-                      ({formatSlotName(artifact.slotKey)}) — Level {artifact.level}
-                      {artifact.rarity != null ? `, ${artifact.rarity}★` : ""}
+                    <li
+                      key={`${artifact.setKey}-${artifact.slotKey}-${index}`}
+                      className="flex items-center gap-3"
+                    >
+                      <ArtifactIcon artifact={artifact} size="sm" />
+                      <div>
+                        <p className="font-medium text-gray-900 dark:text-slate-100">
+                          {artifactSetName(artifact.setKey)}
+                        </p>
+                        <p className="text-sm text-gray-500 dark:text-slate-400">
+                          {formatSlotName(artifact.slotKey)} · {artifact.rarity}★ · Lv. {artifact.level}
+                        </p>
+                      </div>
                     </li>
                   ))}
                 </ul>

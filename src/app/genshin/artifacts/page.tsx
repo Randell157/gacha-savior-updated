@@ -9,6 +9,7 @@ import GenshinShell from "@/components/GenshinShell";
 import RequireAuth from "@/components/RequireAuth";
 import Segmented from "@/components/Segmented";
 import CharacterAvatar from "@/components/CharacterAvatar";
+import ArtifactIcon from "@/components/ArtifactIcon";
 import { cn, formatCharacterDisplayName } from "@/lib/utils";
 import { formatSlotName, formatStat, formatStatName } from "@/lib/genshin/stats";
 import type { GoodArtifact } from "@/lib/genshin/types";
@@ -337,24 +338,28 @@ function SetBonusText({ text }: { text: string }) {
 function SlotCard({ artifact }: { artifact: GoodArtifact }) {
   return (
     <div className="w-44 shrink-0 rounded-lg bg-indigo-50/50 dark:bg-indigo-900/20 ring-1 ring-indigo-100 dark:ring-indigo-900 p-3 text-xs lg:w-auto">
-      <div className="flex items-center justify-between gap-2 text-gray-500 dark:text-slate-400">
-        <span className="font-semibold uppercase tracking-wide text-indigo-700 dark:text-indigo-300 lg:hidden">
-          {formatSlotName(artifact.slotKey).split(" ")[0]}
-        </span>
-        <span>
-          {artifact.rarity}★ · Lv. {artifact.level}
-        </span>
+      {/* Icon beside the slot, rarity and level; the set name gets the full width below. */}
+      <div className="flex items-center gap-2.5">
+        <ArtifactIcon artifact={artifact} size="sm" />
+        <div className="min-w-0 text-gray-500 dark:text-slate-400">
+          <p className="font-semibold uppercase tracking-wide text-indigo-700 dark:text-indigo-300 lg:hidden">
+            {formatSlotName(artifact.slotKey).split(" ")[0]}
+          </p>
+          <p>
+            {artifact.rarity}★ · Lv. {artifact.level}
+          </p>
+        </div>
       </div>
-      <p className="mt-1 line-clamp-2 text-sm font-medium leading-snug text-gray-900 dark:text-slate-100">
+      <p className="mt-2 line-clamp-2 text-sm font-medium leading-snug text-gray-900 dark:text-slate-100">
         {artifactSetName(artifact.setKey)}
       </p>
       {artifact.mainStatKey && (
-        <p className="mt-1 font-semibold text-indigo-900 dark:text-indigo-200">
+        <p className="mt-2 font-semibold text-indigo-900 dark:text-indigo-200">
           {formatStatName(artifact.mainStatKey)}
         </p>
       )}
       {artifact.substats.length > 0 && (
-        <ul className="mt-1 space-y-0.5 text-gray-600 dark:text-slate-400">
+        <ul className="mt-2 space-y-0.5 text-gray-600 dark:text-slate-400">
           {artifact.substats.map((substat, i) => (
             <li key={i}>{formatStat(substat.key, substat.value)}</li>
           ))}
@@ -380,10 +385,7 @@ function ArtifactCard({ artifact }: { artifact: GoodArtifact }) {
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-3 text-lg">
-          {/* public/artifact-icons/ is empty until Phase 4 adds set icons, so
-              show the placeholder directly instead of requesting a missing file. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/placeholder.svg" alt="" width={48} height={48} className="h-12 w-12 shrink-0 rounded-md" />
+          <ArtifactIcon artifact={artifact} />
           <span className="min-w-0 flex-1">{setName}</span>
           {artifact.location && (
             <CharacterAvatar
@@ -393,18 +395,19 @@ function ArtifactCard({ artifact }: { artifact: GoodArtifact }) {
           )}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-0.5 text-sm text-gray-700 dark:text-slate-300">
-        <p>
+      {/* Main stat and substats styled like the Equipped slot cards. */}
+      <CardContent className="text-sm">
+        <p className="text-gray-500 dark:text-slate-400">
           {formatSlotName(artifact.slotKey)} · {artifact.rarity}★ · Lv. {artifact.level}
           {artifact.lock && " · Locked"}
         </p>
         {artifact.mainStatKey && (
-          <p className="font-medium text-gray-900 dark:text-slate-100">
+          <p className="mt-2 font-semibold text-indigo-900 dark:text-indigo-200">
             {formatStatName(artifact.mainStatKey)}
           </p>
         )}
         {artifact.substats.length > 0 && (
-          <ul className="list-disc pl-5 pt-1">
+          <ul className="mt-2 space-y-0.5 text-gray-600 dark:text-slate-400">
             {artifact.substats.map((substat, subIndex) => (
               <li key={subIndex}>{formatStat(substat.key, substat.value)}</li>
             ))}

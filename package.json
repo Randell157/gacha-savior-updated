@@ -13,6 +13,7 @@
     "migrate:usernames:emu": "cross-env FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 GCLOUD_PROJECT=demo-gachasavior node scripts/migrate-usernames.mjs",
     "data:genshin": "node scripts/build-game-data.mjs",
     "icons:weapons": "node scripts/fetch-weapon-icons.mjs",
+    "icons:artifacts": "node scripts/fetch-artifact-icons.mjs",
     "test:e2e": "playwright test"
   },
   "dependencies": {
