@@ -17,7 +17,7 @@ const FEATURES = [
   {
     icon: Users,
     title: "Character roster",
-    text: "Every character in the game, with the ones you own in colour. Sort and filter.",
+    text: "Every character in the game, with the ones you own in color. Sort and filter.",
   },
   {
     icon: IdCard,
@@ -37,7 +37,7 @@ const FEATURES = [
   {
     icon: LayoutGrid,
     title: "Team showcase",
-    text: "Pin five characters to the top of your dashboard.",
+    text: "Pin five characters to the top of your Genshin overview.",
   },
   {
     icon: Gamepad2,
@@ -104,7 +104,7 @@ export default function Features() {
             Try it with a sample account
           </h2>
           <p className="mt-1 text-sm text-gray-500 dark:text-slate-400 mb-6">
-            This is the real dashboard with a made-up account. Try changing the
+            This is the real Genshin overview with a made-up account. Try changing the
             showcase slots.{" "}
             {user
               ? "The count cards open your own pages."

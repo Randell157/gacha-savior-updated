@@ -57,7 +57,7 @@ function GenshinOverview() {
       setSavedSummary(describeCounts(result.data));
     } catch (error) {
       setFileError(
-        `Your file was read, but saving it failed: ${error instanceof Error ? error.message : error}`
+        `Your file was read, but it couldn't be saved. ${error instanceof Error ? error.message : error}`
       );
       setFileWarnings([]);
     } finally {
@@ -65,15 +65,16 @@ function GenshinOverview() {
     }
   };
 
+  const errorTitle = fileError ? "Upload failed" : "Couldn't load your data";
   const errorMessage =
-    fileError ?? (loadError ? `Your saved data couldn't be loaded. ${loadError}` : null);
+    fileError ?? (loadError ? `Your saved data couldn't be opened. ${loadError}` : null);
 
   if (authError) {
     return (
       <GenshinShell title="Genshin Impact">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
+          <AlertTitle>Couldn&apos;t load your account</AlertTitle>
           <AlertDescription>{authError}</AlertDescription>
         </Alert>
       </GenshinShell>
@@ -103,7 +104,7 @@ function GenshinOverview() {
         {errorMessage && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Error</AlertTitle>
+            <AlertTitle>{errorTitle}</AlertTitle>
             <AlertDescription>{errorMessage}</AlertDescription>
           </Alert>
         )}

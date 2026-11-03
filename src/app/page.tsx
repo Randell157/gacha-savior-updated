@@ -33,7 +33,7 @@ const STEPS = [
   },
   {
     title: "Look around",
-    text: "Browse the roster, open any character, and pin your favourite team to the dashboard.",
+    text: "Browse the roster, open any character, and pin your favorite team to your Genshin overview.",
   },
 ];
 
@@ -129,7 +129,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold text-indigo-900 dark:text-indigo-200">Try it with a sample account</h2>
           <p className="mt-1 mb-6 text-sm text-gray-600 dark:text-slate-400">
-            This is the real dashboard with a made-up account. Try changing the showcase slots.
+            This is the real Genshin overview with a made-up account. Try changing the showcase slots.
           </p>
           <div className="rounded-lg bg-white dark:bg-slate-900 p-4 sm:p-6 shadow">
             <SampleDashboard />

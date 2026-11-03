@@ -40,7 +40,7 @@ function GamesHub() {
   return (
     <PageShell title="Your games">
       <p className="text-xl text-gray-700 dark:text-slate-300 sm:text-lg mb-6">
-        Hello, {username || "User"}!
+        {username ? `Hello, ${username}!` : "Hello!"}
       </p>
       <GenshinCard />
       {comingSoon.length > 0 && (

@@ -89,8 +89,7 @@ export default function Header() {
               <SheetHeader>
                 <SheetTitle className="text-indigo-900 dark:text-indigo-200">Games</SheetTitle>
                 <SheetDescription>
-                  Select a game to organize. More titles will be supported over
-                  time.
+                  Pick a game. More are on the way.
                 </SheetDescription>
               </SheetHeader>
               <nav className="mt-8 flex flex-col gap-1" aria-label="Game selection">
@@ -196,7 +195,7 @@ export default function Header() {
                   className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50 dark:text-red-400 dark:focus:bg-red-950"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
-                  Logout
+                  Log out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -207,7 +206,7 @@ export default function Header() {
                 className="text-sm font-medium hover:underline underline-offset-4"
                 href="/login"
               >
-                Login
+                Log in
               </Link>
             </>
           )}

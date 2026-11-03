@@ -50,7 +50,7 @@ function CharacterDetail() {
     <GenshinShell title={displayName}>
       {!character ? (
         <p className="text-gray-600 dark:text-slate-400">
-          Character not found in your uploaded data.
+          You don&apos;t have this character in your latest upload.
         </p>
       ) : (
         <div className="flex flex-col sm:flex-row gap-8">

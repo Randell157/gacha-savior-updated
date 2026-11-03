@@ -137,7 +137,7 @@ export default function Genshin({
                     preview ? "mt-1 text-xs sm:mt-3 sm:text-sm" : "mt-3 text-sm"
                   )}
                 >
-                  Open
+                  {viewAllToSignUp ? "Sign up to see yours" : "Open"}
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </p>
               </CardContent>
@@ -328,7 +328,7 @@ export default function Genshin({
                     ))}
                   </ul>
                 ) : (
-                  <p>No weapon data available. Please upload a JSON file.</p>
+                  <p>No weapons yet. Upload your export above to see them here.</p>
                 )}
               </ScrollArea>
             </CardContent>
@@ -354,7 +354,7 @@ export default function Genshin({
                       ))}
                   </ul>
                 ) : (
-                  <p>No material data available. Please upload a JSON file.</p>
+                  <p>No materials yet. Upload your export above to see them here.</p>
                 )}
               </ScrollArea>
             </CardContent>

@@ -5,12 +5,20 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createUserWithEmailAndPassword, deleteUser } from "firebase/auth";
 import { doc, runTransaction } from "firebase/firestore";
+import { FirebaseError } from "firebase/app";
 import { auth, db } from "@/lib/firebase";
 import { CenteredPage } from "@/components/PageShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 class UsernameTakenError extends Error {}
+
+/** Messages for the sign-up failures people can fix themselves. */
+const SIGN_UP_ERRORS: Record<string, string> = {
+  "auth/email-already-in-use": "That email already has an account. Log in instead.",
+  "auth/invalid-email": "That email address doesn't look right. Check it and try again.",
+  "auth/weak-password": "Choose a password with at least 6 characters.",
+};
 
 export default function CreateAccountPage() {
   //Input States
@@ -30,7 +38,7 @@ export default function CreateAccountPage() {
 
     //Validating password
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError("The passwords don't match.");
       setIsLoading(false);
       return;
     }
@@ -89,7 +97,8 @@ export default function CreateAccountPage() {
       setError(
         error instanceof UsernameTakenError
           ? "That username is already taken. Please choose another."
-          : "Failed to create account. Please try again."
+          : (error instanceof FirebaseError && SIGN_UP_ERRORS[error.code]) ||
+              "Couldn't create your account. Please try again."
       );
       console.error("Account creation failed:", error);
     } finally {
@@ -101,7 +110,7 @@ export default function CreateAccountPage() {
     <CenteredPage>
       <div className="w-full max-w-md bg-white dark:bg-slate-900 shadow sm:rounded-lg px-6 py-8">
         <h1 className="text-2xl font-bold text-indigo-900 dark:text-indigo-200 text-center mb-6">
-          Create Account
+          Create account
         </h1>
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-3">
@@ -152,7 +161,7 @@ export default function CreateAccountPage() {
             </div>
             <div>
               <label htmlFor="confirm-password" className="sr-only">
-                Confirm Password
+                Confirm password
               </label>
               <Input
                 id="confirm-password"
@@ -160,17 +169,17 @@ export default function CreateAccountPage() {
                 type="password"
                 autoComplete="new-password"
                 required
-                placeholder="Confirm Password"
+                placeholder="Confirm password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
             </div>
           </div>
           {error && (
-            <p role="alert" className="text-red-600 dark:text-red-400 text-sm text-center">{error}</p>
+            <p role="alert" className="text-red-600 dark:text-red-300 text-sm text-center">{error}</p>
           )}
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Creating Account..." : "Create Account"}
+            {isLoading ? "Creating account..." : "Create account"}
           </Button>
         </form>
         <p className="text-sm text-center pt-6">

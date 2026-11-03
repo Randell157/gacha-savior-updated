@@ -69,14 +69,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             // Signing out can cancel the listener with a permission error.
             if (auth.currentUser?.uid !== user.uid) return;
             console.error("Error fetching user data:", err);
-            setError("Failed to fetch user data. Please try again.");
+            setError("Refresh the page to try again.");
             setLoading(false);
           }
         );
       },
       (err) => {
         console.error("Auth state change error:", err);
-        setError("Authentication error. Please try again.");
+        setError("Refresh the page to try again.");
         setLoading(false);
       }
     );

@@ -90,7 +90,7 @@ export default function CharactersPage() {
 
   return (
     <GenshinShell
-      title="All Characters"
+      title="Characters"
       actions={
         <>
           <div className="flex items-center gap-2">
@@ -121,8 +121,8 @@ export default function CharactersPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All characters</SelectItem>
-                <SelectItem value="owned">Obtained</SelectItem>
-                <SelectItem value="unowned">Not obtained</SelectItem>
+                <SelectItem value="owned">Owned</SelectItem>
+                <SelectItem value="unowned">Not owned</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -131,7 +131,7 @@ export default function CharactersPage() {
     >
       {ownedFilter === "all" && (
         <p className="text-sm text-gray-500 dark:text-slate-400 mb-6">
-          Greyed-out portraits are characters you have not obtained yet.
+          Greyed-out portraits are characters you don&apos;t own yet.
         </p>
       )}
       {roster.length === 0 ? (
@@ -184,7 +184,7 @@ export default function CharactersPage() {
             return (
               <div
                 key={character.key}
-                title={`${displayName} (not obtained)`}
+                title={`${displayName} (not owned)`}
                 className="flex flex-col items-center w-full max-w-[7.5rem] rounded-lg p-2 cursor-not-allowed"
               >
                 {portrait}

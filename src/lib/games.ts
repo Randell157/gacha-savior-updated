@@ -17,7 +17,7 @@ export const GAMES: Game[] = [
   {
     id: "genshin",
     name: "Genshin Impact",
-    description: "Track characters, weapons & artifacts",
+    description: "Track characters, weapons and artifacts",
     summary: "Characters, weapons and artifacts.",
     href: "/genshin",
     icon: "/genshinappicon.png",

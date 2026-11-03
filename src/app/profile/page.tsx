@@ -35,7 +35,7 @@ function Profile() {
       </DetailRows>
       <div className="px-4 py-5 sm:px-6 border-t border-gray-200 dark:border-slate-700">
         <Button asChild>
-          <Link href="/dashboard">Back to Dashboard</Link>
+          <Link href="/dashboard">Back to your games</Link>
         </Button>
       </div>
     </PageShell>

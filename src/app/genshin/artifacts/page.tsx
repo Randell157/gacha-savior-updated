@@ -131,7 +131,7 @@ function Artifacts() {
 
   if (artifacts.length === 0) {
     return (
-      <GenshinShell title="All Artifacts">
+      <GenshinShell title="Artifacts">
         <p className="text-gray-600 dark:text-slate-400">
           No artifacts yet. Upload your data on the Genshin overview to see them here.
         </p>
@@ -140,7 +140,7 @@ function Artifacts() {
   }
 
   return (
-    <GenshinShell title="All Artifacts">
+    <GenshinShell title="Artifacts">
       <div className="mb-6 flex flex-wrap items-center gap-3">
         <Segmented
           label="Show"

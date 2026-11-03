@@ -104,7 +104,7 @@ function parseList<T>(
 /** Validates and normalizes a GOOD export. Bad entries are dropped with a warning. */
 export function parseGood(json: unknown): ParseGoodResult {
   if (!isObject(json)) {
-    return { ok: false, error: "The file isn't a Genshin data export." };
+    return { ok: false, error: "This file isn't a GOOD export. Export again from Inventory Kamera or Irminsul and choose the GOOD format." };
   }
   if (json.format !== "GOOD") {
     return {
@@ -163,7 +163,7 @@ export function parseGoodText(text: string): ParseGoodResult {
   try {
     json = JSON.parse(text);
   } catch {
-    return { ok: false, error: "The file isn't valid JSON." };
+    return { ok: false, error: "This file couldn't be read. It may be incomplete. Export it again and upload the new file." };
   }
   return parseGood(json);
 }

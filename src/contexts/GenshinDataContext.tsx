@@ -71,11 +71,12 @@ function clearLegacyUpload(uid: string) {
   }
 }
 
+/** What the player can do about a Firestore failure; the details go to the console. */
 function describeError(error: unknown) {
   if (error instanceof FirebaseError && error.code === "permission-denied") {
-    return "Permission denied by the database. The Firestore security rules may need to be updated.";
+    return "Log out, log back in, and try again.";
   }
-  return "Something went wrong talking to the database. Please try again.";
+  return "Check your connection and try again.";
 }
 
 export function GenshinDataProvider({ children }: { children: React.ReactNode }) {

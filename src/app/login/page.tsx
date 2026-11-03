@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { FirebaseError } from "firebase/app";
 import { auth } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
 import { CenteredPage } from "@/components/PageShell";
@@ -12,6 +13,18 @@ import { Input } from "@/components/ui/input";
 
 /** A login failure whose message is safe to show as-is. */
 class LoginError extends Error {}
+
+// One message for every wrong-credentials case, so it doesn't reveal which
+// part was wrong.
+const BAD_CREDENTIALS =
+  "That email, username or password isn't right. Check them and try again.";
+const LOGIN_FAILED = "Couldn't log in right now. Please try again.";
+const BAD_CREDENTIAL_CODES = new Set([
+  "auth/invalid-credential",
+  "auth/wrong-password",
+  "auth/user-not-found",
+  "auth/invalid-email",
+]);
 
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState("");
@@ -47,11 +60,11 @@ export default function LoginPage() {
           body: JSON.stringify({ username: email }),
         });
         const result = await response.json().catch(() => ({}));
+        if (response.status === 401) {
+          throw new LoginError(BAD_CREDENTIALS);
+        }
         if (!response.ok || typeof result.email !== "string") {
-          throw new LoginError(
-            result.error ??
-              "Failed to log in. Please check your credentials and try again."
-          );
+          throw new LoginError(result.error ?? LOGIN_FAILED);
         }
         email = result.email;
       }
@@ -62,7 +75,9 @@ export default function LoginPage() {
       setError(
         error instanceof LoginError
           ? error.message
-          : "Failed to log in. Please check your credentials and try again."
+          : error instanceof FirebaseError && BAD_CREDENTIAL_CODES.has(error.code)
+            ? BAD_CREDENTIALS
+            : LOGIN_FAILED
       );
       console.error("Login failed:", error);
     } finally {
@@ -80,13 +95,13 @@ export default function LoginPage() {
     <CenteredPage>
       <div className="w-full max-w-md bg-white dark:bg-slate-900 shadow sm:rounded-lg px-6 py-8">
         <h1 className="text-2xl font-bold text-indigo-900 dark:text-indigo-200 text-center mb-6">
-          Enter Login Information
+          Log in
         </h1>
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-3">
             <div>
               <label htmlFor="identifier" className="sr-only">
-                Email address or Username
+                Email or username
               </label>
               <Input
                 id="identifier"
@@ -94,7 +109,7 @@ export default function LoginPage() {
                 type="text"
                 autoComplete="username"
                 required
-                placeholder="Email address or Username"
+                placeholder="Email or username"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
               />
@@ -116,7 +131,7 @@ export default function LoginPage() {
             </div>
           </div>
           {error && (
-            <p role="alert" className="text-red-600 dark:text-red-400 text-sm text-center">{error}</p>
+            <p role="alert" className="text-red-600 dark:text-red-300 text-sm text-center">{error}</p>
           )}
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? "Logging in..." : "Log in"}

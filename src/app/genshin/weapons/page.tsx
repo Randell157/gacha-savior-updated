@@ -92,10 +92,10 @@ function Weapons() {
   }, [weapons, search, show, groupCopies, sort]);
 
   return (
-    <GenshinShell title="All Weapons">
+    <GenshinShell title="Weapons">
       {weapons.length === 0 ? (
         <p className="text-gray-600 dark:text-slate-400">
-          No weapons yet. Upload your data on the dashboard to see them here.
+          No weapons yet. Upload your data on the Genshin overview to see them here.
         </p>
       ) : (
         <>
