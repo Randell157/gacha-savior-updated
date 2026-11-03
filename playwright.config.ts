@@ -32,12 +32,17 @@ export default defineConfig({
       // Firestore starts last; global-setup checks Auth too.
       url: "http://127.0.0.1:8080",
       reuseExistingServer: false,
+      stderr: "ignore",
       timeout: 120_000,
     },
     {
       command: `npx cross-env NEXT_PUBLIC_USE_FIREBASE_EMULATORS=true NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-gachasavior FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 next dev --port ${PORT}`,
       url: `http://localhost:${PORT}`,
       reuseExistingServer: false,
+      // The dev server echoes the site's console (the errors tests trigger on
+      // purpose, missing weapon icons), which buries the results. A failing
+      // test still shows its own error, screenshot and trace.
+      stderr: "ignore",
       timeout: 120_000,
     },
   ],
