@@ -10,12 +10,14 @@ import RequireAuth from "@/components/RequireAuth";
 import Segmented from "@/components/Segmented";
 import CharacterAvatar from "@/components/CharacterAvatar";
 import ArtifactIcon from "@/components/ArtifactIcon";
-import { cn, formatCharacterDisplayName } from "@/lib/utils";
+import ArtifactSetBonuses from "@/components/ArtifactSetBonuses";
+import ArtifactSlotCard from "@/components/ArtifactSlotCard";
+import SignedOutBanner, { EmptyList } from "@/components/SignedOutBanner";
+import { formatCharacterDisplayName } from "@/lib/utils";
 import { formatSlotName, formatStat, formatStatName } from "@/lib/genshin/stats";
 import type { GoodArtifact } from "@/lib/genshin/types";
 import {
   ALL_ARTIFACT_SETS,
-  activeSets,
   artifactSetId,
   artifactSetName,
 } from "@/lib/genshin/artifactSets";
@@ -42,13 +44,14 @@ const bySlot = (a: GoodArtifact, b: GoodArtifact) =>
 
 export default function ArtifactsPage() {
   return (
-    <RequireAuth>
+    <RequireAuth signedOut={<Artifacts signedOut />}>
       <Artifacts />
     </RequireAuth>
   );
 }
 
-function Artifacts() {
+/** Signed out, the page shows the log-in banner, the Show toggle faded and disabled, and an empty list. */
+function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
   const { data: genshinData } = useGenshinData();
   // Equipped is the default: a few hundred pieces grouped by character loads
   // quickly, where drawing every artifact at once was slow.
@@ -129,6 +132,28 @@ function Artifacts() {
     setSetFilter(next);
     setLimit(PAGE_SIZE);
   };
+
+  if (signedOut) {
+    return (
+      <GenshinShell title="Artifacts">
+        <SignedOutBanner>Log in and upload your account to see your artifacts here.</SignedOutBanner>
+        <fieldset disabled className="mb-6 opacity-50">
+          <legend className="sr-only">Artifact views (log in to use them)</legend>
+          <Segmented
+            label="Show"
+            value={show}
+            onChange={changeShow}
+            options={[
+              { value: "equipped", label: "Equipped (0)" },
+              { value: "all", label: "All (0)" },
+              { value: "unequipped", label: "Unequipped (0)" },
+            ]}
+          />
+        </fieldset>
+        <EmptyList>No artifacts to show yet.</EmptyList>
+      </GenshinShell>
+    );
+  }
 
   if (artifacts.length === 0) {
     return (
@@ -237,7 +262,6 @@ function EquippedRow({
   name: string;
   pieces: GoodArtifact[];
 }) {
-  const sets = activeSets(pieces);
   return (
     <section className="rounded-xl border border-gray-200 dark:border-slate-700 p-3 lg:grid lg:grid-cols-[14rem_repeat(5,minmax(0,1fr))] lg:items-stretch gap-3">
       <div className="mb-3 lg:mb-0">
@@ -255,19 +279,7 @@ function EquippedRow({
             </span>
           </div>
         </div>
-        {sets.map((set) => {
-          const name = artifactSetName(set.setKey);
-          // A set newer than the game data shows a placeholder (fix: update genshin-db, run npm run data:genshin).
-          const missing = "Set bonus not available yet.";
-          return (
-            <div key={set.setKey} className="mt-2 space-y-1.5 text-xs">
-              <SetBonus pieces={2} name={name} text={set.info?.twoPiece ?? missing} />
-              {set.count >= 4 && (
-                <SetBonus pieces={4} name={name} text={set.info?.fourPiece ?? missing} />
-              )}
-            </div>
-          );
-        })}
+        <ArtifactSetBonuses pieces={pieces} className="mt-2 text-xs" />
       </div>
       {/* Scrolls sideways below lg, so it takes focus for keyboard scrolling. */}
       <div
@@ -279,7 +291,7 @@ function EquippedRow({
         {SLOT_ORDER.map((slot) => {
           const piece = pieces.find((p) => p.slotKey === slot);
           return piece ? (
-            <SlotCard key={slot} artifact={piece} />
+            <ArtifactSlotCard key={slot} artifact={piece} slotNameNarrowOnly className="w-44 shrink-0 lg:w-auto" />
           ) : (
             <div
               key={slot}
@@ -291,81 +303,6 @@ function EquippedRow({
         })}
       </div>
     </section>
-  );
-}
-
-/** One set bonus: a badge (gold for 4-piece, indigo for 2-piece) and its text. */
-function SetBonus({ pieces, name, text }: { pieces: 2 | 4; name: string; text: string }) {
-  return (
-    <div>
-      <span
-        className={cn(
-          "inline-block rounded-full px-2 py-0.5 font-semibold",
-          pieces === 4
-            ? "bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200"
-            : "bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300"
-        )}
-      >
-        {pieces}-piece · {name}
-      </span>
-      <SetBonusText text={text} />
-    </div>
-  );
-}
-
-/** Set bonus text cut to four lines, with More / Less when it's longer. */
-function SetBonusText({ text }: { text: string }) {
-  const [expanded, setExpanded] = useState(false);
-  const long = text.length > 140;
-  return (
-    <div className="mt-1 leading-snug text-gray-600 dark:text-slate-400">
-      <p className={cn(long && !expanded && "line-clamp-4")}>{text}</p>
-      {long && (
-        <button
-          type="button"
-          aria-expanded={expanded}
-          onClick={() => setExpanded((v) => !v)}
-          className="mt-0.5 font-medium text-indigo-600 dark:text-indigo-400 hover:underline underline-offset-2"
-        >
-          {expanded ? "Less" : "More"}
-        </button>
-      )}
-    </div>
-  );
-}
-
-/** A compact artifact for the equipped rows. */
-function SlotCard({ artifact }: { artifact: GoodArtifact }) {
-  return (
-    <div className="w-44 shrink-0 rounded-lg bg-indigo-50/50 dark:bg-indigo-900/20 ring-1 ring-indigo-100 dark:ring-indigo-900 p-3 text-xs lg:w-auto">
-      {/* Icon beside the slot, rarity and level; the set name gets the full width below. */}
-      <div className="flex items-center gap-2.5">
-        <ArtifactIcon artifact={artifact} size="sm" />
-        <div className="min-w-0 text-gray-500 dark:text-slate-400">
-          <p className="font-semibold uppercase tracking-wide text-indigo-700 dark:text-indigo-300 lg:hidden">
-            {formatSlotName(artifact.slotKey).split(" ")[0]}
-          </p>
-          <p>
-            {artifact.rarity}★ · Lv. {artifact.level}
-          </p>
-        </div>
-      </div>
-      <p className="mt-2 line-clamp-2 text-sm font-medium leading-snug text-gray-900 dark:text-slate-100">
-        {artifactSetName(artifact.setKey)}
-      </p>
-      {artifact.mainStatKey && (
-        <p className="mt-2 font-semibold text-indigo-900 dark:text-indigo-200">
-          {formatStatName(artifact.mainStatKey)}
-        </p>
-      )}
-      {artifact.substats.length > 0 && (
-        <ul className="mt-2 space-y-0.5 text-gray-600 dark:text-slate-400">
-          {artifact.substats.map((substat, i) => (
-            <li key={i}>{formatStat(substat.key, substat.value)}</li>
-          ))}
-        </ul>
-      )}
-    </div>
   );
 }
 

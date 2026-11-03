@@ -1,0 +1,1827 @@
+{
+  "source": "genshin-db 5.2.14",
+  "characters": {
+    "traveler": {
+      "name": "Traveler",
+      "title": null,
+      "description": "A traveler from another world who had their only kin taken away, forcing them to embark on a journey to find The Seven.",
+      "element": null,
+      "weaponType": "Sword",
+      "region": null,
+      "affiliation": null,
+      "constellation": "Viator",
+      "talents": null
+    },
+    "aino": {
+      "name": "Aino",
+      "title": "Clinky-Clank Gadgets-A-Gogo",
+      "description": "A genius mechanic and inventor from Nod-Krai who loves interesting machines and sweet treats.",
+      "element": "Hydro",
+      "weaponType": "Claymore",
+      "region": "Nod-Krai",
+      "affiliation": "Clink-Clank Krumkake Craftshop",
+      "constellation": "Cistellula Mira",
+      "talents": {
+        "auto": "Bish-Bash-Bosh Repair",
+        "skill": "Musecatcher",
+        "burst": "Precision Hydronic Cooler"
+      }
+    },
+    "albedo": {
+      "name": "Albedo",
+      "title": "Kreideprinz",
+      "description": "A genius known as the Kreideprinz, he is the Chief Alchemist and Captain of the Investigation Team of the Knights of Favonius.",
+      "element": "Geo",
+      "weaponType": "Sword",
+      "region": "Mondstadt",
+      "affiliation": "Knights of Favonius",
+      "constellation": "Princeps Cretaceus",
+      "talents": {
+        "auto": "Favonius Bladework - Weiss",
+        "skill": "Abiogenesis: Solar Isotoma",
+        "burst": "Rite of Progeniture: Tectonic Tide"
+      }
+    },
+    "alhaitham": {
+      "name": "Alhaitham",
+      "title": "Admonishing Instruction",
+      "description": "The current scribe of the Sumeru Akademiya, a man endowed with extraordinary intelligence and talent. He lives free — free from the searching eyes of ordinary people, anyway.",
+      "element": "Dendro",
+      "weaponType": "Sword",
+      "region": "Sumeru",
+      "affiliation": "Sumeru Akademiya",
+      "constellation": "Vultur Volans",
+      "talents": {
+        "auto": "Abductive Reasoning",
+        "skill": "Universality: An Elaboration on Form",
+        "burst": "Particular Field: Fetters of Phenomena"
+      }
+    },
+    "aloy": {
+      "name": "Aloy",
+      "title": "Savior From Another World",
+      "description": "Formerly an outcast, now a hunter of unparalleled skill. Ready to do the right thing at any time.",
+      "element": "Cryo",
+      "weaponType": "Bow",
+      "region": null,
+      "affiliation": "Wandering Heroine",
+      "constellation": "Nora Fortis",
+      "talents": {
+        "auto": "Rapid Fire",
+        "skill": "Frozen Wilds",
+        "burst": "Prophecies of Dawn"
+      }
+    },
+    "alyosha": {
+      "name": "Alyosha",
+      "title": "Swift-Striding Hound",
+      "description": "A \"professional hunter\" and master of the Snezhnayan snowfields. A fierce, distinct \"idealism\" burns beneath his calm demeanor.",
+      "element": "Electro",
+      "weaponType": "Polearm",
+      "region": null,
+      "affiliation": "Snezhnaya",
+      "constellation": "Canis Borzoides",
+      "talents": {
+        "auto": "Skirmishing Spear",
+        "skill": "Thunderbolt Strike",
+        "burst": "Hunter's Advance"
+      }
+    },
+    "amber": {
+      "name": "Amber",
+      "title": "Gliding Champion",
+      "description": "Always energetic and full of life, Amber's the best — albeit only — Outrider of the Knights of Favonius.",
+      "element": "Pyro",
+      "weaponType": "Bow",
+      "region": "Mondstadt",
+      "affiliation": "Knights of Favonius",
+      "constellation": "Lepus",
+      "talents": {
+        "auto": "Sharpshooter",
+        "skill": "Explosive Puppet",
+        "burst": "Fiery Rain"
+      }
+    },
+    "aratakiitto": {
+      "name": "Arataki Itto",
+      "title": "Hanamizaka Heroics",
+      "description": "The first and greatest head of the Arataki Gang, famed throughout Inazuma City's Hanamizaka... Wait, what? You've never heard of them? Are you trying to be funny here?",
+      "element": "Geo",
+      "weaponType": "Claymore",
+      "region": "Inazuma",
+      "affiliation": "Arataki Gang",
+      "constellation": "Taurus Iracundus",
+      "talents": {
+        "auto": "Fight Club Legend",
+        "skill": "Masatsu Zetsugi: Akaushi Burst!",
+        "burst": "Royal Descent: Behold, Itto the Evil!"
+      }
+    },
+    "arlecchino": {
+      "name": "Arlecchino",
+      "title": "Dire Balemoon",
+      "description": "\"The Knave,\" Fourth of the Fatui Harbingers. A poised, ruthless diplomat. To the children in the House of the Hearth, she is their feared yet dependable \"Father.\"",
+      "element": "Pyro",
+      "weaponType": "Polearm",
+      "region": "Snezhnaya",
+      "affiliation": "Fatui",
+      "constellation": "Ignis Purgatorius",
+      "talents": {
+        "auto": "Invitation to a Beheading",
+        "skill": "All Is Ash",
+        "burst": "Balemoon Rising"
+      }
+    },
+    "baizhu": {
+      "name": "Baizhu",
+      "title": "Beyond Mortality",
+      "description": "The owner of Bubu Pharmacy, who is rarely seen without the white snake named Changsheng. His medicinal knowledge is encyclopedic, and his personal intrigues subtle.",
+      "element": "Dendro",
+      "weaponType": "Catalyst",
+      "region": "Liyue",
+      "affiliation": "Bubu Pharmacy",
+      "constellation": "Lagenaria",
+      "talents": {
+        "auto": "The Classics of Acupuncture",
+        "skill": "Universal Diagnosis",
+        "burst": "Holistic Revivification"
+      }
+    },
+    "barbara": {
+      "name": "Barbara",
+      "title": "Shining Idol",
+      "description": "Every citizen of Mondstadt adores Barbara. She learned the word \"idol\" from a magazine.",
+      "element": "Hydro",
+      "weaponType": "Catalyst",
+      "region": "Mondstadt",
+      "affiliation": "Church of Favonius",
+      "constellation": "Crater",
+      "talents": {
+        "auto": "Whisper of Water",
+        "skill": "Let the Show Begin♪",
+        "burst": "Shining Miracle♪"
+      }
+    },
+    "beidou": {
+      "name": "Beidou",
+      "title": "Uncrowned Lord of the Ocean",
+      "description": "Captain of her crew, The Crux. She's quite an unbound and forthright woman.",
+      "element": "Electro",
+      "weaponType": "Claymore",
+      "region": "Liyue",
+      "affiliation": "The Crux",
+      "constellation": "Victor Mare",
+      "talents": {
+        "auto": "Oceanborne",
+        "skill": "Tidecaller",
+        "burst": "Stormbreaker"
+      }
+    },
+    "bennett": {
+      "name": "Bennett",
+      "title": "Trial by Fire",
+      "description": "A good-natured adventurer from Mondstadt who's unfortunately extremely unlucky.",
+      "element": "Pyro",
+      "weaponType": "Sword",
+      "region": "Mondstadt",
+      "affiliation": "Adventurers' Guild",
+      "constellation": "Rota Calamitas",
+      "talents": {
+        "auto": "Strike of Fortune",
+        "skill": "Passion Overload",
+        "burst": "Fantastic Voyage"
+      }
+    },
+    "candace": {
+      "name": "Candace",
+      "title": "Golden Vow",
+      "description": "A descendant of King Deshret with an amber left eye. The defender of Aaru Village.",
+      "element": "Hydro",
+      "weaponType": "Polearm",
+      "region": "Sumeru",
+      "affiliation": "Aaru Village",
+      "constellation": "Sagitta Scutum",
+      "talents": {
+        "auto": "Gleaming Spear - Guardian Stance",
+        "skill": "Sacred Rite: Heron's Sanctum",
+        "burst": "Sacred Rite: Wagtail's Tide"
+      }
+    },
+    "charlotte": {
+      "name": "Charlotte",
+      "title": "Lens of Verity",
+      "description": "Indefatigable reporter of The Steambird, constantly on the hunt for the \"truth.\"",
+      "element": "Cryo",
+      "weaponType": "Catalyst",
+      "region": "Fontaine",
+      "affiliation": "The Steambird",
+      "constellation": "Hualina Veritas",
+      "talents": {
+        "auto": "Cool-Color Capture",
+        "skill": "Framing: Freezing Point Composition",
+        "burst": "Still Photo: Comprehensive Confirmation"
+      }
+    },
+    "chasca": {
+      "name": "Chasca",
+      "title": "Skyborne Arbiter",
+      "description": "The Peacemaker of the Tlalocan, the ender of all disputes.",
+      "element": "Anemo",
+      "weaponType": "Bow",
+      "region": "Natlan",
+      "affiliation": "Tlalocan",
+      "constellation": "Vultur Gryphus",
+      "talents": {
+        "auto": "Phantom Feather Flurry",
+        "skill": "Spirit Reins, Shadow Hunt",
+        "burst": "Soul Reaper's Fatal Round"
+      }
+    },
+    "chevreuse": {
+      "name": "Chevreuse",
+      "title": "Executor of Justice",
+      "description": "The captain of the Special Security and Surveillance Patrol, who wears justice as an ever-present seal upon her heart. Her musket shall only ever point at the guilty.",
+      "element": "Pyro",
+      "weaponType": "Polearm",
+      "region": "Fontaine",
+      "affiliation": "Special Security and Surveillance Patrol",
+      "constellation": "Sclopetum Ensiferum",
+      "talents": {
+        "auto": "Line Bayonet Thrust EX",
+        "skill": "Short-Range Rapid Interdiction Fire",
+        "burst": "Ring of Bursting Grenades"
+      }
+    },
+    "chiori": {
+      "name": "Chiori",
+      "title": "The Thundering Seamstress",
+      "description": "The owner of Chioriya Boutique. A tailor renowned throughout Fontaine.",
+      "element": "Geo",
+      "weaponType": "Sword",
+      "region": "Inazuma",
+      "affiliation": "Court of Fontaine",
+      "constellation": "Cisoria",
+      "talents": {
+        "auto": "Weaving Blade",
+        "skill": "Fluttering Hasode",
+        "burst": "Hiyoku: Twin Blades"
+      }
+    },
+    "chongyun": {
+      "name": "Chongyun",
+      "title": "Frozen Ardor",
+      "description": "A young exorcist from a family of exorcists. He does everything he can to suppress his abundance of yang energy.",
+      "element": "Cryo",
+      "weaponType": "Claymore",
+      "region": "Liyue",
+      "affiliation": "Tianheng Thaumaturges",
+      "constellation": "Nubis Caesor",
+      "talents": {
+        "auto": "Demonbane",
+        "skill": "Spirit Blade: Chonghua's Layered Frost",
+        "burst": "Spirit Blade: Cloud-Parting Star"
+      }
+    },
+    "citlali": {
+      "name": "Citlali",
+      "title": "Obsidian Opalstar",
+      "description": "The great shaman from the Masters of the Night-Wind, the universally-revered Granny Itztli.",
+      "element": "Cryo",
+      "weaponType": "Catalyst",
+      "region": "Natlan",
+      "affiliation": "Mictlan",
+      "constellation": "Patina Anavatlaca",
+      "talents": {
+        "auto": "Shadow-Stealing Spirit Vessel",
+        "skill": "Dawnfrost Darkstar",
+        "burst": "Edict of Entwined Splendor"
+      }
+    },
+    "clorinde": {
+      "name": "Clorinde",
+      "title": "Candlebearer, Shadowhunter",
+      "description": "An undefeated Champion Duelist. Sword in hand, she defends justice in the Court of Fontaine.",
+      "element": "Electro",
+      "weaponType": "Sword",
+      "region": "Fontaine",
+      "affiliation": "Trial Court",
+      "constellation": "Rapperia",
+      "talents": {
+        "auto": "Oath of Hunting Shadows",
+        "skill": "Hunter's Vigil",
+        "burst": "Last Lightfall"
+      }
+    },
+    "collei": {
+      "name": "Collei",
+      "title": "Sprout of Rebirth",
+      "description": "A trainee ranger active in Avidya Forest. Behind her enthusiastic words and actions hides a slightly introverted personality.",
+      "element": "Dendro",
+      "weaponType": "Bow",
+      "region": "Sumeru",
+      "affiliation": "Gandharva Ville",
+      "constellation": "Leptailurus Cervarius",
+      "talents": {
+        "auto": "Supplicant's Bowmanship",
+        "skill": "Floral Brush",
+        "burst": "Trump-Card Kitty"
+      }
+    },
+    "columbina": {
+      "name": "Columbina",
+      "title": "Welkin Moon's Homecoming",
+      "description": "The Moon Maiden born in Nod-Krai, and also the welkin moon returning home.",
+      "element": "Hydro",
+      "weaponType": "Catalyst",
+      "region": "Nod-Krai",
+      "affiliation": "Silvermoon Hall",
+      "constellation": "???",
+      "talents": {
+        "auto": "Moondew Cascade",
+        "skill": "Eternal Tides",
+        "burst": "Moonlit Melancholy"
+      }
+    },
+    "cyno": {
+      "name": "Cyno",
+      "title": "Judicator of Secrets",
+      "description": "The General Mahamatra in charge of supervising the researchers of the Akademiya. It is said that when he gets down to work, the General Mahamatra is even more efficient than the \"Great Vayuvyastra\" made by the Kshahrewar.",
+      "element": "Electro",
+      "weaponType": "Polearm",
+      "region": "Sumeru",
+      "affiliation": "Temple of Silence",
+      "constellation": "Lupus Aureus",
+      "talents": {
+        "auto": "Invoker's Spear",
+        "skill": "Secret Rite: Chasmic Soulfarer",
+        "burst": "Sacred Rite: Wolf's Swiftness"
+      }
+    },
+    "dahlia": {
+      "name": "Dahlia",
+      "title": "Ode and Oblation",
+      "description": "Deacon of the Church of Favonius and the Anemo Archon's representative in the church.",
+      "element": "Hydro",
+      "weaponType": "Sword",
+      "region": "Mondstadt",
+      "affiliation": "Church of Favonius",
+      "constellation": "Cantus Choralis",
+      "talents": {
+        "auto": "Favonius Bladework - Ritual",
+        "skill": "Immersive Ordinance",
+        "burst": "Radiant Psalter"
+      }
+    },
+    "dehya": {
+      "name": "Dehya",
+      "title": "Flame-Mane",
+      "description": "A member of the Eremites, a mercenary organization that roams the sands of Sumeru. Valiant and powerful, she enjoys great fame amongst her fellow Eremites.",
+      "element": "Pyro",
+      "weaponType": "Claymore",
+      "region": "Sumeru",
+      "affiliation": "The Eremites",
+      "constellation": "Mantichora",
+      "talents": {
+        "auto": "Sandstorm Assault",
+        "skill": "Molten Inferno",
+        "burst": "Leonine Bite"
+      }
+    },
+    "diluc": {
+      "name": "Diluc",
+      "title": "Dark Side of Dawn",
+      "description": "The tycoon of a winery empire in Mondstadt, unmatched in every possible way.",
+      "element": "Pyro",
+      "weaponType": "Claymore",
+      "region": "Mondstadt",
+      "affiliation": "Dawn Winery",
+      "constellation": "Noctua",
+      "talents": {
+        "auto": "Tempered Sword",
+        "skill": "Searing Onslaught",
+        "burst": "Dawn"
+      }
+    },
+    "diona": {
+      "name": "Diona",
+      "title": "Kätzlein Cocktail",
+      "description": "A young lady who has inherited trace amounts of non-human blood. She is the incredibly popular bartender of the Cat's Tail tavern.",
+      "element": "Cryo",
+      "weaponType": "Bow",
+      "region": "Mondstadt",
+      "affiliation": "The Cat's Tail",
+      "constellation": "Feles",
+      "talents": {
+        "auto": "Kätzlein Style",
+        "skill": "Icy Paws",
+        "burst": "Signature Mix"
+      }
+    },
+    "dori": {
+      "name": "Dori",
+      "title": "Treasure of Dream Garden",
+      "description": "An elusive merchant who has a fondness for glittering Mora.",
+      "element": "Electro",
+      "weaponType": "Claymore",
+      "region": "Sumeru",
+      "affiliation": "The Palace of Alcazarzaray",
+      "constellation": "Magicae Lucerna",
+      "talents": {
+        "auto": "Marvelous Sword-Dance (Modified)",
+        "skill": "Spirit-Warding Lamp: Troubleshooter Cannon",
+        "burst": "Alcazarzaray's Exactitude"
+      }
+    },
+    "durin": {
+      "name": "Durin",
+      "title": "\"The Undying Fire\"",
+      "description": "A dragon born from M's pen, who came to alight in the human world. His \"story\" continues to unfold.",
+      "element": "Pyro",
+      "weaponType": "Sword",
+      "region": "Mondstadt",
+      "affiliation": "Hexenzirkel",
+      "constellation": "Draco Rubedo",
+      "talents": {
+        "auto": "Radiant Wingslash",
+        "skill": "Binary Form: Convergence and Division",
+        "burst": "Principle of Purity: As the Light Shifts"
+      }
+    },
+    "emilie": {
+      "name": "Emilie",
+      "title": "A Thousand Scents Traced",
+      "description": "A Fontainian perfumer, one who bottles secrets.",
+      "element": "Dendro",
+      "weaponType": "Polearm",
+      "region": "Fontaine",
+      "affiliation": "Court of Fontaine",
+      "constellation": "Pomum de Ambra",
+      "talents": {
+        "auto": "Shadow-Hunting Spear (Custom)",
+        "skill": "Fragrance Extraction",
+        "burst": "Aromatic Explication"
+      }
+    },
+    "escoffier": {
+      "name": "Escoffier",
+      "title": "Tasteful Excellence",
+      "description": "The ex-head chef of Hotel Debord, renowned throughout Fontaine as the Patissiere Supreme and vanguard of precision gastronomy. Has incomparably strict standards when it comes to cooking.",
+      "element": "Cryo",
+      "weaponType": "Polearm",
+      "region": "Fontaine",
+      "affiliation": "Fontaine",
+      "constellation": "Dulciaria Structura",
+      "talents": {
+        "auto": "Kitchen Skills",
+        "skill": "Low-Temperature Cooking",
+        "burst": "Scoring Cuts"
+      }
+    },
+    "eula": {
+      "name": "Eula",
+      "title": "Dance of the Shimmering Wave",
+      "description": "The Spindrift Knight, a scion of the old aristocracy, and the Captain of the Knights of Favonius Reconnaissance Company. The reason for which a descendant of the ancient nobles might join the Knights remains a great mystery in Mondstadt to this very day.",
+      "element": "Cryo",
+      "weaponType": "Claymore",
+      "region": "Mondstadt",
+      "affiliation": "Knights of Favonius",
+      "constellation": "Aphros Delos",
+      "talents": {
+        "auto": "Favonius Bladework - Edel",
+        "skill": "Icetide Vortex",
+        "burst": "Glacial Illumination"
+      }
+    },
+    "faruzan": {
+      "name": "Faruzan",
+      "title": "Enigmatic Machinist",
+      "description": "A researcher from \"one hundred years ago.\" She enjoys self-identifying as everyone's senior, and has significant knowledge of ancient scripts and machines of all kinds.",
+      "element": "Anemo",
+      "weaponType": "Bow",
+      "region": "Sumeru",
+      "affiliation": "Haravatat",
+      "constellation": "Flosculi Implexi",
+      "talents": {
+        "auto": "Parthian Shot",
+        "skill": "Wind Realm of Nasamjnin",
+        "burst": "The Wind's Secret Ways"
+      }
+    },
+    "fischl": {
+      "name": "Fischl",
+      "title": "Prinzessin der Verurteilung!",
+      "description": "A mysterious girl who calls herself \"Prinzessin der Verurteilung\" and travels with a night raven named Oz.",
+      "element": "Electro",
+      "weaponType": "Bow",
+      "region": "Mondstadt",
+      "affiliation": "Adventurers' Guild",
+      "constellation": "Corvus",
+      "talents": {
+        "auto": "Bolts of Downfall",
+        "skill": "Nightrider",
+        "burst": "Midnight Phantasmagoria"
+      }
+    },
+    "flins": {
+      "name": "Flins",
+      "title": "Shadowy Lights, Stranger Wights",
+      "description": "A Lightkeeper of Nod-Krai, guardian of a lighthouse and graveyard on a northern isle. An enigmatic gentleman, cultured and courtly.",
+      "element": "Electro",
+      "weaponType": "Polearm",
+      "region": "Nod-Krai",
+      "affiliation": "Lightkeepers",
+      "constellation": "Laterna Vigilis",
+      "talents": {
+        "auto": "Pocztowy Demonspear",
+        "skill": "Ancient Rite: Arcane Light",
+        "burst": "Ancient Ritual: Cometh the Night"
+      }
+    },
+    "freminet": {
+      "name": "Freminet",
+      "title": "Yearning for Unseen Depths",
+      "description": "A reserved young man who is well-versed in diving. Beneath his distant, icy demeanor lies a pure heart bereft of all flaws.",
+      "element": "Cryo",
+      "weaponType": "Claymore",
+      "region": "Fontaine",
+      "affiliation": "Hotel Bouffes d'ete",
+      "constellation": "Automaton",
+      "talents": {
+        "auto": "Flowing Eddies",
+        "skill": "Pressurized Floe",
+        "burst": "Shadowhunter's Ambush"
+      }
+    },
+    "furina": {
+      "name": "Furina",
+      "title": "Endless Solo of Solitude",
+      "description": "The absolute focus of the stage of judgment, until the final applause sounds.",
+      "element": "Hydro",
+      "weaponType": "Sword",
+      "region": "Fontaine",
+      "affiliation": "Court of Fontaine",
+      "constellation": "Animula Choragi",
+      "talents": {
+        "auto": "Soloist's Solicitation",
+        "skill": "Salon Solitaire",
+        "burst": "Let the People Rejoice"
+      }
+    },
+    "gaming": {
+      "name": "Gaming",
+      "title": "Leonine Vanguard",
+      "description": "Guard of the Sword and Strongbox Secure Transport Agency, and the head of the \"Mighty Mythical Beasts\" Wushou troupe.",
+      "element": "Pyro",
+      "weaponType": "Claymore",
+      "region": "Liyue",
+      "affiliation": "Sword and Strongbox Secure Transport Agency",
+      "constellation": "Leo Expergiscens",
+      "talents": {
+        "auto": "Stellar Rend",
+        "skill": "Bestial Ascent",
+        "burst": "Suanni's Gilded Dance"
+      }
+    },
+    "ganyu": {
+      "name": "Ganyu",
+      "title": "Plenilune Gaze",
+      "description": "The secretary at Yuehai Pavilion. The blood of the qilin, an illuminated beast, flows within her veins.",
+      "element": "Cryo",
+      "weaponType": "Bow",
+      "region": "Liyue",
+      "affiliation": "Yuehai Pavilion",
+      "constellation": "Sinae Unicornis",
+      "talents": {
+        "auto": "Liutian Archery",
+        "skill": "Trail of the Qilin",
+        "burst": "Celestial Shower"
+      }
+    },
+    "gorou": {
+      "name": "Gorou",
+      "title": "Canine Warrior",
+      "description": "The great general of Watatsumi Island's forces. He is deeply trusted by his subordinates.",
+      "element": "Geo",
+      "weaponType": "Bow",
+      "region": "Inazuma",
+      "affiliation": "Watatsumi Island",
+      "constellation": "Canis Bellatoris",
+      "talents": {
+        "auto": "Ripping Fang Fletching",
+        "skill": "Inuzaka All-Round Defense",
+        "burst": "Juuga: Forward Unto Victory"
+      }
+    },
+    "hutao": {
+      "name": "Hu Tao",
+      "title": "Fragrance in Thaw",
+      "description": "The 77th Director of the Wangsheng Funeral Parlor. She took over the business at a rather young age.",
+      "element": "Pyro",
+      "weaponType": "Polearm",
+      "region": "Liyue",
+      "affiliation": "Wangsheng Funeral Parlor",
+      "constellation": "Papilio Charontis",
+      "talents": {
+        "auto": "Secret Spear of Wangsheng",
+        "skill": "Guide to Afterlife",
+        "burst": "Spirit Soother"
+      }
+    },
+    "iansan": {
+      "name": "Iansan",
+      "title": "Tempered in Molten Stone",
+      "description": "Head coach of the fitness club at the Collective of Plenty, and a renowned Natlanese nutritionist.",
+      "element": "Electro",
+      "weaponType": "Polearm",
+      "region": "Natlan",
+      "affiliation": "Teteocan",
+      "constellation": "Carnotaurus",
+      "talents": {
+        "auto": "Weighted Spike",
+        "skill": "Thunderbolt Rush",
+        "burst": "The Three Principles of Power"
+      }
+    },
+    "ifa": {
+      "name": "Ifa",
+      "title": "In the Wake of Wandering Winds",
+      "description": "A vet from the Flower-Feather Clan who cherishes the life he leads alongside all manner of living things — people, animals, you name it.",
+      "element": "Anemo",
+      "weaponType": "Catalyst",
+      "region": "Natlan",
+      "affiliation": "Tlalocan",
+      "constellation": "Catena Opele",
+      "talents": {
+        "auto": "Rite of Dispelling Winds",
+        "skill": "Airborne Disease Prevention",
+        "burst": "Compound Sedation Field"
+      }
+    },
+    "illuga": {
+      "name": "Illuga",
+      "title": "Nightmare's Burning Heart",
+      "description": "Member of the investigation squad, the Nightmare Orioles. The youngest squad leader among the Lightkeepers.",
+      "element": "Geo",
+      "weaponType": "Polearm",
+      "region": "Nod-Krai",
+      "affiliation": "Lightkeepers",
+      "constellation": "Oriolus",
+      "talents": {
+        "auto": "Oathkeeper's Spear",
+        "skill": "Dawnbearing Songbird",
+        "burst": "Shadowless Reflection"
+      }
+    },
+    "ineffa": {
+      "name": "Ineffa",
+      "title": "Boom Boom Thunderwave",
+      "description": "A multifunctional robot containing integrated mechanical components from various nations. The Source Core in her chest has endured the passage of countless years.",
+      "element": "Electro",
+      "weaponType": "Polearm",
+      "region": "Nod-Krai",
+      "affiliation": "Clink-Clank Krumkake Craftshop",
+      "constellation": "Vanilla Planifolia",
+      "talents": {
+        "auto": "Cyclonic Duster",
+        "skill": "Cleaning Mode: Carrier Frequency",
+        "burst": "Supreme Instruction: Cyclonic Exterminator"
+      }
+    },
+    "jahoda": {
+      "name": "Jahoda",
+      "title": "Windthreading Shadow",
+      "description": "The Curatorium of Secrets' extremely reliable, do-it-all super employee (or so she claims).",
+      "element": "Anemo",
+      "weaponType": "Bow",
+      "region": "Nod-Krai",
+      "affiliation": "Curatorium of Secrets",
+      "constellation": "Fragum",
+      "talents": {
+        "auto": "Strike While the Arrow's Hot",
+        "skill": "Savvy Strategy: Splitting the Spoils",
+        "burst": "Hidden Aces: Seven Tools of the Hunter"
+      }
+    },
+    "jean": {
+      "name": "Jean",
+      "title": "Dandelion Knight",
+      "description": "The righteous and rigorous Dandelion Knight, and Acting Grand Master of Mondstadt's Knights of Favonius.",
+      "element": "Anemo",
+      "weaponType": "Sword",
+      "region": "Mondstadt",
+      "affiliation": "Knights of Favonius",
+      "constellation": "Leo Minor",
+      "talents": {
+        "auto": "Favonius Bladework",
+        "skill": "Gale Blade",
+        "burst": "Dandelion Breeze"
+      }
+    },
+    "kachina": {
+      "name": "Kachina",
+      "title": "Mottled Gold Yet Unsmelted",
+      "description": "A young warrior of the Nanatzcayan, given the Ancient Name of \"Uthabiti.\" Kind-hearted and insatiably persistent, she grows stronger and more capable with each setback she faces.",
+      "element": "Geo",
+      "weaponType": "Polearm",
+      "region": "Natlan",
+      "affiliation": "Nanatzcayan",
+      "constellation": "Ochotona Princeps",
+      "talents": {
+        "auto": "Cragbiter",
+        "skill": "Go, Go Turbo Twirly!",
+        "burst": "Time to Get Serious!"
+      }
+    },
+    "kaedeharakazuha": {
+      "name": "Kaedehara Kazuha",
+      "title": "Scarlet Leaves Pursue Wild Waves",
+      "description": "A wandering samurai from Inazuma who is currently with Liyue's Crux Fleet. A gentle and carefree soul whose heart hides a great many burdens from the past.",
+      "element": "Anemo",
+      "weaponType": "Sword",
+      "region": "Inazuma",
+      "affiliation": "The Crux",
+      "constellation": "Acer Palmatum",
+      "talents": {
+        "auto": "Garyuu Bladework",
+        "skill": "Chihayaburu",
+        "burst": "Kazuha Slash"
+      }
+    },
+    "kaeya": {
+      "name": "Kaeya",
+      "title": "Frostwind Swordsman",
+      "description": "An accomplished swordsman and a strategic thinker in the Knights of Favonius, rumored to hail from beyond Mondstadt.",
+      "element": "Cryo",
+      "weaponType": "Sword",
+      "region": "Mondstadt",
+      "affiliation": "Knights of Favonius",
+      "constellation": "Pavo Ocellus",
+      "talents": {
+        "auto": "Ceremonial Bladework",
+        "skill": "Frostgnaw",
+        "burst": "Glacial Waltz"
+      }
+    },
+    "kamisatoayaka": {
+      "name": "Kamisato Ayaka",
+      "title": "Frostflake Heron",
+      "description": "Daughter of the Yashiro Commission's Kamisato Clan. Dignified and elegant, as well as wise and strong.",
+      "element": "Cryo",
+      "weaponType": "Sword",
+      "region": "Inazuma",
+      "affiliation": "Yashiro Commission",
+      "constellation": "Grus Nivis",
+      "talents": {
+        "auto": "Kamisato Art: Kabuki",
+        "skill": "Kamisato Art: Hyouka",
+        "burst": "Kamisato Art: Soumetsu"
+      }
+    },
+    "kamisatoayato": {
+      "name": "Kamisato Ayato",
+      "title": "Pillar of Fortitude",
+      "description": "The young but highly accomplished head of the Yashiro Commission's Kamisato Clan. Cultured and polite, he is a man of many ways and means.",
+      "element": "Hydro",
+      "weaponType": "Sword",
+      "region": "Inazuma",
+      "affiliation": "Yashiro Commission",
+      "constellation": "Cypressus Custos",
+      "talents": {
+        "auto": "Kamisato Art: Marobashi",
+        "skill": "Kamisato Art: Kyouka",
+        "burst": "Kamisato Art: Suiyuu"
+      }
+    },
+    "kaveh": {
+      "name": "Kaveh",
+      "title": "Empyrean Reflection",
+      "description": "A renowned architect from Sumeru who perhaps cares a bit too much about too many things. He is an aesthete troubled by reality.",
+      "element": "Dendro",
+      "weaponType": "Claymore",
+      "region": "Sumeru",
+      "affiliation": "Independent Design Studio",
+      "constellation": "Paradisaea",
+      "talents": {
+        "auto": "Schematic Setup",
+        "skill": "Artistic Ingenuity",
+        "burst": "Painted Dome"
+      }
+    },
+    "keqing": {
+      "name": "Keqing",
+      "title": "Driving Thunder",
+      "description": "The Yuheng of the Liyue Qixing. Keqing has much to say about Rex Lapis's unilateral approach to policymaking in Liyue — but in truth, gods admire skeptics such as her quite a lot.",
+      "element": "Electro",
+      "weaponType": "Sword",
+      "region": "Liyue",
+      "affiliation": "Liyue Qixing",
+      "constellation": "Trulla Cementarii",
+      "talents": {
+        "auto": "Yunlai Swordsmanship",
+        "skill": "Stellar Restoration",
+        "burst": "Starward Sword"
+      }
+    },
+    "kinich": {
+      "name": "Kinich",
+      "title": "Turnfire Hunt",
+      "description": "A Huitztlan Saurian Hunter skilled at counting costs.",
+      "element": "Dendro",
+      "weaponType": "Claymore",
+      "region": "Natlan",
+      "affiliation": "Huitztlan",
+      "constellation": "Chimaera Alebriius",
+      "talents": {
+        "auto": "Nightsun Style",
+        "skill": "Canopy Hunter: Riding High",
+        "burst": "Hail to the Almighty Dragonlord"
+      }
+    },
+    "kirara": {
+      "name": "Kirara",
+      "title": "Cat Upon the Eaves",
+      "description": "A courier for Komaniya Express, a delivery company in Inazuma. A nekomata who loves her job and human society.",
+      "element": "Dendro",
+      "weaponType": "Sword",
+      "region": "Inazuma",
+      "affiliation": "Komaniya Express",
+      "constellation": "Arcella",
+      "talents": {
+        "auto": "Boxcutter",
+        "skill": "Meow-teor Kick",
+        "burst": "Secret Art: Surprise Dispatch"
+      }
+    },
+    "klee": {
+      "name": "Klee",
+      "title": "Fleeing Sunlight",
+      "description": "An explosives expert and a regular at the Knights of Favonius's confinement room. Also known as Fleeing Sunlight.",
+      "element": "Pyro",
+      "weaponType": "Catalyst",
+      "region": "Mondstadt",
+      "affiliation": "Knights of Favonius",
+      "constellation": "Trifolium",
+      "talents": {
+        "auto": "Kaboom!",
+        "skill": "Jumpy Dumpty",
+        "burst": "Sparks 'n' Splash"
+      }
+    },
+    "kujousara": {
+      "name": "Kujou Sara",
+      "title": "Crowfeather Kaburaya",
+      "description": "A general of the Tenryou Commission. Bold, decisive, and skilled in battle.",
+      "element": "Electro",
+      "weaponType": "Bow",
+      "region": "Inazuma",
+      "affiliation": "Tenryou Commission",
+      "constellation": "Flabellum",
+      "talents": {
+        "auto": "Tengu Bowmanship",
+        "skill": "Tengu Stormcall",
+        "burst": "Subjugation: Koukou Sendou"
+      }
+    },
+    "kukishinobu": {
+      "name": "Kuki Shinobu",
+      "title": "Mender of Tribulations",
+      "description": "The capable and reliable Arataki Gang deputy leader. Please note: capable and reliable are not appellations for the \"Arataki Gang,\" but for their deputy leader in specific.",
+      "element": "Electro",
+      "weaponType": "Sword",
+      "region": "Inazuma",
+      "affiliation": "Arataki Gang",
+      "constellation": "Tribulatio Demptio",
+      "talents": {
+        "auto": "Shinobu's Shadowsword",
+        "skill": "Sanctifying Ring",
+        "burst": "Gyoei Narukami Kariyama Rite"
+      }
+    },
+    "lanyan": {
+      "name": "Lan Yan",
+      "title": "Spring Woven From Jade",
+      "description": "A rattan weaver from Chenyu Vale. Clear-minded and well-tempered, she is as lively as a mountain spring.",
+      "element": "Anemo",
+      "weaponType": "Catalyst",
+      "region": "Liyue",
+      "affiliation": "Chenyu Vale",
+      "constellation": "Hirundo Lazuli",
+      "talents": {
+        "auto": "Black Pheasant Strides on Water",
+        "skill": "Swallow-Wisp Pinion Dance",
+        "burst": "Lustrous Moonrise"
+      }
+    },
+    "lauma": {
+      "name": "Lauma",
+      "title": "Evermoon's Sacrament Song",
+      "description": "A Maiden blessed by moonlight and the grove alike, hope born to the Frostmoon Scions.",
+      "element": "Dendro",
+      "weaponType": "Catalyst",
+      "region": "Nod-Krai",
+      "affiliation": "Frostmoon Scions",
+      "constellation": "Cerva Nivea",
+      "talents": {
+        "auto": "Peregrination of Linnunrata",
+        "skill": "Runo: Dawnless Rest of Karsikko",
+        "burst": "Runo: All Hearts Become the Beating Moon"
+      }
+    },
+    "layla": {
+      "name": "Layla",
+      "title": "Fantastical Evening Star",
+      "description": "A Rtawahist student who specializes in Theoretical Astrology. Heavily prone to somnambulism and locked in a grinding war with sleep deprivation, the problem of restful slumber is a most troubling one to her.",
+      "element": "Cryo",
+      "weaponType": "Sword",
+      "region": "Sumeru",
+      "affiliation": "Rtawahist",
+      "constellation": "Luscinia",
+      "talents": {
+        "auto": "Sword of the Radiant Path",
+        "skill": "Nights of Formal Focus",
+        "burst": "Dream of the Star-Stream Shaker"
+      }
+    },
+    "linnea": {
+      "name": "Linnea",
+      "title": "Augur of Wonders",
+      "description": "Naturalist and Advisor to the Nod-Krai Branch of the Adventurers' Guild.",
+      "element": "Geo",
+      "weaponType": "Bow",
+      "region": "Nod-Krai",
+      "affiliation": "Adventurers' Guild",
+      "constellation": "Alcyon",
+      "talents": {
+        "auto": "Capture Protocol",
+        "skill": "Countermeasure: Lumi's Battle Cry!",
+        "burst": "Memo: Survival Guide in Extreme Conditions"
+      }
+    },
+    "lisa": {
+      "name": "Lisa",
+      "title": "Witch of Purple Rose",
+      "description": "The languid but knowledgeable Librarian of the Knights of Favonius, deemed by Sumeru Akademiya to be their most distinguished graduate in the past two centuries.",
+      "element": "Electro",
+      "weaponType": "Catalyst",
+      "region": "Mondstadt",
+      "affiliation": "Knights of Favonius",
+      "constellation": "Tempus Fugit",
+      "talents": {
+        "auto": "Lightning Touch",
+        "skill": "Violet Arc",
+        "burst": "Lightning Rose"
+      }
+    },
+    "lohen": {
+      "name": "Lohen",
+      "title": "Sharpened Arrowhead",
+      "description": "Vice Captain of the Knights of Favonius Ranged Company, a knight known for his unorthodox approach and fondness for unconventional tactics.",
+      "element": "Cryo",
+      "weaponType": "Polearm",
+      "region": "Mondstadt",
+      "affiliation": "Knights of Favonius",
+      "constellation": "Lepus Miles",
+      "talents": {
+        "auto": "Spear of Favonius — Broken Oath",
+        "skill": "Unforeseen Strike",
+        "burst": "Manifest Judgment"
+      }
+    },
+    "lynette": {
+      "name": "Lynette",
+      "title": "Elegance in the Shadows",
+      "description": "A magic assistant of few words, her emotions are as inscrutable as any cat's.",
+      "element": "Anemo",
+      "weaponType": "Sword",
+      "region": "Fontaine",
+      "affiliation": "Hotel Bouffes d'ete",
+      "constellation": "Felis Alba",
+      "talents": {
+        "auto": "Rapid Ritesword",
+        "skill": "Enigmatic Feint",
+        "burst": "Magic Trick: Astonishing Shift"
+      }
+    },
+    "lyney": {
+      "name": "Lyney",
+      "title": "Spectacle of Phantasmagoria",
+      "description": "A famed Fontainian magician who possesses great stage presence as well as gift of the gab. Audiences are enthralled by his exquisite skills, and they hang on to his every clever word.",
+      "element": "Pyro",
+      "weaponType": "Bow",
+      "region": "Fontaine",
+      "affiliation": "Hotel Bouffes d'ete",
+      "constellation": "Felis Fuscus",
+      "talents": {
+        "auto": "Card Force Translocation",
+        "skill": "Bewildering Lights",
+        "burst": "Wondrous Trick: Miracle Parade"
+      }
+    },
+    "wonderlandmanekin": {
+      "name": "Manekin",
+      "title": null,
+      "description": "A Manekin gifted to you and Paimon by a witch who uses the pseudonym \"Octavia.\" They are gifted at exploring the mysteries sealed within the Miliastra Wonderland.",
+      "element": "None",
+      "weaponType": "Sword",
+      "region": null,
+      "affiliation": "——",
+      "constellation": "——",
+      "talents": null
+    },
+    "mavuika": {
+      "name": "Mavuika",
+      "title": "Night-Igniting Flame",
+      "description": "The leader of Natlan who inherited the Ancient Name of \"Kiongozi.\" She made a vow to illuminate the future of the nation of war with the Sacred Flame.",
+      "element": "Pyro",
+      "weaponType": "Claymore",
+      "region": "Natlan",
+      "affiliation": "Huitztlan",
+      "constellation": "Sol Invictus",
+      "talents": {
+        "auto": "Flames Weave Life",
+        "skill": "The Named Moment",
+        "burst": "Hour of Burning Skies"
+      }
+    },
+    "mika": {
+      "name": "Mika",
+      "title": "Coordinates of Clear Frost",
+      "description": "A young knight born to an ordinary family. He serves as a Front-Line Surveyor in his Company. He is a low-key and cautious character.",
+      "element": "Cryo",
+      "weaponType": "Polearm",
+      "region": "Mondstadt",
+      "affiliation": "Knights of Favonius",
+      "constellation": "Palumbus",
+      "talents": {
+        "auto": "Spear of Favonius - Arrow's Passage",
+        "skill": "Starfrost Swirl",
+        "burst": "Skyfeather Song"
+      }
+    },
+    "mona": {
+      "name": "Mona",
+      "title": "Astral Reflection",
+      "description": "A mysterious young astrologer who proclaims herself to be \"Astrologist Mona Megistus,\" and who possesses abilities to match the title. Erudite, but prideful.",
+      "element": "Hydro",
+      "weaponType": "Catalyst",
+      "region": "Mondstadt",
+      "affiliation": "Mondstadt",
+      "constellation": "Astrolabos",
+      "talents": {
+        "auto": "Ripple of Fate",
+        "skill": "Mirror Reflection of Doom",
+        "burst": "Stellaris Phantasm"
+      }
+    },
+    "mualani": {
+      "name": "Mualani",
+      "title": "Splish-Splash Wavechaser",
+      "description": "A well-known guide in Natlan who owns a watersports shop, and expert in all forms of wave-chasing.",
+      "element": "Hydro",
+      "weaponType": "Catalyst",
+      "region": "Natlan",
+      "affiliation": "Meztli",
+      "constellation": "Phoca Neomonachus",
+      "talents": {
+        "auto": "Cooling Treatment",
+        "skill": "Surfshark Wavebreaker",
+        "burst": "Boomsharka-laka"
+      }
+    },
+    "nahida": {
+      "name": "Nahida",
+      "title": "Physic of Purity",
+      "description": "A caged bird secluded within the confines of the Sanctuary of Surasthana who can only see the world in her dreams.",
+      "element": "Dendro",
+      "weaponType": "Catalyst",
+      "region": "Sumeru",
+      "affiliation": "Sumeru City",
+      "constellation": "Sapientia Oromasdis",
+      "talents": {
+        "auto": "Akara",
+        "skill": "All Schemes to Know",
+        "burst": "Illusory Heart"
+      }
+    },
+    "navia": {
+      "name": "Navia",
+      "title": "Helm of the Radiant Rose",
+      "description": "The current President of Spina di Rosula, who is lovely, dutiful, and a great boss.",
+      "element": "Geo",
+      "weaponType": "Claymore",
+      "region": "Fontaine",
+      "affiliation": "Spina di Rosula",
+      "constellation": "Rosa Multiflora",
+      "talents": {
+        "auto": "Blunt Refusal",
+        "skill": "Ceremonial Crystalshot",
+        "burst": "As the Sunlit Sky's Singing Salute"
+      }
+    },
+    "nefer": {
+      "name": "Nefer",
+      "title": "Secret Beneath the Sands",
+      "description": "The remarkably resourceful owner of the Curatorium of Secrets.",
+      "element": "Dendro",
+      "weaponType": "Catalyst",
+      "region": "Nod-Krai",
+      "affiliation": "Curatorium of Secrets",
+      "constellation": "Ludus Latrunculorum",
+      "talents": {
+        "auto": "Striking Serpent",
+        "skill": "Senet Strategy: Dance of a Thousand Nights",
+        "burst": "Sacred Vow: True Eye's Phantasm"
+      }
+    },
+    "neuvillette": {
+      "name": "Neuvillette",
+      "title": "Ordainer of Inexorable Judgment",
+      "description": "The Chief Justice of Fontaine, known as the Iudex, is renowned for his unassailable impartiality.",
+      "element": "Hydro",
+      "weaponType": "Catalyst",
+      "region": "Fontaine",
+      "affiliation": "Court of Fontaine",
+      "constellation": "???",
+      "talents": {
+        "auto": "As Water Seeks Equilibrium",
+        "skill": "O Tears, I Shall Repay",
+        "burst": "O Tides, I Have Returned"
+      }
+    },
+    "nicole": {
+      "name": "Nicole",
+      "title": "Clamor Within",
+      "description": "The Silent \"Mage,\" the Voiceless \"Angel.\"",
+      "element": "Pyro",
+      "weaponType": "Catalyst",
+      "region": null,
+      "affiliation": "Hexenzirkel",
+      "constellation": "Reliquiarium",
+      "talents": {
+        "auto": "Allegoria",
+        "skill": "Revelation: Uncreated Light",
+        "burst": "Revelation: Ladder of Divine Ascent"
+      }
+    },
+    "nilou": {
+      "name": "Nilou",
+      "title": "Dance of Lotuslight",
+      "description": "The star of the Zubayr Theater. She is full of warmth and innocence, and her dances are lively and elegant.",
+      "element": "Hydro",
+      "weaponType": "Sword",
+      "region": "Sumeru",
+      "affiliation": "Zubayr Theater",
+      "constellation": "Lotos Somno",
+      "talents": {
+        "auto": "Dance of Samser",
+        "skill": "Dance of Haftkarsvar",
+        "burst": "Dance of Abzendegi: Distant Dreams, Listening Spring"
+      }
+    },
+    "ningguang": {
+      "name": "Ningguang",
+      "title": "Eclipsing Star",
+      "description": "The Tianquan of the Liyue Qixing. Her wealth is unsurpassed in all of Teyvat.",
+      "element": "Geo",
+      "weaponType": "Catalyst",
+      "region": "Liyue",
+      "affiliation": "Liyue Qixing",
+      "constellation": "Opus Aequilibrium",
+      "talents": {
+        "auto": "Sparkling Scatter",
+        "skill": "Jade Screen",
+        "burst": "Starshatter"
+      }
+    },
+    "noelle": {
+      "name": "Noelle",
+      "title": "Chivalric Blossom",
+      "description": "A maid who faithfully serves the Knights of Favonius. She dreams of joining their ranks someday.",
+      "element": "Geo",
+      "weaponType": "Claymore",
+      "region": "Mondstadt",
+      "affiliation": "Knights of Favonius",
+      "constellation": "Parma Cordis",
+      "talents": {
+        "auto": "Favonius Bladework - Maid",
+        "skill": "Breastplate",
+        "burst": "Sweeping Time"
+      }
+    },
+    "odette": {
+      "name": "Odette",
+      "title": "Swirling Snow",
+      "description": "A famed Snezhnayan ballerina who blossoms against the frozen landscape with a beauty as sharp as frost.",
+      "element": "Cryo",
+      "weaponType": "Sword",
+      "region": null,
+      "affiliation": "Korolevskiy Troupe",
+      "constellation": "Cygnus Olor",
+      "talents": {
+        "auto": "Snow Swan Variation",
+        "skill": "Adagio: Phantom Night Dancers",
+        "burst": "Presto: Bluebird Finale"
+      }
+    },
+    "ororon": {
+      "name": "Ororon",
+      "title": "Shadow of the Night-Wind",
+      "description": "A young man from the Masters of the Night-Wind who instead lives in the wild alongside all manner of life.",
+      "element": "Electro",
+      "weaponType": "Bow",
+      "region": "Natlan",
+      "affiliation": "Mictlan",
+      "constellation": "Vampyrum Spectrum",
+      "talents": {
+        "auto": "Spiritvessel Snapshot",
+        "skill": "Night's Sling",
+        "burst": "Dark Voices Echo"
+      }
+    },
+    "prune": {
+      "name": "Prune",
+      "title": "Childlike Dreams Cherished",
+      "description": "A diminutive Witch Hunter who has journeyed all the way from Nod-Krai with the singular purpose of rooting out a witch who, to hear her tell it, has committed every sin imaginable — including bullying little kids!",
+      "element": "Anemo",
+      "weaponType": "Catalyst",
+      "region": "Mondstadt",
+      "affiliation": "Mondstadt",
+      "constellation": "Turris Venefica",
+      "talents": {
+        "auto": "Badaboom! Hexbuster Hammer",
+        "skill": "Ring-A-Ding-Ding! Hexhunter Chime",
+        "burst": "The Bell Tolls! The Hunt Is On!"
+      }
+    },
+    "qiqi": {
+      "name": "Qiqi",
+      "title": "Icy Resurrection",
+      "description": "An apprentice and herb gatherer at Bubu Pharmacy. An undead with a bone-white complexion, she seldom has much in the way of words or emotion.",
+      "element": "Cryo",
+      "weaponType": "Sword",
+      "region": "Liyue",
+      "affiliation": "Bubu Pharmacy",
+      "constellation": "Pristina Nola",
+      "talents": {
+        "auto": "Ancient Sword Art",
+        "skill": "Adeptus Art: Herald of Frost",
+        "burst": "Adeptus Art: Preserver of Fortune"
+      }
+    },
+    "raidenshogun": {
+      "name": "Raiden Shogun",
+      "title": "Plane of Euthymia",
+      "description": "Her Excellency, the Almighty Narukami Ogosho, who promised the people of Inazuma an unchanging Eternity.",
+      "element": "Electro",
+      "weaponType": "Polearm",
+      "region": "Inazuma",
+      "affiliation": "Inazuma City",
+      "constellation": "Imperatrix Umbrosa",
+      "talents": {
+        "auto": "Origin",
+        "skill": "Transcendence: Baleful Omen",
+        "burst": "Secret Art: Musou Shinsetsu"
+      }
+    },
+    "razor": {
+      "name": "Razor",
+      "title": "Wolf Boy",
+      "description": "A boy who lives among the wolves in Wolvendom of Mondstadt, away from human civilization. As agile as lightning.",
+      "element": "Electro",
+      "weaponType": "Claymore",
+      "region": "Mondstadt",
+      "affiliation": "Wolvendom",
+      "constellation": "Lupus Minor",
+      "talents": {
+        "auto": "Steel Fang",
+        "skill": "Claw and Thunder",
+        "burst": "Lightning Fang"
+      }
+    },
+    "rosaria": {
+      "name": "Rosaria",
+      "title": "Thorny Benevolence",
+      "description": "A sister of the church, though you wouldn't know it if it weren't for her attire. Known for her sharp, cold words and manner, she often works alone.",
+      "element": "Cryo",
+      "weaponType": "Polearm",
+      "region": "Mondstadt",
+      "affiliation": "Church of Favonius",
+      "constellation": "Spinea Corona",
+      "talents": {
+        "auto": "Spear of the Church",
+        "skill": "Ravaging Confession",
+        "burst": "Rites of Termination"
+      }
+    },
+    "sandrone": {
+      "name": "Sandrone",
+      "title": "Mirrored Analysis",
+      "description": "The Seventh of the Fatui Harbingers, \"Marionette.\" Interprets all phenomena through the prism of mathematics, and is an elegant lady who is never absent from a tea party.",
+      "element": "Cryo",
+      "weaponType": "Claymore",
+      "region": null,
+      "affiliation": "Fatui",
+      "constellation": "Narcissorolegium",
+      "talents": {
+        "auto": "Formule Phenomenale: Self-Evident Proposition",
+        "skill": "Formule Phenomenale: Differential Analysis",
+        "burst": "Formule Phenomenale: Q.E.D."
+      }
+    },
+    "sangonomiyakokomi": {
+      "name": "Sangonomiya Kokomi",
+      "title": "Pearl of Wisdom",
+      "description": "The Divine Priestess of Watatsumi Island. All of the island's affairs are at this young lady's fingertips.",
+      "element": "Hydro",
+      "weaponType": "Catalyst",
+      "region": "Inazuma",
+      "affiliation": "Watatsumi Island",
+      "constellation": "Dracaena Somnolenta",
+      "talents": {
+        "auto": "The Shape of Water",
+        "skill": "Kurage's Oath",
+        "burst": "Nereid's Ascension"
+      }
+    },
+    "sayu": {
+      "name": "Sayu",
+      "title": "Mujina Ninja",
+      "description": "A pint-sized ninja attached to the Shuumatsuban, who always seems sleep-deprived.",
+      "element": "Anemo",
+      "weaponType": "Claymore",
+      "region": "Inazuma",
+      "affiliation": "Shuumatsuban",
+      "constellation": "Nyctereutes Minor",
+      "talents": {
+        "auto": "Shuumatsuban Ninja Blade",
+        "skill": "Yoohoo Art: Fuuin Dash",
+        "burst": "Yoohoo Art: Mujina Flurry"
+      }
+    },
+    "sethos": {
+      "name": "Sethos",
+      "title": "Wisdom's Measure",
+      "description": "The Temple of Silence's heir. Burdened with secrets, he comes from the sands.",
+      "element": "Electro",
+      "weaponType": "Bow",
+      "region": "Sumeru",
+      "affiliation": "Temple of Silence",
+      "constellation": "Basileos Delta",
+      "talents": {
+        "auto": "Royal Reed Archery",
+        "skill": "Ancient Rite: The Thundering Sands",
+        "burst": "Secret Rite: Twilight Shadowpiercer"
+      }
+    },
+    "shenhe": {
+      "name": "Shenhe",
+      "title": "Lonesome Transcendence",
+      "description": "An adepti disciple with a most unusual air about her. Having spent much time cultivating in isolation in Liyue's mountains, she has become every bit as cool and distant as the adepti themselves.",
+      "element": "Cryo",
+      "weaponType": "Polearm",
+      "region": "Liyue",
+      "affiliation": "Cloud Retainer's Abode",
+      "constellation": "Crista Doloris",
+      "talents": {
+        "auto": "Dawnstar Piercer",
+        "skill": "Spring Spirit Summoning",
+        "burst": "Divine Maiden's Deliverance"
+      }
+    },
+    "shikanoinheizou": {
+      "name": "Shikanoin Heizou",
+      "title": "Analytical Harmony",
+      "description": "A young prodigy detective from the Tenryou Commission. His senses are sharp and his thoughts are clear.",
+      "element": "Anemo",
+      "weaponType": "Catalyst",
+      "region": "Inazuma",
+      "affiliation": "Tenryou Commission",
+      "constellation": "Cervus Minor",
+      "talents": {
+        "auto": "Fudou Style Martial Arts",
+        "skill": "Heartstopper Strike",
+        "burst": "Windmuster Kick"
+      }
+    },
+    "sigewinne": {
+      "name": "Sigewinne",
+      "title": "Wondrous Dragonheir",
+      "description": "A Melusine and the Fortress of Meropide's head nurse. She cares equally for every convict locked in the undersea prison.",
+      "element": "Hydro",
+      "weaponType": "Bow",
+      "region": "Fontaine",
+      "affiliation": "Fortress of Meropide",
+      "constellation": "Nereides",
+      "talents": {
+        "auto": "Targeted Treatment",
+        "skill": "Rebound Hydrotherapy",
+        "burst": "Super Saturated Syringing"
+      }
+    },
+    "skirk": {
+      "name": "Skirk",
+      "title": "Void Star",
+      "description": "A visitor who once appeared in an Abyssal rift and the Primordial Sea, this solitary warrior mentored Tartaglia in the martial arts.",
+      "element": "Cryo",
+      "weaponType": "Sword",
+      "region": null,
+      "affiliation": "Cosmic Calamity",
+      "constellation": "Crystallina",
+      "talents": {
+        "auto": "Havoc: Sunder",
+        "skill": "Havoc: Warp",
+        "burst": "Havoc: Ruin"
+      }
+    },
+    "sucrose": {
+      "name": "Sucrose",
+      "title": "Harmless Sweetie",
+      "description": "An alchemist filled with curiosity about all things. She researches bio-alchemy.",
+      "element": "Anemo",
+      "weaponType": "Catalyst",
+      "region": "Mondstadt",
+      "affiliation": "Knights of Favonius",
+      "constellation": "Ampulla",
+      "talents": {
+        "auto": "Wind Spirit Creation",
+        "skill": "Astable Anemohypostasis Creation - 6308",
+        "burst": "Forbidden Creation - Isomer 75 / Type II"
+      }
+    },
+    "tartaglia": {
+      "name": "Tartaglia",
+      "title": "Childe",
+      "description": "No. 11 of The Harbingers, also known as \"Childe.\" His name is highly feared on the battlefield.",
+      "element": "Hydro",
+      "weaponType": "Bow",
+      "region": "Snezhnaya",
+      "affiliation": "Fatui",
+      "constellation": "Monoceros Caeli",
+      "talents": {
+        "auto": "Cutting Torrent",
+        "skill": "Foul Legacy: Raging Tide",
+        "burst": "Havoc: Obliteration"
+      }
+    },
+    "thoma": {
+      "name": "Thoma",
+      "title": "Protector From Afar",
+      "description": "The Kamisato Clan's housekeeper. A well-known \"fixer\" in Inazuma.",
+      "element": "Pyro",
+      "weaponType": "Polearm",
+      "region": "Inazuma",
+      "affiliation": "Yashiro Commission",
+      "constellation": "Rubeum Scutum",
+      "talents": {
+        "auto": "Swiftshatter Spear",
+        "skill": "Blazing Blessing",
+        "burst": "Crimson Ooyoroi"
+      }
+    },
+    "tighnari": {
+      "name": "Tighnari",
+      "title": "Verdant Strider",
+      "description": "A young researcher well-versed in botany who currently serves as a Forest Watcher in Avidya Forest. He is a straight shooter with a warm heart — and a dab hand at guiding even the dullest of pupils.",
+      "element": "Dendro",
+      "weaponType": "Bow",
+      "region": "Sumeru",
+      "affiliation": "Gandharva Ville",
+      "constellation": "Vulpes Zerda",
+      "talents": {
+        "auto": "Khanda Barrier-Buster",
+        "skill": "Vijnana-Phala Mine",
+        "burst": "Fashioner's Tanglevine Shaft"
+      }
+    },
+    "varesa": {
+      "name": "Varesa",
+      "title": "Strength in Serenity",
+      "description": "A laid-back orchard manager and warrior of the Collective of Plenty. An aspiring hero who hungers for justice... and lots and lots of food!",
+      "element": "Electro",
+      "weaponType": "Catalyst",
+      "region": "Natlan",
+      "affiliation": "Teteocan",
+      "constellation": "Mascara Luctatori",
+      "talents": {
+        "auto": "By the Horns",
+        "skill": "Riding the Night-Rainbow",
+        "burst": "Guardian Vent!"
+      }
+    },
+    "varka": {
+      "name": "Varka",
+      "title": "Knight of Boreas",
+      "description": "Grand Master of the Knights of Favonius. Knight of Boreas, protector of Mondstadt.",
+      "element": "Anemo",
+      "weaponType": "Claymore",
+      "region": "Mondstadt",
+      "affiliation": "Knights of Favonius",
+      "constellation": "Lupus Majoris",
+      "talents": {
+        "auto": "Favonius Bladework: Dancing Radiance",
+        "skill": "Windbound Execution",
+        "burst": "Northwind Avatar"
+      }
+    },
+    "venti": {
+      "name": "Venti",
+      "title": "Windborne Bard",
+      "description": "One of the many bards of Mondstadt, who freely wanders the city's streets and alleys.",
+      "element": "Anemo",
+      "weaponType": "Bow",
+      "region": "Mondstadt",
+      "affiliation": "Mondstadt",
+      "constellation": "Carmen Dei",
+      "talents": {
+        "auto": "Divine Marksmanship",
+        "skill": "Skyward Sonnet",
+        "burst": "Wind's Grand Ode"
+      }
+    },
+    "vesna": {
+      "name": "Vesna",
+      "title": "Snowy Banquet's Sharp Blade",
+      "description": "Commander of the Druzhna and the Tsaritsa's keen blade.",
+      "element": "Anemo",
+      "weaponType": "Sword",
+      "region": null,
+      "affiliation": "Druzhna",
+      "constellation": "Amentum Vernum",
+      "talents": {
+        "auto": "Vila Blade Dance",
+        "skill": "The Art of Victory",
+        "burst": "For the Tsaritsa!"
+      }
+    },
+    "vodyanitsa": {
+      "name": "Vodyanitsa",
+      "title": "Lingering Siren-Song",
+      "description": "Prima Donna of the Korolevskiy Troupe and a Water Imp who has parted from her kin.",
+      "element": "Hydro",
+      "weaponType": "Catalyst",
+      "region": null,
+      "affiliation": "Korolevskiy Troupe",
+      "constellation": "Piscicula Aurea",
+      "talents": {
+        "auto": "Psyshkhwe Arietta",
+        "skill": "Rechitativ: Sonorous Dawn",
+        "burst": "Koda: Sink With Thee"
+      }
+    },
+    "wanderer": {
+      "name": "Wanderer",
+      "title": "Eons Adrift",
+      "description": "A wayfaring figure whose identity is a mystery. He dresses like a mountain ascetic, but he certainly does not act the part.",
+      "element": "Anemo",
+      "weaponType": "Catalyst",
+      "region": "Sumeru",
+      "affiliation": "None",
+      "constellation": "Peregrinus",
+      "talents": {
+        "auto": "Yuuban Meigen",
+        "skill": "Hanega: Song of the Wind",
+        "burst": "Kyougen: Five Ceremonial Plays"
+      }
+    },
+    "wriothesley": {
+      "name": "Wriothesley",
+      "title": "Emissary of Solitary Iniquity",
+      "description": "Duke of the Fortress of Meropide, Lord Incognito of the murky depths.",
+      "element": "Cryo",
+      "weaponType": "Catalyst",
+      "region": "Fontaine",
+      "affiliation": "Fortress of Meropide",
+      "constellation": "Cerberus",
+      "talents": {
+        "auto": "Forceful Fists of Frost",
+        "skill": "Icefang Rush",
+        "burst": "Darkgold Wolfbite"
+      }
+    },
+    "xiangling": {
+      "name": "Xiangling",
+      "title": "Exquisite Delicacy",
+      "description": "A renowned chef from Liyue. She's extremely passionate about cooking and excels at making her signature hot and spicy dishes.",
+      "element": "Pyro",
+      "weaponType": "Polearm",
+      "region": "Liyue",
+      "affiliation": "Wanmin Restaurant",
+      "constellation": "Trulla",
+      "talents": {
+        "auto": "Dough-Fu",
+        "skill": "Guoba Attack",
+        "burst": "Pyronado"
+      }
+    },
+    "xianyun": {
+      "name": "Xianyun",
+      "title": "Passerine Herald",
+      "description": "One of the Mighty and Illuminated Adepti of Jueyun, known as \"Cloud Retainer.\" Expert in all kinds of mechanical contraptions, her heart now turns towards the affairs of the mortal world, through which she walks under the name \"Xianyun.\"",
+      "element": "Anemo",
+      "weaponType": "Catalyst",
+      "region": "Liyue",
+      "affiliation": "Mt. Aocang",
+      "constellation": "Grus Serena",
+      "talents": {
+        "auto": "Word of Wind and Flower",
+        "skill": "White Clouds at Dawn",
+        "burst": "Stars Gather at Dusk"
+      }
+    },
+    "xiao": {
+      "name": "Xiao",
+      "title": "Vigilant Yaksha",
+      "description": "A yaksha adeptus who defends Liyue. Also heralded as the \"Conqueror of Demons\" and \"Vigilant Yaksha.\"",
+      "element": "Anemo",
+      "weaponType": "Polearm",
+      "region": "Liyue",
+      "affiliation": "Liyue Adeptus",
+      "constellation": "Alatus Nemeseos",
+      "talents": {
+        "auto": "Whirlwind Thrust",
+        "skill": "Lemniscatic Wind Cycling",
+        "burst": "Bane of All Evil"
+      }
+    },
+    "xilonen": {
+      "name": "Xilonen",
+      "title": "Ardent Flames Forge the Soul",
+      "description": "A Name Engraver of the Nanatzcayan, she is especially skilled at finding a good balance between the heavy responsibilities of her job and living well.",
+      "element": "Geo",
+      "weaponType": "Sword",
+      "region": "Natlan",
+      "affiliation": "Nanatzcayan",
+      "constellation": "Panthera Ocelota",
+      "talents": {
+        "auto": "Ehecatl's Roar",
+        "skill": "Yohual's Scratch",
+        "burst": "Ocelotlicue Point!"
+      }
+    },
+    "xingqiu": {
+      "name": "Xingqiu",
+      "title": "Juvenile Galant",
+      "description": "A young man carrying a longsword who is frequently seen at book booths. He has a chivalrous heart and yearns for justice and fairness for all.",
+      "element": "Hydro",
+      "weaponType": "Sword",
+      "region": "Liyue",
+      "affiliation": "Feiyun Commerce Guild",
+      "constellation": "Fabulae Textile",
+      "talents": {
+        "auto": "Guhua Style",
+        "skill": "Guhua Sword: Fatal Rainscreen",
+        "burst": "Guhua Sword: Raincutter"
+      }
+    },
+    "xinyan": {
+      "name": "Xinyan",
+      "title": "Blazing Riff",
+      "description": "Liyue's sole rock 'n' roll musician. She rebels against ossified prejudices using her music and passionate singing.",
+      "element": "Pyro",
+      "weaponType": "Claymore",
+      "region": "Liyue",
+      "affiliation": "\"The Red Strings\"",
+      "constellation": "Fila Ignium",
+      "talents": {
+        "auto": "Dance on Fire",
+        "skill": "Sweeping Fervor",
+        "burst": "Riff Revolution"
+      }
+    },
+    "yaemiko": {
+      "name": "Yae Miko",
+      "title": "Astute Amusement",
+      "description": "Lady Guuji of the Grand Narukami Shrine. Also serves as the editor-in-chief of Yae Publishing House. Unimaginable intelligence and cunning are hidden under her beautiful appearance.",
+      "element": "Electro",
+      "weaponType": "Catalyst",
+      "region": "Inazuma",
+      "affiliation": "Grand Narukami Shrine",
+      "constellation": "Divina Vulpes",
+      "talents": {
+        "auto": "Spiritfox Sin-Eater",
+        "skill": "Yakan Evocation: Sesshou Sakura",
+        "burst": "Great Secret Art: Tenko Kenshin"
+      }
+    },
+    "yanfei": {
+      "name": "Yanfei",
+      "title": "Wise Innocence",
+      "description": "A well-known legal adviser active in Liyue Harbor. A brilliant young lady in whose veins runs the blood of an illuminated beast.",
+      "element": "Pyro",
+      "weaponType": "Catalyst",
+      "region": "Liyue",
+      "affiliation": "Yanfei Legal Consultancy",
+      "constellation": "Bestia Iustitia",
+      "talents": {
+        "auto": "Seal of Approval",
+        "skill": "Signed Edict",
+        "burst": "Done Deal"
+      }
+    },
+    "yaoyao": {
+      "name": "Yaoyao",
+      "title": "Burgeoning Grace",
+      "description": "Streetward Rambler's youngest disciple. A gentle and caring \"little adult.\"",
+      "element": "Dendro",
+      "weaponType": "Polearm",
+      "region": "Liyue",
+      "affiliation": "Streetward Rambler's Abode",
+      "constellation": "Osmanthus",
+      "talents": {
+        "auto": "Toss 'N' Turn Spear",
+        "skill": "Raphanus Sky Cluster",
+        "burst": "Moonjade Descent"
+      }
+    },
+    "yelan": {
+      "name": "Yelan",
+      "title": "Valley Orchid",
+      "description": "A mysterious person who claims to work for the Ministry of Civil Affairs, but is a \"non-entity\" on the Ministry of Civil Affairs' list.",
+      "element": "Hydro",
+      "weaponType": "Bow",
+      "region": "Liyue",
+      "affiliation": "Yanshang Teahouse",
+      "constellation": "Umbrabilis Orchis",
+      "talents": {
+        "auto": "Stealthy Bowshot",
+        "skill": "Lingering Lifeline",
+        "burst": "Depth-Clarion Dice"
+      }
+    },
+    "yoimiya": {
+      "name": "Yoimiya",
+      "title": "Frolicking Flames",
+      "description": "Owner of Naganohara Fireworks. Known as the \"Queen of the Summer Festival,\" she excels in her craft of creating fireworks that symbolize people's hopes and dreams.",
+      "element": "Pyro",
+      "weaponType": "Bow",
+      "region": "Inazuma",
+      "affiliation": "Naganohara Fireworks",
+      "constellation": "Carassius Auratus",
+      "talents": {
+        "auto": "Firework Flare-Up",
+        "skill": "Niwabi Fire-Dance",
+        "burst": "Ryuukin Saxifrage"
+      }
+    },
+    "yumemizukimizuki": {
+      "name": "Yumemizuki Mizuki",
+      "title": "Embrace of Enchanting Dreams",
+      "description": "A shareholder of Aisa Bathhouse, a baku, and a clinical psychologist. Dedicated to the dispersal of nightmares, and to bringing people peace of mind.",
+      "element": "Anemo",
+      "weaponType": "Catalyst",
+      "region": "Inazuma",
+      "affiliation": "Inazuma",
+      "constellation": "Tapirus Somniator",
+      "talents": {
+        "auto": "Pure Heart, Pure Dreams",
+        "skill": "Aisa Utamakura Pilgrimage",
+        "burst": "Anraku Secret Spring Therapy"
+      }
+    },
+    "yunjin": {
+      "name": "Yun Jin",
+      "title": "Stage Lucida",
+      "description": "A renowned Liyue opera singer who is skilled in both playwriting and singing. Her style is one-of-a-kind, exquisite and delicate, much like the person herself.",
+      "element": "Geo",
+      "weaponType": "Polearm",
+      "region": "Liyue",
+      "affiliation": "Yun-Han Opera Troupe",
+      "constellation": "Opera Grandis",
+      "talents": {
+        "auto": "Cloud-Grazing Strike",
+        "skill": "Opening Flourish",
+        "burst": "Cliffbreaker's Banner"
+      }
+    },
+    "zhongli": {
+      "name": "Zhongli",
+      "title": "Vago Mundo",
+      "description": "A mysterious expert contracted by the Wangsheng Funeral Parlor. Extremely knowledgeable in all things.",
+      "element": "Geo",
+      "weaponType": "Polearm",
+      "region": "Liyue",
+      "affiliation": "Liyue Harbor",
+      "constellation": "Lapis Dei",
+      "talents": {
+        "auto": "Rain of Stone",
+        "skill": "Dominus Lapidis",
+        "burst": "Planet Befall"
+      }
+    },
+    "zibai": {
+      "name": "Zibai",
+      "title": "White Horse's Fleeting Spring",
+      "description": "The White Horse Adeptus from Liyue's legends, known as Zibai. The most mysterious figure in Liyue's myths.",
+      "element": "Geo",
+      "weaponType": "Sword",
+      "region": null,
+      "affiliation": "Liyue Harbor",
+      "constellation": "Equa Alba",
+      "talents": {
+        "auto": "Golden Blade's Petaled Touch",
+        "skill": "Heaven and Earth Made Manifest",
+        "burst": "Tri-Sphere Eminence"
+      }
+    }
+  }
+}

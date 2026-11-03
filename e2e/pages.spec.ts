@@ -8,18 +8,33 @@ test.describe("signed out", () => {
     await expect(page).toHaveURL(/#sample$/);
     const sample = page.locator("#sample");
     await expect(sample.getByText("Character Showcase")).toBeVisible();
-    await expect(sample.getByRole("link", { name: /Sign up to see yours/ }).first()).toHaveAttribute(
-      "href",
-      "/create-account"
-    );
+    // The count tiles open the real (signed-out) pages.
+    await sample.getByRole("link", { name: /Weapons[\s\S]*Open/ }).click();
+    await expect(page).toHaveURL(/\/genshin\/weapons$/);
   });
 
-  test("the roster shows every character as not owned", async ({ page }) => {
+  test("the roster shows every character as not owned, with a log-in banner", async ({ page }) => {
     await page.goto("/genshin/characters");
     await expect(page.getByRole("heading", { level: 1, name: "Characters" })).toBeVisible();
+    await expect(page.getByText("You're not logged in.")).toBeVisible();
+    await expect(page.locator("main").getByRole("link", { name: "Log in" })).toHaveAttribute("href", "/login");
     await expect(page.locator('[title$="(not owned)"]').first()).toBeVisible();
     await expect(page.locator('main a[href^="/genshin/characters/"]')).toHaveCount(0);
   });
+
+  for (const [route, empty] of [
+    ["/genshin/weapons", "No weapons to show yet."],
+    ["/genshin/artifacts", "No artifacts to show yet."],
+  ]) {
+    test(`${route} shows an empty page with a log-in banner`, async ({ page }) => {
+      await page.goto(route);
+      await expect(page.getByText("You're not logged in.")).toBeVisible();
+      await expect(page.getByText(empty)).toBeVisible();
+      await expect(page).toHaveURL(new RegExp(`${route}$`));
+      await page.locator("main").getByRole("link", { name: "Create account" }).click();
+      await expect(page).toHaveURL(/\/create-account$/);
+    });
+  }
 
   test("old addresses redirect to the Genshin section", async ({ page }) => {
     for (const [from, to] of [
@@ -63,14 +78,30 @@ test.describe("signed in with the sample upload", () => {
     await expect(owned).toHaveCount(ownedCount);
   });
 
-  test("a character page shows the character, weapon and artifacts", async () => {
+  test("a character page shows the profile, weapon, talents and artifacts", async () => {
     await page.goto("/genshin/characters/Aino");
     await expect(page.getByRole("heading", { level: 1, name: "Aino" })).toBeVisible();
-    await expect(page.getByText("Level: 70")).toBeVisible();
-    await expect(page.getByText("Flame-Forged Insight")).toBeVisible();
-    await expect(page.getByText("4-star")).toBeAttached();
-    await expect(page.getByText("Silken Moon's Serenade").first()).toBeVisible();
-    await expect(page.getByText("Flower of Life · 5★ · Lv. 20")).toBeVisible();
+    // Profile card: title, element, region, playstyle and level.
+    await expect(page.getByText("Clinky-Clank Gadgets-A-Gogo", { exact: true })).toBeVisible();
+    await expect(page.getByText("Hydro", { exact: true })).toBeVisible();
+    await expect(page.getByText("Nod-Krai", { exact: true })).toBeVisible();
+    await expect(page.getByText("Playstyle", { exact: true })).toBeVisible();
+    await expect(page.getByText("Lv. 70", { exact: true })).toBeVisible();
+    // Weapon: name, stats and passive, with the refinement buttons.
+    const weapon = page.locator("section", { has: page.getByRole("heading", { name: "Weapon" }) });
+    await expect(weapon.getByText("Flame-Forged Insight", { exact: true })).toBeVisible();
+    await expect(weapon.getByText(/^Base ATK \d+$/)).toBeVisible();
+    await expect(weapon.getByText(/^Elemental Mastery \d+$/)).toBeVisible();
+    await expect(weapon.getByText(/^Mind in Bloom/)).toBeVisible();
+    const refinement = weapon.getByRole("group", { name: "Refinement" });
+    await expect(refinement.getByRole("button", { name: "R5 (yours)" })).toHaveAttribute("aria-pressed", "true");
+    await refinement.getByRole("button", { name: "R1", exact: true }).click();
+    await expect(refinement.getByRole("button", { name: "R1", exact: true })).toHaveAttribute("aria-pressed", "true");
+    // Talents with their names, artifacts with set bonuses and full stats.
+    await expect(page.getByText("Musecatcher", { exact: true })).toBeVisible();
+    await expect(page.getByText("4-piece · Silken Moon's Serenade", { exact: true })).toBeVisible();
+    await expect(page.getByText("Silken Moon's Serenade", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("CRIT DMG 13.2%").first()).toBeVisible();
   });
 
   test("a character that isn't in the upload says so", async () => {

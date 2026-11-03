@@ -140,7 +140,7 @@ const ICON_BY_KEY = new Map(
 );
 
 /** Matches a roster or GOOD key to its roster entry key; any Traveler variant is the Traveler. */
-function rosterKey(key: string): string {
+export function rosterKey(key: string): string {
   const normalized = normalizeCharacterKey(key);
   return normalized.startsWith("traveler") ? "traveler" : normalized;
 }

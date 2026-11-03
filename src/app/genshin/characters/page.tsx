@@ -4,6 +4,8 @@ import { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useGenshinData } from "@/hooks/useGenshinData";
+import { useAuth } from "@/contexts/AuthContext";
+import SignedOutBanner from "@/components/SignedOutBanner";
 import GenshinShell from "@/components/GenshinShell";
 import PageSkeleton from "@/components/PageSkeleton";
 import {
@@ -23,6 +25,7 @@ import type { GoodCharacter } from "@/lib/genshin/types";
 
 export default function CharactersPage() {
   const { data: genshinData, loading } = useGenshinData();
+  const { user } = useAuth();
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [sortOrder, setSortOrder] = useState("name-asc");
   const [ownedFilter, setOwnedFilter] = useState("all");
@@ -129,10 +132,17 @@ export default function CharactersPage() {
         </>
       }
     >
-      {ownedFilter === "all" && (
-        <p className="text-sm text-gray-500 dark:text-slate-400 mb-6">
-          Greyed-out portraits are characters you don&apos;t own yet.
-        </p>
+      {!user ? (
+        <SignedOutBanner>
+          Log in to see which characters you own, with their levels and builds. Until then, every
+          character shows greyed out.
+        </SignedOutBanner>
+      ) : (
+        ownedFilter === "all" && (
+          <p className="text-sm text-gray-500 dark:text-slate-400 mb-6">
+            Greyed-out portraits are characters you don&apos;t own yet.
+          </p>
+        )
       )}
       {roster.length === 0 ? (
         <p className="text-sm text-gray-500 dark:text-slate-400 mb-6">

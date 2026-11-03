@@ -45,11 +45,6 @@ interface GenshinProps {
    * "Show all" is pressed.
    */
   preview?: boolean;
-  /**
-   * Send the count cards to sign-up instead of the Genshin pages. The
-   * /features sample sets this for signed-out visitors only.
-   */
-  viewAllToSignUp?: boolean;
   /** Show the "Genshin Impact" heading; off on /genshin, where it's already the page title */
   heading?: boolean;
 }
@@ -59,10 +54,8 @@ export default function Genshin({
   showcase,
   onShowcaseChange,
   preview = false,
-  viewAllToSignUp = false,
   heading = true,
 }: GenshinProps) {
-  const viewAllHref = (path: string) => (viewAllToSignUp ? "/create-account" : path);
   const [activeTab, setActiveTab] = useState("characters");
   const [showAllSlots, setShowAllSlots] = useState(!preview);
   // Slots holding a character that isn't in the latest upload show as empty.
@@ -121,7 +114,7 @@ export default function Genshin({
         {summaryCards.map(({ title, count, href }) => (
           <Link
             key={title}
-            href={viewAllHref(href)}
+            href={href}
             className="group rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
           >
             <Card className="h-full transition-colors group-hover:border-indigo-500 dark:group-hover:border-indigo-400">
@@ -137,7 +130,7 @@ export default function Genshin({
                     preview ? "mt-1 text-xs sm:mt-3 sm:text-sm" : "mt-3 text-sm"
                   )}
                 >
-                  {viewAllToSignUp ? "Sign up to see yours" : "Open"}
+                  Open
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </p>
               </CardContent>

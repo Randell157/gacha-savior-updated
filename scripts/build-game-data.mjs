@@ -9,6 +9,7 @@
 
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
+import path from "node:path";
 
 const require = createRequire(import.meta.url);
 const db = require("genshin-db");
@@ -54,6 +55,87 @@ writeFileSync(
   JSON.stringify({ source: `genshin-db ${version}`, weapons }, null, 2) + "\n"
 );
 console.log(`Wrote ${Object.keys(weapons).length} weapons.`);
+
+// What the character page shows beyond the list above: each weapon's flavour
+// text, its passive (the text around the numbers, and the numbers at R1 to R5)
+// and what's needed to work out its stats at any level, the way genshin-db's
+// own stats() does: base value x growth curve at the level + ascension bonus.
+// genshin-db doesn't export the raw stats, so they're read from its data file.
+const raw = require(path.join(path.dirname(require.resolve("genshin-db")), "min/data.min.json"));
+const weaponDetails = {};
+const curveNames = new Set();
+for (const name of db.weapons("names", { matchCategories: true })) {
+  const weapon = db.weapons(name);
+  const id = weapon && normalize(weapon.name);
+  if (!weapon || weaponDetails[id]) continue;
+  const stats = raw.stats.weapons[id];
+  if (stats) {
+    curveNames.add(stats.curve.attack);
+    curveNames.add(stats.curve.specialized);
+  }
+  weaponDetails[id] = {
+    description: weapon.description ?? null,
+    passive: weapon.effectName
+      ? {
+          name: weapon.effectName,
+          // Odd entries are the index of the number that goes there.
+          parts: weapon.effectTemplateRaw.split(/<color=#[0-9A-F]+>\{(\d+)\}<\/color>/),
+          // A few weapons can't be refined, so they only have R1.
+          values: [1, 2, 3, 4, 5].map((r) => (weapon[`r${r}`] ?? weapon.r1).values),
+        }
+      : null,
+    // The second stat's name, e.g. "CRIT Rate"; null for 1★ and 2★ weapons.
+    substat: weapon.mainStatText ?? null,
+    stats: stats
+      ? {
+          base: stats.base,
+          curve: stats.curve,
+          // ATK added at each ascension, with the level it applies above.
+          promotion: stats.promotion.map((p) => [p.maxlevel, p.attack]),
+        }
+      : null,
+  };
+}
+const curves = {};
+for (const curve of curveNames) {
+  curves[curve] = Array.from({ length: 90 }, (_, i) => raw.curve.weapons[i + 1][curve]);
+}
+writeFileSync(
+  "src/data/genshin/weaponDetails.json",
+  JSON.stringify({ source: `genshin-db ${version}`, curves, weapons: weaponDetails }) + "\n"
+);
+const noStats = Object.entries(weaponDetails).filter(([, w]) => !w.stats).map(([id]) => id);
+console.log(`Wrote details for ${Object.keys(weaponDetails).length} weapons.${noStats.length ? ` No stats for: ${noStats.join(", ")}` : ""}`);
+
+// The character page's profile: title, description, element, weapon type,
+// region and the talent names. Keyed like the roster (normalizeCharacterKey).
+// Aether and Lumine stand in for the Traveler, whose talents depend on the element.
+const characters = {};
+for (const name of db.characters("names", { matchCategories: true })) {
+  const c = db.characters(name);
+  if (!c) continue;
+  const key = c.name === "Aether" ? "traveler" : normalize(c.name);
+  if (c.name === "Lumine" || c.name === "Manekina") continue;
+  const talents = c.name === "Aether" ? undefined : db.talents(c.name);
+  characters[key === "manekin" ? "wonderlandmanekin" : key] = {
+    name: c.name === "Aether" ? "Traveler" : c.name,
+    title: c.title || null,
+    description: c.description || null,
+    element: c.name === "Aether" ? null : c.elementText || null,
+    weaponType: c.weaponText || null,
+    region: c.region || null,
+    affiliation: c.affiliation || null,
+    constellation: c.constellation || null,
+    talents: talents
+      ? { auto: talents.combat1?.name ?? null, skill: talents.combat2?.name ?? null, burst: talents.combat3?.name ?? null }
+      : null,
+  };
+}
+writeFileSync(
+  "src/data/genshin/characters.json",
+  JSON.stringify({ source: `genshin-db ${version}`, characters }, null, 2) + "\n"
+);
+console.log(`Wrote ${Object.keys(characters).length} characters.`);
 
 // Report sets and weapons in the sample exports that the data doesn't cover.
 const SAMPLE_EXPORTS = [

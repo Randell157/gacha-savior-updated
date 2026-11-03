@@ -28,7 +28,7 @@ Gacha Savior is an unofficial fan project. It is not affiliated with or endorsed
 - **Character portraits** come from the [Genshin Impact Wiki character gallery](https://genshin-impact.fandom.com/wiki/Character/Gallery) on Fandom. The artwork itself is HoYoverse's.
 - **Weapon and artifact icons** (`public/weapon-icons/`, `public/artifact-icons/`) are HoYoverse's, downloaded from [HoYoLAB](https://www.hoyolab.com/) via the links in genshin-db, and from [Enka.Network](https://enka.network/) for the few HoYoLAB no longer serves, with `npm run icons:weapons` and `npm run icons:artifacts`.
 - **Game app icons** (`public/genshinappicon.png`, `starrailappicon.png`, `zzzappicon.png`) were cropped from the games' App Store listings. They are HoYoverse's.
-- **Artifact set names, bonuses and release versions** come from [genshin-db](https://github.com/theBowja/genshin-db) by theBowja (MIT License), extracted with `npm run data:genshin`. Character rarities and weapon names, rarities and types come from it too. The underlying game text belongs to HoYoverse.
+- **Artifact set names, bonuses and release versions** come from [genshin-db](https://github.com/theBowja/genshin-db) by theBowja (MIT License), extracted with `npm run data:genshin`. Character rarities, titles, descriptions, talent names and other details, and weapon names, rarities, passives, descriptions and stat growth come from it too. The playstyle roles on character pages are the site's own picks, not game data. The underlying game text belongs to HoYoverse.
 
 ### Account exports
 

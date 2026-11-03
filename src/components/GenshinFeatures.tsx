@@ -66,12 +66,12 @@ export function FeatureGrid() {
 }
 
 /**
- * The real Genshin overview with a made-up account. Signed out, its count
- * cards lead to sign-up; signed in, they open the user's own pages.
+ * The real Genshin overview with a made-up account. Its count cards open the
+ * real Genshin pages: the user's own when signed in, and the signed-out
+ * versions (with the log-in banner) otherwise.
  */
 export function SampleDashboard() {
   const [showcase, setShowcase] = useState(SAMPLE_SHOWCASE);
-  const { user } = useAuth();
 
   return (
     <Genshin
@@ -79,7 +79,6 @@ export function SampleDashboard() {
       showcase={showcase}
       onShowcaseChange={setShowcase}
       preview
-      viewAllToSignUp={!user}
     />
   );
 }

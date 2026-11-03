@@ -25,6 +25,7 @@ import RequireAuth from "@/components/RequireAuth";
 import Segmented from "@/components/Segmented";
 import CharacterAvatar from "@/components/CharacterAvatar";
 import WeaponIcon from "@/components/WeaponIcon";
+import SignedOutBanner, { EmptyList } from "@/components/SignedOutBanner";
 import { cn, formatCharacterDisplayName } from "@/lib/utils";
 import { weaponName } from "@/lib/genshin/weapons";
 import type { GoodWeapon } from "@/lib/genshin/types";
@@ -54,13 +55,14 @@ const SORTERS: Record<SortKey, (a: WeaponRow, b: WeaponRow) => number> = {
 
 export default function WeaponsPage() {
   return (
-    <RequireAuth>
+    <RequireAuth signedOut={<Weapons signedOut />}>
       <Weapons />
     </RequireAuth>
   );
 }
 
-function Weapons() {
+/** Signed out, the page shows the log-in banner, the toolbar faded and disabled, and an empty list. */
+function Weapons({ signedOut = false }: { signedOut?: boolean }) {
   const { data: genshinData } = useGenshinData();
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<SortKey>("level-desc");
@@ -91,14 +93,7 @@ function Weapons() {
     return [...byId.values()].sort(SORTERS[sort]);
   }, [weapons, search, show, groupCopies, sort]);
 
-  return (
-    <GenshinShell title="Weapons">
-      {weapons.length === 0 ? (
-        <p className="text-gray-600 dark:text-slate-400">
-          No weapons yet. Upload your data on the Genshin overview to see them here.
-        </p>
-      ) : (
-        <>
+  const toolbar = (
           <div className="mb-6 flex flex-wrap items-center gap-3">
             <div className="relative w-full sm:w-56">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-slate-500" />
@@ -157,6 +152,30 @@ function Weapons() {
               />
             </div>
           </div>
+  );
+
+  if (signedOut) {
+    return (
+      <GenshinShell title="Weapons">
+        <SignedOutBanner>Log in and upload your account to see your weapons here.</SignedOutBanner>
+        <fieldset disabled className="opacity-50">
+          <legend className="sr-only">Weapon filters (log in to use them)</legend>
+          {toolbar}
+        </fieldset>
+        <EmptyList>No weapons to show yet.</EmptyList>
+      </GenshinShell>
+    );
+  }
+
+  return (
+    <GenshinShell title="Weapons">
+      {weapons.length === 0 ? (
+        <p className="text-gray-600 dark:text-slate-400">
+          No weapons yet. Upload your data on the Genshin overview to see them here.
+        </p>
+      ) : (
+        <>
+          {toolbar}
 
           <p className="mb-4 text-sm text-gray-500 dark:text-slate-400">
             {rows.length === 0
