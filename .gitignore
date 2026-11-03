@@ -49,3 +49,7 @@ next-env.d.ts
 
 # Snapshots and logs from the playwright Claude Code plugin
 .playwright-mcp/
+
+# Playwright test results and report
+/test-results/
+/playwright-report/

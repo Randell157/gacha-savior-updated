@@ -43,4 +43,6 @@ Gacha Savior is an unofficial fan project. It is not affiliated with or endorsed
 - [Firebase](https://firebase.google.com/) client and Admin SDKs: Apache-2.0
 - [Inter](https://rsms.me/inter/) typeface by Rasmus Andersson, via Google Fonts: SIL Open Font License 1.1
 - [sharp](https://sharp.pixelplumbing.com/) (Apache-2.0), used to crop the game icons
+- [Playwright](https://playwright.dev/) by Microsoft, for the end-to-end tests: Apache-2.0
+- [axe-core](https://github.com/dequelabs/axe-core) and [@axe-core/playwright](https://github.com/dequelabs/axe-core-npm) by Deque Systems, for the accessibility tests: MPL-2.0
 - Hosted on [Vercel](https://vercel.com/)
