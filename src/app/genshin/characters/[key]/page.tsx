@@ -11,9 +11,10 @@ import {
   cn,
   formatArtifactSetDisplayName,
   formatCharacterDisplayName,
-  formatWeaponDisplayName,
 } from "@/lib/utils";
 import { buildEquipmentIndex } from "@/lib/genshin/equipment";
+import { getWeapon, weaponName } from "@/lib/genshin/weapons";
+import WeaponIcon from "@/components/WeaponIcon";
 import { formatSlotName } from "@/lib/genshin/stats";
 import { getCharacterPortrait, getCharacterRarity, rarityBackground } from "@/lib/genshinCharacters";
 import RequireAuth from "@/components/RequireAuth";
@@ -42,6 +43,7 @@ function CharacterDetail() {
     [genshinData, characterKey]
   );
   const weapon = equipment?.weapon ?? null;
+  const weaponInfo = weapon ? getWeapon(weapon.key) : undefined;
   const artifacts = equipment?.artifacts ?? [];
 
   const displayName = formatCharacterDisplayName(characterKey);
@@ -97,11 +99,24 @@ function CharacterDetail() {
                 Weapon
               </h2>
               {weapon ? (
-                <>
-                  <p>Name: {formatWeaponDisplayName(weapon.key)}</p>
-                  <p>Level: {weapon.level}</p>
-                  <p>Refinement: {weapon.refinement}</p>
-                </>
+                <div className="flex items-center gap-4">
+                  <WeaponIcon weaponKey={weapon.key} size="lg" />
+                  <div>
+                    <p className="font-semibold text-gray-900 dark:text-slate-100">
+                      {weaponName(weapon.key)}
+                    </p>
+                    <div className="mt-1.5 flex flex-wrap gap-1.5 text-sm">
+                      <span className="rounded bg-gray-100 dark:bg-slate-800 px-2 py-0.5">Lv. {weapon.level}</span>
+                      <span className="rounded bg-gray-100 dark:bg-slate-800 px-2 py-0.5">R{weapon.refinement}</span>
+                      {weaponInfo && (
+                        <span className="rounded bg-gray-100 dark:bg-slate-800 px-2 py-0.5">
+                          <span aria-hidden="true">{"★".repeat(weaponInfo.rarity)}</span>
+                          <span className="sr-only">{weaponInfo.rarity}-star</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
               ) : (
                 <p>No weapon in your uploaded data.</p>
               )}

@@ -26,8 +26,9 @@ Gacha Savior is an unofficial fan project. It is not affiliated with or endorsed
 
 - **Genshin Impact, Honkai: Star Rail and Zenless Zone Zero** are trademarks of HoYoverse (COGNOSPHERE PTE. LTD. / miHoYo). All characters, names, artwork and in-game text belong to HoYoverse.
 - **Character portraits** come from the [Genshin Impact Wiki character gallery](https://genshin-impact.fandom.com/wiki/Character/Gallery) on Fandom. The artwork itself is HoYoverse's.
+- **Weapon icons** (`public/weapon-icons/`) are HoYoverse's, downloaded from [HoYoLAB](https://www.hoyolab.com/) via the links in genshin-db, and from [Enka.Network](https://enka.network/) for the few HoYoLAB no longer serves, with `npm run icons:weapons`.
 - **Game app icons** (`public/genshinappicon.png`, `starrailappicon.png`, `zzzappicon.png`) were cropped from the games' App Store listings. They are HoYoverse's.
-- **Artifact set names, bonuses and release versions** come from [genshin-db](https://github.com/theBowja/genshin-db) by theBowja (MIT License), extracted with `npm run data:genshin`. Character rarities were looked up in it too. The underlying game text belongs to HoYoverse.
+- **Artifact set names, bonuses and release versions** come from [genshin-db](https://github.com/theBowja/genshin-db) by theBowja (MIT License), extracted with `npm run data:genshin`. Character rarities and weapon names, rarities and types come from it too. The underlying game text belongs to HoYoverse.
 
 ### Account exports
 
@@ -42,7 +43,7 @@ Gacha Savior is an unofficial fan project. It is not affiliated with or endorsed
 - [next-themes](https://github.com/pacocoursey/next-themes) for dark mode: MIT
 - [Firebase](https://firebase.google.com/) client and Admin SDKs: Apache-2.0
 - [Inter](https://rsms.me/inter/) typeface by Rasmus Andersson, via Google Fonts: SIL Open Font License 1.1
-- [sharp](https://sharp.pixelplumbing.com/) (Apache-2.0), used to crop the game icons
+- [sharp](https://sharp.pixelplumbing.com/) by Lovell Fuller (Apache-2.0), used to crop the game icons and resize the weapon icons
 - [Playwright](https://playwright.dev/) by Microsoft, for the end-to-end tests: Apache-2.0
 - [axe-core](https://github.com/dequelabs/axe-core) and [@axe-core/playwright](https://github.com/dequelabs/axe-core-npm) by Deque Systems, for the accessibility tests: MPL-2.0
 - Hosted on [Vercel](https://vercel.com/)

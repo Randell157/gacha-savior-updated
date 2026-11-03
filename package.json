@@ -12,6 +12,7 @@
     "migrate:usernames": "node scripts/migrate-usernames.mjs",
     "migrate:usernames:emu": "cross-env FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 GCLOUD_PROJECT=demo-gachasavior node scripts/migrate-usernames.mjs",
     "data:genshin": "node scripts/build-game-data.mjs",
+    "icons:weapons": "node scripts/fetch-weapon-icons.mjs",
     "test:e2e": "playwright test"
   },
   "dependencies": {
@@ -46,6 +47,7 @@
     "firebase-tools": "^15.34.2",
     "genshin-db": "^5.2.14",
     "postcss": "^8.5.32",
+    "sharp": "^0.35.5",
     "tailwindcss": "^3.4.19",
     "typescript": "^5.9.3"
   }

@@ -67,7 +67,8 @@ test.describe("signed in with the sample upload", () => {
     await page.goto("/genshin/characters/Aino");
     await expect(page.getByRole("heading", { level: 1, name: "Aino" })).toBeVisible();
     await expect(page.getByText("Level: 70")).toBeVisible();
-    await expect(page.getByText("Name: Flame Forged Insight")).toBeVisible();
+    await expect(page.getByText("Flame-Forged Insight")).toBeVisible();
+    await expect(page.getByText("4-star")).toBeAttached();
     await expect(page.getByText(/Silken Moons Serenade \(Flower of Life\)/)).toBeVisible();
   });
 
@@ -81,7 +82,9 @@ test.describe("signed in with the sample upload", () => {
     await expect(page.getByText("Showing 162 entries")).toBeVisible();
 
     await page.getByPlaceholder("Search weapons").fill("Amos");
-    await expect(page.getByText("Amos Bow").first()).toBeVisible();
+    await expect(page.getByText("Amos' Bow").first()).toBeVisible();
+    // Real icons, not the placeholder.
+    await expect(page.locator('main img[src*="weapon-icons%2Famosbow.webp"]').first()).toBeVisible();
     await expect(page.getByText("Aquila Favonia")).toHaveCount(0);
     await page.getByPlaceholder("Search weapons").fill("");
 

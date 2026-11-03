@@ -4,7 +4,8 @@
 //
 //   npm run data:genshin
 //
-// Today it writes artifact set bonuses. Phase 4 adds characters and weapons.
+// It writes artifact set bonuses and weapon names and rarities. Weapon icons
+// are downloaded separately with `npm run icons:weapons`.
 
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -36,14 +37,39 @@ writeFileSync(
 );
 console.log(`Wrote ${Object.keys(artifactSets).length} artifact sets (genshin-db ${version}).`);
 
-// Report sets in the sample exports that the data doesn't cover.
-const missing = new Set();
-for (const file of [
+const weapons = {};
+for (const name of db.weapons("names", { matchCategories: true })) {
+  const weapon = db.weapons(name);
+  if (!weapon) continue;
+  weapons[normalize(weapon.name)] = {
+    name: weapon.name,
+    rarity: weapon.rarity,
+    // "Sword", "Claymore", "Polearm", "Bow" or "Catalyst".
+    type: weapon.weaponText,
+    version: weapon.version ?? null,
+  };
+}
+writeFileSync(
+  "src/data/genshin/weapons.json",
+  JSON.stringify({ source: `genshin-db ${version}`, weapons }, null, 2) + "\n"
+);
+console.log(`Wrote ${Object.keys(weapons).length} weapons.`);
+
+// Report sets and weapons in the sample exports that the data doesn't cover.
+const SAMPLE_EXPORTS = [
   "public/sample-data/inventory-kamera/genshin_export_2026-02-11_12-16.json",
   "public/sample-data/inventory-kamera/genshinData_GOOD_2024_10_28_01_22.json",
-]) {
-  for (const a of JSON.parse(readFileSync(file, "utf8")).artifacts ?? []) {
-    if (!artifactSets[normalize(a.setKey)]) missing.add(a.setKey);
+];
+const missingSets = new Set();
+const missingWeapons = new Set();
+for (const file of SAMPLE_EXPORTS) {
+  const data = JSON.parse(readFileSync(file, "utf8"));
+  for (const a of data.artifacts ?? []) {
+    if (!artifactSets[normalize(a.setKey)]) missingSets.add(a.setKey);
+  }
+  for (const w of data.weapons ?? []) {
+    if (!weapons[normalize(w.key)]) missingWeapons.add(w.key);
   }
 }
-console.log(missing.size ? `Sample sets with no data: ${[...missing].join(", ")}` : "Every set in the sample exports is covered.");
+console.log(missingSets.size ? `Sample sets with no data: ${[...missingSets].join(", ")}` : "Every set in the sample exports is covered.");
+console.log(missingWeapons.size ? `Sample weapons with no data: ${[...missingWeapons].join(", ")}` : "Every weapon in the sample exports is covered.");

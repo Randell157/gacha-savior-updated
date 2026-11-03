@@ -1,0 +1,1523 @@
+{
+  "source": "genshin-db 5.2.14",
+  "weapons": {
+    "absolution": {
+      "name": "Absolution",
+      "rarity": 5,
+      "type": "Sword",
+      "version": "4.7"
+    },
+    "akuoumaru": {
+      "name": "Akuoumaru",
+      "rarity": 4,
+      "type": "Claymore",
+      "version": "2.2"
+    },
+    "alleyhunter": {
+      "name": "Alley Hunter",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "1.4"
+    },
+    "amenomakageuchi": {
+      "name": "Amenoma Kageuchi",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "2.0"
+    },
+    "amosbow": {
+      "name": "Amos' Bow",
+      "rarity": 5,
+      "type": "Bow",
+      "version": "1.0"
+    },
+    "angelosheptades": {
+      "name": "Angelos' Heptades",
+      "rarity": 5,
+      "type": "Catalyst",
+      "version": "6.6"
+    },
+    "apprenticesnotes": {
+      "name": "Apprentice's Notes",
+      "rarity": 1,
+      "type": "Catalyst",
+      "version": "1.0"
+    },
+    "aquasimulacra": {
+      "name": "Aqua Simulacra",
+      "rarity": 5,
+      "type": "Bow",
+      "version": "2.7"
+    },
+    "aquilafavonia": {
+      "name": "Aquila Favonia",
+      "rarity": 5,
+      "type": "Sword",
+      "version": "1.0"
+    },
+    "ashgravendrinkinghorn": {
+      "name": "Ash-Graven Drinking Horn",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "5.0"
+    },
+    "astralvulturescrimsonplumage": {
+      "name": "Astral Vulture's Crimson Plumage",
+      "rarity": 5,
+      "type": "Bow",
+      "version": "5.2"
+    },
+    "ateaspoonoftranscendence": {
+      "name": "A Teaspoon of Transcendence",
+      "rarity": 5,
+      "type": "Claymore",
+      "version": "6.7"
+    },
+    "athameartis": {
+      "name": "Athame Artis",
+      "rarity": 5,
+      "type": "Sword",
+      "version": "6.2"
+    },
+    "athousandblazingsuns": {
+      "name": "A Thousand Blazing Suns",
+      "rarity": 5,
+      "type": "Claymore",
+      "version": "5.3"
+    },
+    "athousandfloatingdreams": {
+      "name": "A Thousand Floating Dreams",
+      "rarity": 5,
+      "type": "Catalyst",
+      "version": "3.2"
+    },
+    "azurelight": {
+      "name": "Azurelight",
+      "rarity": 5,
+      "type": "Sword",
+      "version": "5.7"
+    },
+    "balladoftheboundlessblue": {
+      "name": "Ballad of the Boundless Blue",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "4.1"
+    },
+    "balladofthefjords": {
+      "name": "Ballad of the Fjords",
+      "rarity": 4,
+      "type": "Polearm",
+      "version": "4.0"
+    },
+    "beaconofthereedsea": {
+      "name": "Beacon of the Reed Sea",
+      "rarity": 5,
+      "type": "Claymore",
+      "version": "3.5"
+    },
+    "beginnersprotector": {
+      "name": "Beginner's Protector",
+      "rarity": 1,
+      "type": "Polearm",
+      "version": "1.0"
+    },
+    "beyondthechrysalis": {
+      "name": "Beyond the Chrysalis",
+      "rarity": 5,
+      "type": "Sword",
+      "version": "7.1"
+    },
+    "blackcliffagate": {
+      "name": "Blackcliff Agate",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "1.0"
+    },
+    "blackclifflongsword": {
+      "name": "Blackcliff Longsword",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "1.0"
+    },
+    "blackcliffpole": {
+      "name": "Blackcliff Pole",
+      "rarity": 4,
+      "type": "Polearm",
+      "version": "1.0"
+    },
+    "blackcliffslasher": {
+      "name": "Blackcliff Slasher",
+      "rarity": 4,
+      "type": "Claymore",
+      "version": "1.0"
+    },
+    "blackcliffwarbow": {
+      "name": "Blackcliff Warbow",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "1.0"
+    },
+    "blackmarrowlantern": {
+      "name": "Blackmarrow Lantern",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "6.0"
+    },
+    "blacktassel": {
+      "name": "Black Tassel",
+      "rarity": 3,
+      "type": "Polearm",
+      "version": "1.0"
+    },
+    "bladeofatonement": {
+      "name": "Blade of Atonement",
+      "rarity": 4,
+      "type": "Claymore",
+      "version": "7.0"
+    },
+    "bloodsoakedruins": {
+      "name": "Bloodsoaked Ruins",
+      "rarity": 5,
+      "type": "Polearm",
+      "version": "6.0"
+    },
+    "bloodtaintedgreatsword": {
+      "name": "Bloodtainted Greatsword",
+      "rarity": 3,
+      "type": "Claymore",
+      "version": "1.0"
+    },
+    "breezebornerefrain": {
+      "name": "Breezeborne Refrain",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "7.1"
+    },
+    "calamityofeshu": {
+      "name": "Calamity of Eshu",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "5.2"
+    },
+    "calamityqueller": {
+      "name": "Calamity Queller",
+      "rarity": 5,
+      "type": "Polearm",
+      "version": "2.4"
+    },
+    "cashflowsupervision": {
+      "name": "Cashflow Supervision",
+      "rarity": 5,
+      "type": "Catalyst",
+      "version": "4.1"
+    },
+    "chainbreaker": {
+      "name": "Chain Breaker",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "5.0"
+    },
+    "cinnabarspindle": {
+      "name": "Cinnabar Spindle",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "2.3"
+    },
+    "clashofkings": {
+      "name": "Clash of Kings",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "7.0"
+    },
+    "cloudforged": {
+      "name": "Cloudforged",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "4.7"
+    },
+    "compoundbow": {
+      "name": "Compound Bow",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "1.0"
+    },
+    "coolsteel": {
+      "name": "Cool Steel",
+      "rarity": 3,
+      "type": "Sword",
+      "version": "1.0"
+    },
+    "covenantoffrostandsnow": {
+      "name": "Covenant of Frost and Snow",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "7.0"
+    },
+    "cranesechoingcall": {
+      "name": "Crane's Echoing Call",
+      "rarity": 5,
+      "type": "Catalyst",
+      "version": "4.4"
+    },
+    "crescentpike": {
+      "name": "Crescent Pike",
+      "rarity": 4,
+      "type": "Polearm",
+      "version": "1.0"
+    },
+    "crimsonmoonssemblance": {
+      "name": "Crimson Moon's Semblance",
+      "rarity": 5,
+      "type": "Polearm",
+      "version": "4.6"
+    },
+    "darkironsword": {
+      "name": "Dark Iron Sword",
+      "rarity": 3,
+      "type": "Sword",
+      "version": "1.0"
+    },
+    "dawningfrost": {
+      "name": "Dawning Frost",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "6.1"
+    },
+    "deathmatch": {
+      "name": "Deathmatch",
+      "rarity": 4,
+      "type": "Polearm",
+      "version": "1.0"
+    },
+    "debateclub": {
+      "name": "Debate Club",
+      "rarity": 3,
+      "type": "Claymore",
+      "version": "1.0"
+    },
+    "dialoguesofthedesertsages": {
+      "name": "Dialogues of the Desert Sages",
+      "rarity": 4,
+      "type": "Polearm",
+      "version": "4.5"
+    },
+    "disasterandremorse": {
+      "name": "Disaster and Remorse",
+      "rarity": 5,
+      "type": "Polearm",
+      "version": "6.6"
+    },
+    "dodocotales": {
+      "name": "Dodoco Tales",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "1.6"
+    },
+    "dragonsbane": {
+      "name": "Dragon's Bane",
+      "rarity": 4,
+      "type": "Polearm",
+      "version": "1.0"
+    },
+    "dragonspinespear": {
+      "name": "Dragonspine Spear",
+      "rarity": 4,
+      "type": "Polearm",
+      "version": "1.2"
+    },
+    "dullblade": {
+      "name": "Dull Blade",
+      "rarity": 1,
+      "type": "Sword",
+      "version": "1.0"
+    },
+    "earthshaker": {
+      "name": "Earth Shaker",
+      "rarity": 4,
+      "type": "Claymore",
+      "version": "5.0"
+    },
+    "echoesoftheheart": {
+      "name": "Echoes of the Heart",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "7.0"
+    },
+    "elegyfortheend": {
+      "name": "Elegy for the End",
+      "rarity": 5,
+      "type": "Bow",
+      "version": "1.4"
+    },
+    "emberwell": {
+      "name": "Emberwell",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "7.0"
+    },
+    "emeraldorb": {
+      "name": "Emerald Orb",
+      "rarity": 3,
+      "type": "Catalyst",
+      "version": "1.0"
+    },
+    "endoftheline": {
+      "name": "End of the Line",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "3.0"
+    },
+    "engulfinglightning": {
+      "name": "Engulfing Lightning",
+      "rarity": 5,
+      "type": "Polearm",
+      "version": "2.1"
+    },
+    "etherlightspindlelute": {
+      "name": "Etherlight Spindlelute",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "6.0"
+    },
+    "everlastingmoonglow": {
+      "name": "Everlasting Moonglow",
+      "rarity": 5,
+      "type": "Catalyst",
+      "version": "2.1"
+    },
+    "exaiphanesblade": {
+      "name": "Exaiphanes Blade",
+      "rarity": 5,
+      "type": "Sword",
+      "version": "7.0"
+    },
+    "eyeofperception": {
+      "name": "Eye of Perception",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "1.0"
+    },
+    "fadingtwilight": {
+      "name": "Fading Twilight",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "2.7"
+    },
+    "fangofthemountainking": {
+      "name": "Fang of the Mountain King",
+      "rarity": 5,
+      "type": "Claymore",
+      "version": "5.0"
+    },
+    "favoniuscodex": {
+      "name": "Favonius Codex",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "1.0"
+    },
+    "favoniusgreatsword": {
+      "name": "Favonius Greatsword",
+      "rarity": 4,
+      "type": "Claymore",
+      "version": "1.0"
+    },
+    "favoniuslance": {
+      "name": "Favonius Lance",
+      "rarity": 4,
+      "type": "Polearm",
+      "version": "1.0"
+    },
+    "favoniussword": {
+      "name": "Favonius Sword",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "1.0"
+    },
+    "favoniuswarbow": {
+      "name": "Favonius Warbow",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "1.0"
+    },
+    "ferrousshadow": {
+      "name": "Ferrous Shadow",
+      "rarity": 3,
+      "type": "Claymore",
+      "version": "1.0"
+    },
+    "festeringdesire": {
+      "name": "Festering Desire",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "1.2"
+    },
+    "filletblade": {
+      "name": "Fillet Blade",
+      "rarity": 3,
+      "type": "Sword",
+      "version": "1.0"
+    },
+    "finaleofthedeep": {
+      "name": "Finale of the Deep",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "4.0"
+    },
+    "flameforgedinsight": {
+      "name": "Flame-Forged Insight",
+      "rarity": 4,
+      "type": "Claymore",
+      "version": "5.8"
+    },
+    "fleuvecendreferryman": {
+      "name": "Fleuve Cendre Ferryman",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "4.0"
+    },
+    "flowerwreathedfeathers": {
+      "name": "Flower-Wreathed Feathers",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "5.2"
+    },
+    "flowingpurity": {
+      "name": "Flowing Purity",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "4.0"
+    },
+    "fluteofezpitzal": {
+      "name": "Flute of Ezpitzal",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "5.0"
+    },
+    "footprintoftherainbow": {
+      "name": "Footprint of the Rainbow",
+      "rarity": 4,
+      "type": "Polearm",
+      "version": "5.0"
+    },
+    "forestregalia": {
+      "name": "Forest Regalia",
+      "rarity": 4,
+      "type": "Claymore",
+      "version": "3.0"
+    },
+    "forgedbythegoldenmelody": {
+      "name": "Forged by the Golden Melody",
+      "rarity": 4,
+      "type": "Claymore",
+      "version": "7.0"
+    },
+    "fracturedhalo": {
+      "name": "Fractured Halo",
+      "rarity": 5,
+      "type": "Polearm",
+      "version": "5.8"
+    },
+    "freedomsworn": {
+      "name": "Freedom-Sworn",
+      "rarity": 5,
+      "type": "Sword",
+      "version": "1.6"
+    },
+    "frostbearer": {
+      "name": "Frostbearer",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "1.2"
+    },
+    "frostbreath": {
+      "name": "Frostbreath",
+      "rarity": 4,
+      "type": "Polearm",
+      "version": "7.0"
+    },
+    "fruitfulhook": {
+      "name": "Fruitful Hook",
+      "rarity": 4,
+      "type": "Claymore",
+      "version": "5.1"
+    },
+    "fruitoffulfillment": {
+      "name": "Fruit of Fulfillment",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "3.0"
+    },
+    "gestofthemightywolf": {
+      "name": "Gest of the Mighty Wolf",
+      "rarity": 5,
+      "type": "Claymore",
+      "version": "6.4"
+    },
+    "goldenfrostboundoath": {
+      "name": "Golden Frostbound Oath",
+      "rarity": 5,
+      "type": "Bow",
+      "version": "6.5"
+    },
+    "hakushinring": {
+      "name": "Hakushin Ring",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "2.0"
+    },
+    "halberd": {
+      "name": "Halberd",
+      "rarity": 3,
+      "type": "Polearm",
+      "version": "1.0"
+    },
+    "hamayumi": {
+      "name": "Hamayumi",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "2.0"
+    },
+    "harangeppakufutsu": {
+      "name": "Haran Geppaku Futsu",
+      "rarity": 5,
+      "type": "Sword",
+      "version": "2.6"
+    },
+    "harbingerofdawn": {
+      "name": "Harbinger of Dawn",
+      "rarity": 3,
+      "type": "Sword",
+      "version": "1.0"
+    },
+    "hereticsmoltenblade": {
+      "name": "Heretic's Molten Blade",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "7.0"
+    },
+    "huntersbow": {
+      "name": "Hunter's Bow",
+      "rarity": 1,
+      "type": "Bow",
+      "version": "1.0"
+    },
+    "hunterspath": {
+      "name": "Hunter's Path",
+      "rarity": 5,
+      "type": "Bow",
+      "version": "3.0"
+    },
+    "hymnofthemaelstrom": {
+      "name": "Hymn of the Maelstrom",
+      "rarity": 5,
+      "type": "Catalyst",
+      "version": "7.1"
+    },
+    "ibispiercer": {
+      "name": "Ibis Piercer",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "3.7"
+    },
+    "ironpoint": {
+      "name": "Iron Point",
+      "rarity": 2,
+      "type": "Polearm",
+      "version": "1.0"
+    },
+    "ironsting": {
+      "name": "Iron Sting",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "1.0"
+    },
+    "jadefallssplendor": {
+      "name": "Jadefall's Splendor",
+      "rarity": 5,
+      "type": "Catalyst",
+      "version": "3.6"
+    },
+    "jadevista": {
+      "name": "Jade Vista",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "7.0"
+    },
+    "kagotsurubeisshin": {
+      "name": "Kagotsurube Isshin",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "2.8"
+    },
+    "kagurasverity": {
+      "name": "Kagura's Verity",
+      "rarity": 5,
+      "type": "Catalyst",
+      "version": "2.5"
+    },
+    "katsuragikirinagamasa": {
+      "name": "Katsuragikiri Nagamasa",
+      "rarity": 4,
+      "type": "Claymore",
+      "version": "2.0"
+    },
+    "keyofkhajnisut": {
+      "name": "Key of Khaj-Nisut",
+      "rarity": 5,
+      "type": "Sword",
+      "version": "3.1"
+    },
+    "kingssquire": {
+      "name": "King's Squire",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "3.0"
+    },
+    "kitaincrossspear": {
+      "name": "Kitain Cross Spear",
+      "rarity": 4,
+      "type": "Polearm",
+      "version": "2.0"
+    },
+    "lightbearingmoonshard": {
+      "name": "Lightbearing Moonshard",
+      "rarity": 5,
+      "type": "Sword",
+      "version": "6.3"
+    },
+    "lightoffoliarincision": {
+      "name": "Light of Foliar Incision",
+      "rarity": 5,
+      "type": "Sword",
+      "version": "3.4"
+    },
+    "lionsroar": {
+      "name": "Lion's Roar",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "1.0"
+    },
+    "lithicblade": {
+      "name": "Lithic Blade",
+      "rarity": 4,
+      "type": "Claymore",
+      "version": "1.3"
+    },
+    "lithicspear": {
+      "name": "Lithic Spear",
+      "rarity": 4,
+      "type": "Polearm",
+      "version": "1.3"
+    },
+    "lostprayertothesacredwinds": {
+      "name": "Lost Prayer to the Sacred Winds",
+      "rarity": 5,
+      "type": "Catalyst",
+      "version": "1.0"
+    },
+    "lumidouceelegy": {
+      "name": "Lumidouce Elegy",
+      "rarity": 5,
+      "type": "Polearm",
+      "version": "4.8"
+    },
+    "luxurioussealord": {
+      "name": "Luxurious Sea-Lord",
+      "rarity": 4,
+      "type": "Claymore",
+      "version": "2.1"
+    },
+    "magicguide": {
+      "name": "Magic Guide",
+      "rarity": 3,
+      "type": "Catalyst",
+      "version": "1.0"
+    },
+    "mailedflower": {
+      "name": "Mailed Flower",
+      "rarity": 4,
+      "type": "Claymore",
+      "version": "3.5"
+    },
+    "makhairaaquamarine": {
+      "name": "Makhaira Aquamarine",
+      "rarity": 4,
+      "type": "Claymore",
+      "version": "3.1"
+    },
+    "mappamare": {
+      "name": "Mappa Mare",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "1.0"
+    },
+    "masterkey": {
+      "name": "Master Key",
+      "rarity": 4,
+      "type": "Claymore",
+      "version": "6.0"
+    },
+    "memoryofdust": {
+      "name": "Memory of Dust",
+      "rarity": 5,
+      "type": "Catalyst",
+      "version": "1.1"
+    },
+    "messenger": {
+      "name": "Messenger",
+      "rarity": 3,
+      "type": "Bow",
+      "version": "1.0"
+    },
+    "missivewindspear": {
+      "name": "Missive Windspear",
+      "rarity": 4,
+      "type": "Polearm",
+      "version": "3.1"
+    },
+    "mistsplitterreforged": {
+      "name": "Mistsplitter Reforged",
+      "rarity": 5,
+      "type": "Sword",
+      "version": "2.0"
+    },
+    "mitternachtswaltz": {
+      "name": "Mitternachts Waltz",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "1.6"
+    },
+    "moonpiercer": {
+      "name": "Moonpiercer",
+      "rarity": 4,
+      "type": "Polearm",
+      "version": "3.0"
+    },
+    "moonweaversdawn": {
+      "name": "Moonweaver's Dawn",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "6.0"
+    },
+    "mountainbracingbolt": {
+      "name": "Mountain-Bracing Bolt",
+      "rarity": 4,
+      "type": "Polearm",
+      "version": "5.1"
+    },
+    "mouunsmoon": {
+      "name": "Mouun's Moon",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "2.2"
+    },
+    "newbough": {
+      "name": "New Bough",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "7.1"
+    },
+    "nightweaverslookingglass": {
+      "name": "Nightweaver's Looking Glass",
+      "rarity": 5,
+      "type": "Catalyst",
+      "version": "6.0"
+    },
+    "nocturnescurtaincall": {
+      "name": "Nocturne's Curtain Call",
+      "rarity": 5,
+      "type": "Catalyst",
+      "version": "6.3"
+    },
+    "oathsworneye": {
+      "name": "Oathsworn Eye",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "2.5"
+    },
+    "oldmercspal": {
+      "name": "Old Merc's Pal",
+      "rarity": 2,
+      "type": "Claymore",
+      "version": "1.0"
+    },
+    "otherworldlystory": {
+      "name": "Otherworldly Story",
+      "rarity": 3,
+      "type": "Catalyst",
+      "version": "1.0"
+    },
+    "peakpatrolsong": {
+      "name": "Peak Patrol Song",
+      "rarity": 5,
+      "type": "Sword",
+      "version": "5.1"
+    },
+    "pocketgrimoire": {
+      "name": "Pocket Grimoire",
+      "rarity": 2,
+      "type": "Catalyst",
+      "version": "1.0"
+    },
+    "polarstar": {
+      "name": "Polar Star",
+      "rarity": 5,
+      "type": "Bow",
+      "version": "2.2"
+    },
+    "portablepowersaw": {
+      "name": "Portable Power Saw",
+      "rarity": 4,
+      "type": "Claymore",
+      "version": "4.1"
+    },
+    "predator": {
+      "name": "Predator",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "2.1"
+    },
+    "primordialjadecutter": {
+      "name": "Primordial Jade Cutter",
+      "rarity": 5,
+      "type": "Sword",
+      "version": "1.3"
+    },
+    "primordialjadewingedspear": {
+      "name": "Primordial Jade Winged-Spear",
+      "rarity": 5,
+      "type": "Polearm",
+      "version": "1.0"
+    },
+    "prizedisshinblade": {
+      "name": "Prized Isshin Blade",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "2.8"
+    },
+    "prospectorsdrill": {
+      "name": "Prospector's Drill",
+      "rarity": 4,
+      "type": "Polearm",
+      "version": "4.1"
+    },
+    "prospectorsshovel": {
+      "name": "Prospector's Shovel",
+      "rarity": 4,
+      "type": "Polearm",
+      "version": "6.0"
+    },
+    "prototypeamber": {
+      "name": "Prototype Amber",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "1.0"
+    },
+    "prototypearchaic": {
+      "name": "Prototype Archaic",
+      "rarity": 4,
+      "type": "Claymore",
+      "version": "1.0"
+    },
+    "prototypecrescent": {
+      "name": "Prototype Crescent",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "1.0"
+    },
+    "prototyperancour": {
+      "name": "Prototype Rancour",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "1.0"
+    },
+    "prototypestarglitter": {
+      "name": "Prototype Starglitter",
+      "rarity": 4,
+      "type": "Polearm",
+      "version": "1.0"
+    },
+    "rainbowserpentsrainbow": {
+      "name": "Rainbow Serpent's Rain Bow",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "6.2"
+    },
+    "rainslasher": {
+      "name": "Rainslasher",
+      "rarity": 4,
+      "type": "Claymore",
+      "version": "1.0"
+    },
+    "rangegauge": {
+      "name": "Range Gauge",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "4.1"
+    },
+    "ravenbow": {
+      "name": "Raven Bow",
+      "rarity": 3,
+      "type": "Bow",
+      "version": "1.0"
+    },
+    "recurvebow": {
+      "name": "Recurve Bow",
+      "rarity": 3,
+      "type": "Bow",
+      "version": "1.0"
+    },
+    "redhornstonethresher": {
+      "name": "Redhorn Stonethresher",
+      "rarity": 5,
+      "type": "Claymore",
+      "version": "2.3"
+    },
+    "reliquaryoftruth": {
+      "name": "Reliquary of Truth",
+      "rarity": 5,
+      "type": "Catalyst",
+      "version": "6.1"
+    },
+    "rightfulreward": {
+      "name": "Rightful Reward",
+      "rarity": 4,
+      "type": "Polearm",
+      "version": "4.0"
+    },
+    "ringofyaxche": {
+      "name": "Ring of Yaxche",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "5.0"
+    },
+    "royalbow": {
+      "name": "Royal Bow",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "1.0"
+    },
+    "royalgreatsword": {
+      "name": "Royal Greatsword",
+      "rarity": 4,
+      "type": "Claymore",
+      "version": "1.0"
+    },
+    "royalgrimoire": {
+      "name": "Royal Grimoire",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "1.0"
+    },
+    "royallongsword": {
+      "name": "Royal Longsword",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "1.0"
+    },
+    "royalspear": {
+      "name": "Royal Spear",
+      "rarity": 4,
+      "type": "Polearm",
+      "version": "1.1"
+    },
+    "rust": {
+      "name": "Rust",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "1.0"
+    },
+    "sacrificersstaff": {
+      "name": "Sacrificer's Staff",
+      "rarity": 4,
+      "type": "Polearm",
+      "version": "6.1"
+    },
+    "sacrificialbow": {
+      "name": "Sacrificial Bow",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "1.0"
+    },
+    "sacrificialfragments": {
+      "name": "Sacrificial Fragments",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "1.0"
+    },
+    "sacrificialgreatsword": {
+      "name": "Sacrificial Greatsword",
+      "rarity": 4,
+      "type": "Claymore",
+      "version": "1.0"
+    },
+    "sacrificialjade": {
+      "name": "Sacrificial Jade",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "4.0"
+    },
+    "sacrificialsword": {
+      "name": "Sacrificial Sword",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "1.0"
+    },
+    "sapwoodblade": {
+      "name": "Sapwood Blade",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "3.0"
+    },
+    "scionoftheblazingsun": {
+      "name": "Scion of the Blazing Sun",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "4.0"
+    },
+    "seasonedhuntersbow": {
+      "name": "Seasoned Hunter's Bow",
+      "rarity": 2,
+      "type": "Bow",
+      "version": "1.0"
+    },
+    "sequenceofsolitude": {
+      "name": "Sequence of Solitude",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "5.6"
+    },
+    "serenityscall": {
+      "name": "Serenity's Call",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "6.0"
+    },
+    "serpentspine": {
+      "name": "Serpent Spine",
+      "rarity": 4,
+      "type": "Claymore",
+      "version": "1.0"
+    },
+    "sharpshootersoath": {
+      "name": "Sharpshooter's Oath",
+      "rarity": 3,
+      "type": "Bow",
+      "version": "1.0"
+    },
+    "silverlight": {
+      "name": "Silver Light",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "7.1"
+    },
+    "silvershowerheartstrings": {
+      "name": "Silvershower Heartstrings",
+      "rarity": 5,
+      "type": "Bow",
+      "version": "4.7"
+    },
+    "silversword": {
+      "name": "Silver Sword",
+      "rarity": 2,
+      "type": "Sword",
+      "version": "1.0"
+    },
+    "skyridergreatsword": {
+      "name": "Skyrider Greatsword",
+      "rarity": 3,
+      "type": "Claymore",
+      "version": "1.0"
+    },
+    "skyridersword": {
+      "name": "Skyrider Sword",
+      "rarity": 3,
+      "type": "Sword",
+      "version": "1.0"
+    },
+    "skywardatlas": {
+      "name": "Skyward Atlas",
+      "rarity": 5,
+      "type": "Catalyst",
+      "version": "1.0"
+    },
+    "skywardblade": {
+      "name": "Skyward Blade",
+      "rarity": 5,
+      "type": "Sword",
+      "version": "1.0"
+    },
+    "skywardharp": {
+      "name": "Skyward Harp",
+      "rarity": 5,
+      "type": "Bow",
+      "version": "1.0"
+    },
+    "skywardpride": {
+      "name": "Skyward Pride",
+      "rarity": 5,
+      "type": "Claymore",
+      "version": "1.0"
+    },
+    "skywardspine": {
+      "name": "Skyward Spine",
+      "rarity": 5,
+      "type": "Polearm",
+      "version": "1.0"
+    },
+    "slingshot": {
+      "name": "Slingshot",
+      "rarity": 3,
+      "type": "Bow",
+      "version": "1.0"
+    },
+    "snarehook": {
+      "name": "Snare Hook",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "6.0"
+    },
+    "snowtombedstarsilver": {
+      "name": "Snow-Tombed Starsilver",
+      "rarity": 4,
+      "type": "Claymore",
+      "version": "1.2"
+    },
+    "solarpearl": {
+      "name": "Solar Pearl",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "1.0"
+    },
+    "songofbrokenpines": {
+      "name": "Song of Broken Pines",
+      "rarity": 5,
+      "type": "Claymore",
+      "version": "1.5"
+    },
+    "songofstillness": {
+      "name": "Song of Stillness",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "4.0"
+    },
+    "songofthevigil": {
+      "name": "Song of the Vigil",
+      "rarity": 4,
+      "type": "Polearm",
+      "version": "7.0"
+    },
+    "splendoroftranquilwaters": {
+      "name": "Splendor of Tranquil Waters",
+      "rarity": 5,
+      "type": "Sword",
+      "version": "4.2"
+    },
+    "staffofhoma": {
+      "name": "Staff of Homa",
+      "rarity": 5,
+      "type": "Polearm",
+      "version": "1.3"
+    },
+    "staffofthescarletsands": {
+      "name": "Staff of the Scarlet Sands",
+      "rarity": 5,
+      "type": "Polearm",
+      "version": "3.1"
+    },
+    "starcallerswatch": {
+      "name": "Starcaller's Watch",
+      "rarity": 5,
+      "type": "Catalyst",
+      "version": "5.3"
+    },
+    "sturdybone": {
+      "name": "Sturdy Bone",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "5.1"
+    },
+    "summitshaper": {
+      "name": "Summit Shaper",
+      "rarity": 5,
+      "type": "Sword",
+      "version": "1.2"
+    },
+    "sunnymorningsleepin": {
+      "name": "Sunny Morning Sleep-In",
+      "rarity": 5,
+      "type": "Catalyst",
+      "version": "5.4"
+    },
+    "surfsup": {
+      "name": "Surf's Up",
+      "rarity": 5,
+      "type": "Catalyst",
+      "version": "5.0"
+    },
+    "swordofdescension": {
+      "name": "Sword of Descension",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "1.0"
+    },
+    "swordofnarzissenkreuz": {
+      "name": "Sword of Narzissenkreuz",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "4.2"
+    },
+    "symphonistofscents": {
+      "name": "Symphonist of Scents",
+      "rarity": 5,
+      "type": "Polearm",
+      "version": "5.6"
+    },
+    "talkingstick": {
+      "name": "Talking Stick",
+      "rarity": 4,
+      "type": "Claymore",
+      "version": "4.0"
+    },
+    "tamayurateinoohanashi": {
+      "name": "Tamayuratei no Ohanashi",
+      "rarity": 4,
+      "type": "Polearm",
+      "version": "5.4"
+    },
+    "thealleyflash": {
+      "name": "The Alley Flash",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "1.4"
+    },
+    "thebell": {
+      "name": "The Bell",
+      "rarity": 4,
+      "type": "Claymore",
+      "version": "1.0"
+    },
+    "theblacksword": {
+      "name": "The Black Sword",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "1.0"
+    },
+    "thecatch": {
+      "name": "\"The Catch\"",
+      "rarity": 4,
+      "type": "Polearm",
+      "version": "2.1"
+    },
+    "thedaybreakchronicles": {
+      "name": "The Daybreak Chronicles",
+      "rarity": 5,
+      "type": "Bow",
+      "version": "6.2"
+    },
+    "thedockhandsassistant": {
+      "name": "The Dockhand's Assistant",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "4.1"
+    },
+    "thefirstgreatmagic": {
+      "name": "The First Great Magic",
+      "rarity": 5,
+      "type": "Bow",
+      "version": "4.0"
+    },
+    "theflute": {
+      "name": "The Flute",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "1.0"
+    },
+    "thestringless": {
+      "name": "The Stringless",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "1.0"
+    },
+    "theunforged": {
+      "name": "The Unforged",
+      "rarity": 5,
+      "type": "Claymore",
+      "version": "1.1"
+    },
+    "theviridescenthunt": {
+      "name": "The Viridescent Hunt",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "1.0"
+    },
+    "thewidsith": {
+      "name": "The Widsith",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "1.0"
+    },
+    "thrillingtalesofdragonslayers": {
+      "name": "Thrilling Tales of Dragon Slayers",
+      "rarity": 3,
+      "type": "Catalyst",
+      "version": "1.0"
+    },
+    "thunderingpulse": {
+      "name": "Thundering Pulse",
+      "rarity": 5,
+      "type": "Bow",
+      "version": "2.0"
+    },
+    "tidalshadow": {
+      "name": "Tidal Shadow",
+      "rarity": 4,
+      "type": "Claymore",
+      "version": "4.0"
+    },
+    "tomeoftheeternalflow": {
+      "name": "Tome of the Eternal Flow",
+      "rarity": 5,
+      "type": "Catalyst",
+      "version": "4.1"
+    },
+    "toukaboushigure": {
+      "name": "Toukabou Shigure",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "3.3"
+    },
+    "travelershandysword": {
+      "name": "Traveler's Handy Sword",
+      "rarity": 3,
+      "type": "Sword",
+      "version": "1.0"
+    },
+    "tulaytullahsremembrance": {
+      "name": "Tulaytullah's Remembrance",
+      "rarity": 5,
+      "type": "Catalyst",
+      "version": "3.3"
+    },
+    "twinnephrite": {
+      "name": "Twin Nephrite",
+      "rarity": 3,
+      "type": "Catalyst",
+      "version": "1.0"
+    },
+    "ultimateoverlordsmegamagicsword": {
+      "name": "\"Ultimate Overlord's Mega Magic Sword\"",
+      "rarity": 4,
+      "type": "Claymore",
+      "version": "4.3"
+    },
+    "urakumisugiri": {
+      "name": "Uraku Misugiri",
+      "rarity": 5,
+      "type": "Sword",
+      "version": "4.5"
+    },
+    "verdict": {
+      "name": "Verdict",
+      "rarity": 5,
+      "type": "Claymore",
+      "version": "4.3"
+    },
+    "vividnotions": {
+      "name": "Vivid Notions",
+      "rarity": 5,
+      "type": "Catalyst",
+      "version": "5.5"
+    },
+    "vortexvanquisher": {
+      "name": "Vortex Vanquisher",
+      "rarity": 5,
+      "type": "Polearm",
+      "version": "1.1"
+    },
+    "wanderingevenstar": {
+      "name": "Wandering Evenstar",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "3.1"
+    },
+    "wastergreatsword": {
+      "name": "Waster Greatsword",
+      "rarity": 1,
+      "type": "Claymore",
+      "version": "1.0"
+    },
+    "wavebreakersfin": {
+      "name": "Wavebreaker's Fin",
+      "rarity": 4,
+      "type": "Polearm",
+      "version": "2.2"
+    },
+    "waveridingwhirl": {
+      "name": "Waveriding Whirl",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "5.2"
+    },
+    "whiteblind": {
+      "name": "Whiteblind",
+      "rarity": 4,
+      "type": "Claymore",
+      "version": "1.0"
+    },
+    "whiteirongreatsword": {
+      "name": "White Iron Greatsword",
+      "rarity": 3,
+      "type": "Claymore",
+      "version": "1.0"
+    },
+    "whitelakefrostfeather": {
+      "name": "Whitelake Frostfeather",
+      "rarity": 5,
+      "type": "Sword",
+      "version": "7.0"
+    },
+    "whitetassel": {
+      "name": "White Tassel",
+      "rarity": 3,
+      "type": "Polearm",
+      "version": "1.0"
+    },
+    "windblumeode": {
+      "name": "Windblume Ode",
+      "rarity": 4,
+      "type": "Bow",
+      "version": "1.4"
+    },
+    "wineandsong": {
+      "name": "Wine and Song",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "1.4"
+    },
+    "wintersheavyheart": {
+      "name": "Winter's Heavy Heart",
+      "rarity": 4,
+      "type": "Catalyst",
+      "version": "7.1"
+    },
+    "wolffang": {
+      "name": "Wolf-Fang",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "4.0"
+    },
+    "wolfsgravestone": {
+      "name": "Wolf's Gravestone",
+      "rarity": 5,
+      "type": "Claymore",
+      "version": "1.0"
+    },
+    "xiphosmoonlight": {
+      "name": "Xiphos' Moonlight",
+      "rarity": 4,
+      "type": "Sword",
+      "version": "3.1"
+    }
+  }
+}

@@ -160,11 +160,15 @@ export function getCharacterRarity(key: string): 4 | 5 | undefined {
 }
 
 /**
- * Background behind a character portrait: the in-game gold (5★) or purple
- * (4★) gradient, or the plain indigo tint when the rarity isn't known.
+ * Background behind a character portrait or weapon icon: the in-game gradient
+ * for its rarity (gold 5★, purple 4★, blue 3★, green 2★, grey 1★), or the
+ * plain indigo tint when the rarity isn't known.
  */
-export function rarityBackground(rarity: 4 | 5 | undefined): string {
+export function rarityBackground(rarity: number | undefined): string {
   if (rarity === 5) return "bg-gradient-to-b from-[#9c6a3c] to-[#d6a35a]";
   if (rarity === 4) return "bg-gradient-to-b from-[#5e4a8c] to-[#9c7fd1]";
+  if (rarity === 3) return "bg-gradient-to-b from-[#3e5a8c] to-[#6f9fd1]";
+  if (rarity === 2) return "bg-gradient-to-b from-[#3e6b5a] to-[#6fa38c]";
+  if (rarity === 1) return "bg-gradient-to-b from-[#5a6270] to-[#8b93a1]";
   return "bg-indigo-50 dark:bg-slate-800";
 }

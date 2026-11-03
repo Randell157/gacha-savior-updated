@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Image from "next/image";
 import { LayoutGrid, Rows3, Search } from "lucide-react";
 import { useGenshinData } from "@/hooks/useGenshinData";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,11 +24,9 @@ import GenshinShell from "@/components/GenshinShell";
 import RequireAuth from "@/components/RequireAuth";
 import Segmented from "@/components/Segmented";
 import CharacterAvatar from "@/components/CharacterAvatar";
-import {
-  cn,
-  formatCharacterDisplayName,
-  formatWeaponDisplayName,
-} from "@/lib/utils";
+import WeaponIcon from "@/components/WeaponIcon";
+import { cn, formatCharacterDisplayName } from "@/lib/utils";
+import { weaponName } from "@/lib/genshin/weapons";
 import type { GoodWeapon } from "@/lib/genshin/types";
 
 type SortKey = "level-desc" | "level-asc" | "name-asc" | "refinement-desc";
@@ -44,10 +41,13 @@ interface WeaponRow {
   copies: number;
 }
 
+// Ignores punctuation so "The Catch" (with its quotation marks) sorts under T.
+const byName = new Intl.Collator("en", { ignorePunctuation: true }).compare;
+
 const SORTERS: Record<SortKey, (a: WeaponRow, b: WeaponRow) => number> = {
-  "level-desc": (a, b) => b.weapon.level - a.weapon.level || a.name.localeCompare(b.name),
-  "level-asc": (a, b) => a.weapon.level - b.weapon.level || a.name.localeCompare(b.name),
-  "name-asc": (a, b) => a.name.localeCompare(b.name) || b.weapon.level - a.weapon.level,
+  "level-desc": (a, b) => b.weapon.level - a.weapon.level || byName(a.name, b.name),
+  "level-asc": (a, b) => a.weapon.level - b.weapon.level || byName(a.name, b.name),
+  "name-asc": (a, b) => byName(a.name, b.name) || b.weapon.level - a.weapon.level,
   "refinement-desc": (a, b) =>
     b.weapon.refinement - a.weapon.refinement || b.weapon.level - a.weapon.level,
 };
@@ -74,7 +74,7 @@ function Weapons() {
     const matching = weapons.filter((w) => {
       if (show === "equipped" && !w.location) return false;
       if (show === "unequipped" && w.location) return false;
-      return !query || formatWeaponDisplayName(w.key).toLowerCase().includes(query);
+      return !query || weaponName(w.key).toLowerCase().includes(query);
     });
 
     // Grouping merges copies that are identical in every shown column:
@@ -86,7 +86,7 @@ function Weapons() {
         : String(index);
       const existing = byId.get(id);
       if (existing) existing.copies += 1;
-      else byId.set(id, { id, weapon, name: formatWeaponDisplayName(weapon.key), copies: 1 });
+      else byId.set(id, { id, weapon, name: weaponName(weapon.key), copies: 1 });
     });
     return [...byId.values()].sort(SORTERS[sort]);
   }, [weapons, search, show, groupCopies, sort]);
@@ -175,22 +175,6 @@ function Weapons() {
   );
 }
 
-function WeaponIcon({ weaponKey, name }: { weaponKey: string; name: string }) {
-  const [failed, setFailed] = useState(false);
-  return (
-    <div className="relative h-12 w-12 shrink-0">
-      <Image
-        src={failed ? "/placeholder.svg" : `/weapon-icons/${weaponKey.replace(/\s+/g, "_")}.png`}
-        alt={name}
-        fill
-        sizes="48px"
-        className="rounded-md object-contain"
-        onError={() => setFailed(true)}
-      />
-    </div>
-  );
-}
-
 function CopiesBadge({ copies }: { copies: number }) {
   if (copies < 2) return null;
   return (
@@ -209,7 +193,7 @@ function WeaponCards({ rows }: { rows: WeaponRow[] }) {
         <Card key={id}>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-3 text-lg">
-              <WeaponIcon weaponKey={weapon.key} name={name} />
+              <WeaponIcon weaponKey={weapon.key} />
               <span className="flex min-w-0 flex-1 items-center gap-2">
                 <span className="min-w-0">{name}</span>
                 {weapon.location && (
@@ -273,7 +257,12 @@ function WeaponTable({
         <TableBody>
           {rows.map(({ id, weapon, name, copies }) => (
             <TableRow key={id}>
-              <TableCell className="font-medium">{name}</TableCell>
+              <TableCell className="font-medium">
+                <div className="flex items-center gap-3">
+                  <WeaponIcon weaponKey={weapon.key} size="sm" />
+                  {name}
+                </div>
+              </TableCell>
               <TableCell>{weapon.level}</TableCell>
               <TableCell>R{weapon.refinement}</TableCell>
               <TableCell className={weapon.location ? "" : "text-gray-400 dark:text-slate-500"}>

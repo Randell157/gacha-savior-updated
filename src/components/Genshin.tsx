@@ -24,10 +24,10 @@ import {
 import {
   cn,
   formatCharacterDisplayName,
-  formatWeaponDisplayName,
   formatMaterialDisplayName,
 } from "@/lib/utils";
 import type { GenshinData } from "@/lib/genshin/types";
+import { weaponName } from "@/lib/genshin/weapons";
 import { buildEquipmentIndex } from "@/lib/genshin/equipment";
 import { getCharacterPortrait, getCharacterRarity, rarityBackground } from "@/lib/genshinCharacters";
 import { SHOWCASE_SIZE, type Showcase } from "@/lib/genshin/firestoreStore";
@@ -257,7 +257,7 @@ export default function Genshin({
                           <p>
                             <span className="font-medium">Weapon:</span>{" "}
                             {char.weapon
-                              ? `${formatWeaponDisplayName(char.weapon.key)} (Lv. ${char.weapon.level}, R${char.weapon.refinement})`
+                              ? `${weaponName(char.weapon.key)} (Lv. ${char.weapon.level}, R${char.weapon.refinement})`
                               : "None"}
                           </p>
                           <p>
@@ -322,7 +322,7 @@ export default function Genshin({
                   <ul>
                     {topWeapons.map((weapon, index) => (
                       <li key={index} className="mb-2">
-                        <span className="font-bold">{formatWeaponDisplayName(weapon.key)}</span> - Level{" "}
+                        <span className="font-bold">{weaponName(weapon.key)}</span> - Level{" "}
                         {weapon.level}, Refinement {weapon.refinement}
                       </li>
                     ))}
