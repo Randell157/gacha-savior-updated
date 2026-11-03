@@ -6,6 +6,11 @@ import Link from "next/link";
 import { useGenshinData } from "@/hooks/useGenshinData";
 import { useAuth } from "@/contexts/AuthContext";
 import SignedOutBanner from "@/components/SignedOutBanner";
+import CharacterFilters, {
+  activeFilterCount,
+  matchesCharacterFilters,
+  NO_FILTERS,
+} from "@/components/CharacterFilters";
 import GenshinShell from "@/components/GenshinShell";
 import PageSkeleton from "@/components/PageSkeleton";
 import {
@@ -29,6 +34,7 @@ export default function CharactersPage() {
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [sortOrder, setSortOrder] = useState("name-asc");
   const [ownedFilter, setOwnedFilter] = useState("all");
+  const [filters, setFilters] = useState(NO_FILTERS);
 
   const ownedByNormalizedKey = useMemo(() => {
     const map = new Map<string, GoodCharacter>();
@@ -53,9 +59,9 @@ export default function CharactersPage() {
         constellation: owned?.constellation ?? -1,
       };
     }).filter((character) => {
-      if (ownedFilter === "owned") return character.owned;
-      if (ownedFilter === "unowned") return !character.owned;
-      return true;
+      if (ownedFilter === "owned" && !character.owned) return false;
+      if (ownedFilter === "unowned" && character.owned) return false;
+      return matchesCharacterFilters(character, filters);
     });
 
     switch (sortOrder) {
@@ -85,7 +91,7 @@ export default function CharactersPage() {
           )
         );
     }
-  }, [ownedByNormalizedKey, sortOrder, ownedFilter]);
+  }, [ownedByNormalizedKey, sortOrder, ownedFilter, filters]);
 
   if (loading) {
     return <PageSkeleton kind="grid" />;
@@ -132,21 +138,23 @@ export default function CharactersPage() {
         </>
       }
     >
-      {!user ? (
+      {!user && (
         <SignedOutBanner>
           Log in to see which characters you own, with their levels and builds. Until then, every
           character shows greyed out.
         </SignedOutBanner>
-      ) : (
-        ownedFilter === "all" && (
-          <p className="text-sm text-gray-500 dark:text-slate-400 mb-6">
-            Greyed-out portraits are characters you don&apos;t own yet.
-          </p>
-        )
       )}
+      <CharacterFilters filters={filters} onChange={setFilters} />
+      <p className="text-sm text-gray-500 dark:text-slate-400 mb-4" aria-live="polite">
+        {activeFilterCount(filters) > 0 || ownedFilter !== "all"
+          ? `Showing ${roster.length} of ${GENSHIN_CHARACTERS.length} characters.`
+          : user
+            ? "Greyed-out portraits are characters you don't own yet."
+            : null}
+      </p>
       {roster.length === 0 ? (
         <p className="text-sm text-gray-500 dark:text-slate-400 mb-6">
-          No characters match this filter.
+          No characters match these filters.
         </p>
       ) : (
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-4 justify-items-center">

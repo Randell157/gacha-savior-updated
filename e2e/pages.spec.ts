@@ -22,6 +22,34 @@ test.describe("signed out", () => {
     await expect(page.locator('main a[href^="/genshin/characters/"]')).toHaveCount(0);
   });
 
+  test("the roster filters by element, weapon, rarity, playstyle and region", async ({ page }) => {
+    await page.goto("/genshin/characters");
+    const tiles = page.locator('main [title$="(not owned)"]');
+    await expect(tiles.first()).toBeVisible();
+    const all = await tiles.count();
+    const chip = (group: string, name: string) =>
+      page.getByRole("group", { name: `Filter by ${group}` }).getByRole("button", { name, exact: true });
+
+    // Within a group chips add up (Pyro or Hydro); across groups they narrow (and Main DPS).
+    await chip("element", "Pyro").click();
+    await expect(chip("element", "Pyro")).toHaveAttribute("aria-pressed", "true");
+    const pyro = await tiles.count();
+    expect(pyro).toBeLessThan(all);
+    await chip("element", "Hydro").click();
+    expect(await tiles.count()).toBeGreaterThan(pyro);
+    await chip("playstyle", "Main DPS").click();
+    await expect(page.getByText(/^Showing \d+ of \d+ characters\.$/)).toBeVisible();
+    await expect(page.locator('main [title="Hu Tao (not owned)"]')).toBeVisible();
+    await expect(page.locator('main [title="Bennett (not owned)"]')).toHaveCount(0);
+
+    await page.getByRole("button", { name: "Clear filters (3)" }).click();
+    await expect(tiles).toHaveCount(all);
+    await chip("region", "Fontaine").click();
+    await chip("weapon", "Catalyst").click();
+    await chip("rarity", "5★").click();
+    await expect(page.locator('main [title="Neuvillette (not owned)"]')).toBeVisible();
+  });
+
   for (const [route, empty] of [
     ["/genshin/weapons", "No weapons to show yet."],
     ["/genshin/artifacts", "No artifacts to show yet."],
