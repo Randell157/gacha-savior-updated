@@ -203,7 +203,7 @@ export default function Header() {
             <>
               <ThemeCycleButton />
               <Link
-                className="text-sm font-medium hover:underline underline-offset-4"
+                className="-mx-2 flex h-11 items-center px-2 text-sm font-medium hover:underline underline-offset-4"
                 href="/login"
               >
                 Log in

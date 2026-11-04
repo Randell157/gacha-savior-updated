@@ -103,7 +103,8 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <section className="bg-gradient-to-b from-indigo-100 to-purple-100 dark:from-indigo-950 dark:to-purple-950">
+      {/* In dark mode the hero fades to indigo-950, so this band can't start on that color too. */}
+      <section className="bg-gradient-to-b from-indigo-100 to-purple-100 dark:bg-none dark:bg-slate-900 dark:border-t dark:border-slate-800">
         <ol className="max-w-7xl mx-auto grid gap-8 px-4 py-12 sm:px-6 md:grid-cols-3 lg:px-8">
           {STEPS.map((step, i) => (
             <li key={step.title}>

@@ -72,7 +72,7 @@ export function ThemeCycleButton() {
     <Button
       variant="ghost"
       size="icon"
-      className="h-8 w-8 text-indigo-900 hover:bg-indigo-50 dark:text-indigo-200 dark:hover:bg-indigo-900/40"
+      className="relative h-8 w-8 text-indigo-900 after:absolute after:-inset-1.5 hover:bg-indigo-50 dark:text-indigo-200 dark:hover:bg-indigo-900/40"
       onClick={() => setTheme(next.value)}
       aria-label={`Theme: ${current.label}. Switch to ${next.label}`}
       title={`Theme: ${current.label}`}

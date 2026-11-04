@@ -11,7 +11,9 @@ import {
 import Genshin from "@/components/Genshin";
 import { useAuth } from "@/contexts/AuthContext";
 import { SAMPLE_GENSHIN_DATA, SAMPLE_SHOWCASE } from "@/lib/genshin/sampleData";
-import { Flower2, Gamepad2, IdCard, LayoutGrid, Swords, Users } from "lucide-react";
+import GameIcon from "@/components/GameIcon";
+import { GAMES } from "@/lib/games";
+import { Flower2, IdCard, LayoutGrid, Swords, Users } from "lucide-react";
 
 const FEATURES = [
   {
@@ -39,12 +41,9 @@ const FEATURES = [
     title: "Team showcase",
     text: "Pin five characters to the top of your Genshin overview.",
   },
-  {
-    icon: Gamepad2,
-    title: "More games soon",
-    text: "Honkai: Star Rail and Zenless Zone Zero are planned.",
-  },
 ];
+
+const PLANNED_GAMES = GAMES.filter((game) => !game.href);
 
 /** The feature cards, shared by the home page and /features. */
 export function FeatureGrid() {
@@ -61,6 +60,22 @@ export function FeatureGrid() {
           </CardContent>
         </Card>
       ))}
+      {/* Not a feature yet, so it's dashed and grey like the hub's "Coming soon" list. */}
+      <Card className="border-dashed border-gray-300 bg-transparent shadow-none dark:border-slate-600">
+        <CardHeader className="pb-2">
+          <div className="flex gap-2">
+            {PLANNED_GAMES.map((game) => (
+              <GameIcon key={game.id} game={game} size={28} className="grayscale" />
+            ))}
+          </div>
+          <CardTitle className="pt-2 text-base text-gray-700 dark:text-slate-300">More games soon</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <CardDescription className="text-gray-600 dark:text-slate-400">
+            Honkai: Star Rail and Zenless Zone Zero are planned.
+          </CardDescription>
+        </CardContent>
+      </Card>
     </div>
   );
 }
