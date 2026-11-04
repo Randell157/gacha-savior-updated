@@ -83,7 +83,7 @@ export default function CharacterGameInfo({
               className={cn(
                 "h-auto w-auto gap-1 rounded-full border-0 px-2.5 py-0.5 text-xs font-semibold",
                 (travelerElement && ELEMENT_CHIP[travelerElement]) ||
-                  "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-200"
+                  "bg-indigo-100 text-indigo-800 data-[placeholder]:text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-200 dark:data-[placeholder]:text-indigo-200"
               )}
             >
               <SelectValue placeholder="Choose your element" />

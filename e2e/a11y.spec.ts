@@ -24,6 +24,16 @@ async function settle(page: Page) {
   await page.waitForTimeout(300);
 }
 
+/** Opens a roster tile's quick view, waits for its animation, and checks it. */
+async function expectQuickViewClean(page: Page, tile: string, label: string) {
+  await page.goto("/genshin/characters");
+  await settle(page);
+  await page.locator(tile).first().click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await page.waitForTimeout(300);
+  await expectNoViolations(page, label);
+}
+
 for (const colorScheme of ["light", "dark"] as const) {
   test.describe(`${colorScheme} mode`, () => {
     test.use({ colorScheme });
@@ -34,6 +44,16 @@ for (const colorScheme of ["light", "dark"] as const) {
         await settle(page);
         await expectNoViolations(page, route);
       }
+    });
+
+    test("the signed-out quick view", async ({ page }) => {
+      await expectQuickViewClean(page, 'main [title="Hu Tao (not owned)"]', "quick view");
+      // The Traveler's has the element dropdown instead of an element chip.
+      await expectQuickViewClean(page, 'main [title^="Traveler"]', "the Traveler's quick view");
+      await page.getByRole("combobox", { name: "Your Traveler's element" }).click();
+      await page.getByRole("option", { name: "Hydro" }).click();
+      await expect(page.getByText("Vaporize (Pyro + Hydro):")).toBeVisible();
+      await expectNoViolations(page, "the Traveler's quick view with an element");
     });
 
     test("login and sign-up errors", async ({ page }) => {
@@ -62,6 +82,7 @@ for (const colorScheme of ["light", "dark"] as const) {
         "/genshin",
         "/genshin/characters",
         "/genshin/characters/Aino",
+        "/genshin/characters/Traveler",
         "/genshin/weapons",
         "/genshin/artifacts",
         "/profile",
@@ -70,6 +91,8 @@ for (const colorScheme of ["light", "dark"] as const) {
         await settle(page);
         await expectNoViolations(page, route);
       }
+
+      await expectQuickViewClean(page, 'main [title$="(not owned)"]', "signed-in quick view");
 
       await page.goto("/genshin");
       await uploadText(page, "[1, 2, 3]");

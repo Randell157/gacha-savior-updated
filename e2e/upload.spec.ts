@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { createUser, logIn, uploadSample, uploadText } from "./helpers";
+import { createUser, logIn, SAMPLE_EXPORT, uploadSample, uploadText } from "./helpers";
 
 test("an upload is saved to the account and shown on the overview and hub", async ({ page }) => {
   await logIn(page, await createUser());
@@ -19,6 +19,29 @@ test("an upload is saved to the account and shown on the overview and hub", asyn
   await expect(page.getByText("91 characters, 336 weapons and 1,717 artifacts")).toBeVisible();
   await page.goto("/dashboard");
   await expect(page.getByText("1,717")).toBeVisible();
+});
+
+test("a new upload keeps the Traveler's element", async ({ page }) => {
+  await logIn(page, await createUser());
+  await uploadSample(page);
+
+  await page.goto("/genshin/characters/Traveler");
+  const element = page.getByRole("combobox", { name: "Your Traveler's element" });
+  await element.click();
+  await page.getByRole("option", { name: "Hydro" }).click();
+  await expect(element).toHaveText("Hydro");
+
+  // Move within the site, so the upload starts from the state already in the page.
+  await page.getByRole("link", { name: "Overview" }).click();
+  await expect(page).toHaveURL(/\/genshin$/);
+  await page.getByLabel("Upload a GOOD export (.json)").setInputFiles(SAMPLE_EXPORT);
+  await expect(page.getByRole("alert").filter({ hasText: "Saved" })).toBeVisible();
+
+  // Both the page's copy and the saved one.
+  await page.getByRole("link", { name: "Characters", exact: true }).click();
+  await page.goto("/genshin/characters/Traveler");
+  await expect(element).toHaveText("Hydro");
+  await expect(page.getByText("Vaporize (Pyro + Hydro):")).toBeVisible();
 });
 
 test.describe("upload errors", () => {
