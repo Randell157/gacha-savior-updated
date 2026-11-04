@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useGenshinData } from "@/hooks/useGenshinData";
 import { useAuth } from "@/contexts/AuthContext";
 import SignedOutBanner from "@/components/SignedOutBanner";
+import CharacterQuickView from "@/components/CharacterQuickView";
 import CharacterFilters, {
   activeFilterCount,
   matchesCharacterFilters,
@@ -35,6 +36,7 @@ export default function CharactersPage() {
   const [sortOrder, setSortOrder] = useState("name-asc");
   const [ownedFilter, setOwnedFilter] = useState("all");
   const [filters, setFilters] = useState(NO_FILTERS);
+  const [quickView, setQuickView] = useState<string | null>(null);
 
   const ownedByNormalizedKey = useMemo(() => {
     const map = new Map<string, GoodCharacter>();
@@ -200,13 +202,15 @@ export default function CharactersPage() {
 
           if (!character.owned) {
             return (
-              <div
+              <button
                 key={character.key}
+                type="button"
                 title={`${displayName} (not owned)`}
-                className="flex flex-col items-center w-full max-w-[7.5rem] rounded-lg p-2 cursor-not-allowed"
+                onClick={() => setQuickView(character.key)}
+                className="group flex flex-col items-center w-full max-w-[7.5rem] rounded-lg p-2 transition-colors hover:bg-indigo-50 dark:hover:bg-indigo-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
               >
                 {portrait}
-              </div>
+              </button>
             );
           }
 
@@ -223,6 +227,7 @@ export default function CharactersPage() {
         })}
       </div>
       )}
+      <CharacterQuickView characterKey={quickView} onClose={() => setQuickView(null)} />
     </GenshinShell>
   );
 }

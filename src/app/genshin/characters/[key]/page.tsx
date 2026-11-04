@@ -10,6 +10,7 @@ import GenshinShell from "@/components/GenshinShell";
 import WeaponIcon from "@/components/WeaponIcon";
 import ArtifactSetBonuses from "@/components/ArtifactSetBonuses";
 import ArtifactSlotCard from "@/components/ArtifactSlotCard";
+import CharacterGameInfo, { Stars } from "@/components/CharacterGameInfo";
 import RequireAuth from "@/components/RequireAuth";
 import { cn, formatCharacterDisplayName } from "@/lib/utils";
 import { buildEquipmentIndex } from "@/lib/genshin/equipment";
@@ -21,23 +22,12 @@ import {
   getWeaponRarity,
   getWeaponStats,
 } from "@/lib/genshin/weaponDetails";
-import { getCharacterDetails, getCharacterRoles } from "@/lib/genshin/characterDetails";
+import { getCharacterDetails } from "@/lib/genshin/characterDetails";
 import { getCharacterPortrait, getCharacterRarity, rarityBackground } from "@/lib/genshinCharacters";
 import type { GoodArtifact, GoodCharacter, GoodWeapon } from "@/lib/genshin/types";
 
 const SLOT_ORDER = ["flower", "plume", "sands", "goblet", "circlet"];
 
-/** Chip colours for each element, in the same light/dark pairs as the rest of the site. */
-const ELEMENT_CHIP: Record<string, string> = {
-  Anemo: "bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-200",
-  Geo: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200",
-  Electro: "bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-200",
-  Dendro: "bg-lime-100 text-lime-800 dark:bg-lime-900/40 dark:text-lime-200",
-  Hydro: "bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-200",
-  Pyro: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200",
-  Cryo: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/40 dark:text-cyan-200",
-};
-const GREY_PILL = "bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-slate-300";
 const PANEL = "bg-white dark:bg-slate-900 shadow sm:rounded-lg p-6 sm:p-8";
 
 export default function CharacterDetailPage() {
@@ -101,12 +91,6 @@ function CharacterDetail() {
   );
 }
 
-function Pill({ children, className }: { children: React.ReactNode; className: string }) {
-  return (
-    <span className={cn("rounded-full px-2.5 py-0.5 text-xs font-semibold", className)}>{children}</span>
-  );
-}
-
 function Chip({ children }: { children: React.ReactNode }) {
   return (
     <span className="rounded bg-gray-100 dark:bg-slate-800 px-2 py-0.5 text-sm text-gray-700 dark:text-slate-300">
@@ -115,26 +99,15 @@ function Chip({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** Stars for a rarity, read out as "5-star". */
-function Stars({ rarity }: { rarity: number }) {
-  return (
-    <>
-      <span aria-hidden="true">{"★".repeat(rarity)}</span>
-      <span className="sr-only">{rarity}-star</span>
-    </>
-  );
-}
-
 function PanelHeading({ children }: { children: React.ReactNode }) {
   return <h2 className="mb-3 text-lg font-semibold text-indigo-900 dark:text-indigo-200">{children}</h2>;
 }
 
-/** Portrait, title, element / weapon type / rarity / region, description, playstyle and level chips. */
+/** Portrait, the character's game info, and level chips. */
 function ProfileCard({ character, name }: { character: GoodCharacter; name: string }) {
   const [imageError, setImageError] = useState(false);
-  const details = getCharacterDetails(character.key);
   const rarity = getCharacterRarity(character.key);
-  const roles = getCharacterRoles(character.key);
+  const { travelerElement, setTravelerElement } = useGenshinData();
   return (
     <section aria-label={`About ${name}`} className={PANEL}>
       <div className="flex flex-col gap-6 sm:flex-row">
@@ -155,45 +128,11 @@ function ProfileCard({ character, name }: { character: GoodCharacter; name: stri
           />
         </div>
         <div className="flex-1 space-y-3">
-          {details?.title && (
-            <p className="text-sm font-medium text-gray-500 dark:text-slate-400">{details.title}</p>
-          )}
-          <div className="flex flex-wrap items-center gap-1.5">
-            {details?.element && (
-              <Pill className={ELEMENT_CHIP[details.element] ?? GREY_PILL}>{details.element}</Pill>
-            )}
-            {details?.weaponType && <Pill className={GREY_PILL}>{details.weaponType}</Pill>}
-            {rarity && (
-              <Pill
-                className={
-                  rarity === 5
-                    ? "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
-                    : "bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-200"
-                }
-              >
-                <Stars rarity={rarity} />
-              </Pill>
-            )}
-            {details?.region && <Pill className={GREY_PILL}>{details.region}</Pill>}
-          </div>
-          {details?.description && (
-            <p className="max-w-2xl text-gray-700 dark:text-slate-300">{details.description}</p>
-          )}
-          {roles.length > 0 && (
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-slate-400">
-                Playstyle
-              </span>
-              {roles.map((role) => (
-                <Pill
-                  key={role}
-                  className="bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-200"
-                >
-                  {role}
-                </Pill>
-              ))}
-            </div>
-          )}
+          <CharacterGameInfo
+            characterKey={character.key}
+            travelerElement={travelerElement}
+            onTravelerElement={setTravelerElement}
+          />
           <div className="flex flex-wrap gap-1.5">
             <Chip>Lv. {character.level}</Chip>
             <Chip>C{character.constellation}</Chip>

@@ -78,7 +78,7 @@
       "description": "A \"professional hunter\" and master of the Snezhnayan snowfields. A fierce, distinct \"idealism\" burns beneath his calm demeanor.",
       "element": "Electro",
       "weaponType": "Polearm",
-      "region": null,
+      "region": "Snezhnaya",
       "affiliation": "Snezhnaya",
       "constellation": "Canis Borzoides",
       "talents": {
@@ -1214,7 +1214,7 @@
       "description": "A famed Snezhnayan ballerina who blossoms against the frozen landscape with a beauty as sharp as frost.",
       "element": "Cryo",
       "weaponType": "Sword",
-      "region": null,
+      "region": "Snezhnaya",
       "affiliation": "Korolevskiy Troupe",
       "constellation": "Cygnus Olor",
       "talents": {
@@ -1319,7 +1319,7 @@
       "description": "The Seventh of the Fatui Harbingers, \"Marionette.\" Interprets all phenomena through the prism of mathematics, and is an elegant lady who is never absent from a tea party.",
       "element": "Cryo",
       "weaponType": "Claymore",
-      "region": null,
+      "region": "Snezhnaya",
       "affiliation": "Fatui",
       "constellation": "Narcissorolegium",
       "talents": {
@@ -1544,7 +1544,7 @@
       "description": "Commander of the Druzhna and the Tsaritsa's keen blade.",
       "element": "Anemo",
       "weaponType": "Sword",
-      "region": null,
+      "region": "Snezhnaya",
       "affiliation": "Druzhna",
       "constellation": "Amentum Vernum",
       "talents": {
@@ -1559,7 +1559,7 @@
       "description": "Prima Donna of the Korolevskiy Troupe and a Water Imp who has parted from her kin.",
       "element": "Hydro",
       "weaponType": "Catalyst",
-      "region": null,
+      "region": "Snezhnaya",
       "affiliation": "Korolevskiy Troupe",
       "constellation": "Piscicula Aurea",
       "talents": {
@@ -1814,7 +1814,7 @@
       "description": "The White Horse Adeptus from Liyue's legends, known as Zibai. The most mysterious figure in Liyue's myths.",
       "element": "Geo",
       "weaponType": "Sword",
-      "region": null,
+      "region": "Liyue",
       "affiliation": "Liyue Harbor",
       "constellation": "Equa Alba",
       "talents": {

@@ -111,6 +111,15 @@ console.log(`Wrote details for ${Object.keys(weaponDetails).length} weapons.${no
 // region and the talent names. Keyed like the roster (normalizeCharacterKey).
 // Aether and Lumine stand in for the Traveler, whose talents depend on the element.
 const characters = {};
+// Regions the game data leaves empty, picked by the site owner.
+const REGION_OVERRIDES = {
+  alyosha: "Snezhnaya",
+  odette: "Snezhnaya",
+  sandrone: "Snezhnaya",
+  vesna: "Snezhnaya",
+  vodyanitsa: "Snezhnaya",
+  zibai: "Liyue",
+};
 for (const name of db.characters("names", { matchCategories: true })) {
   const c = db.characters(name);
   if (!c) continue;
@@ -123,7 +132,7 @@ for (const name of db.characters("names", { matchCategories: true })) {
     description: c.description || null,
     element: c.name === "Aether" ? null : c.elementText || null,
     weaponType: c.weaponText || null,
-    region: c.region || null,
+    region: c.region || REGION_OVERRIDES[key] || null,
     affiliation: c.affiliation || null,
     constellation: c.constellation || null,
     talents: talents

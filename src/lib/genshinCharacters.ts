@@ -108,6 +108,8 @@ export const GENSHIN_CHARACTERS: { key: string; iconFile: string; rarity: 4 | 5 
   { key: "Varesa", iconFile: "Varesa_Icon.png", rarity: 5 },
   { key: "Varka", iconFile: "Varka_Icon.png", rarity: 5 },
   { key: "Venti", iconFile: "Venti_Icon.png", rarity: 5 },
+  { key: "Vesna", iconFile: "Vesna_Icon.png", rarity: 5 },
+  { key: "Vodyanitsa", iconFile: "Vodyanitsa_Icon.png", rarity: 5 },
   { key: "Wanderer", iconFile: "Wanderer_Icon.png", rarity: 5 },
   { key: "WonderlandManekin", iconFile: "Wonderland_Manekin_Icon.png", rarity: 5 },
   { key: "Wriothesley", iconFile: "Wriothesley_Icon.png", rarity: 5 },

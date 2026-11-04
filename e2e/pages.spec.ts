@@ -30,17 +30,20 @@ test.describe("signed out", () => {
     const chip = (group: string, name: string) =>
       page.getByRole("group", { name: `Filter by ${group}` }).getByRole("button", { name, exact: true });
 
-    // Within a group chips add up (Pyro or Hydro); across groups they narrow (and Main DPS).
+    // An element chip replaces the current one; across groups they narrow (and Main DPS).
+    await chip("element", "Hydro").click();
+    await expect(chip("element", "Hydro")).toHaveAttribute("aria-pressed", "true");
+    expect(await tiles.count()).toBeLessThan(all);
     await chip("element", "Pyro").click();
     await expect(chip("element", "Pyro")).toHaveAttribute("aria-pressed", "true");
-    const pyro = await tiles.count();
-    expect(pyro).toBeLessThan(all);
-    await chip("element", "Hydro").click();
-    expect(await tiles.count()).toBeGreaterThan(pyro);
+    await expect(chip("element", "Hydro")).toHaveAttribute("aria-pressed", "false");
     await chip("playstyle", "Main DPS").click();
     await expect(page.getByText(/^Showing \d+ of \d+ characters\.$/)).toBeVisible();
     await expect(page.locator('main [title="Hu Tao (not owned)"]')).toBeVisible();
     await expect(page.locator('main [title="Bennett (not owned)"]')).toHaveCount(0);
+    // Playstyle chips still add up.
+    await chip("playstyle", "Support").click();
+    await expect(page.locator('main [title="Bennett (not owned)"]')).toBeVisible();
 
     await page.getByRole("button", { name: "Clear filters (3)" }).click();
     await expect(tiles).toHaveCount(all);
@@ -48,6 +51,18 @@ test.describe("signed out", () => {
     await chip("weapon", "Catalyst").click();
     await chip("rarity", "5★").click();
     await expect(page.locator('main [title="Neuvillette (not owned)"]')).toBeVisible();
+  });
+
+  test("a roster tile opens a quick view with a log-in prompt", async ({ page }) => {
+    await page.goto("/genshin/characters");
+    await page.locator('main [title="Hu Tao (not owned)"]').click();
+    const dialog = page.getByRole("dialog", { name: "Hu Tao" });
+    await expect(dialog.getByText("Vaporize (Pyro + Hydro):")).toBeVisible();
+    await dialog.getByRole("button", { name: "Melt" }).click();
+    await expect(dialog.getByText("Melt (Pyro + Cryo):")).toBeVisible();
+    await expect(dialog.getByRole("link", { name: "Log in" })).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(dialog).toHaveCount(0);
   });
 
   for (const [route, empty] of [
@@ -106,6 +121,16 @@ test.describe("signed in with the sample upload", () => {
     await expect(owned).toHaveCount(ownedCount);
   });
 
+  test("a character that isn't owned opens a quick view without a log-in prompt", async () => {
+    await page.goto("/genshin/characters");
+    await page.locator('main [title$="(not owned)"]').first().click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog.getByText("You don't have this character in your latest upload.")).toBeVisible();
+    await expect(dialog.getByRole("link", { name: "Log in" })).toHaveCount(0);
+    await page.keyboard.press("Escape");
+    await expect(dialog).toHaveCount(0);
+  });
+
   test("a character page shows the profile, weapon, talents and artifacts", async () => {
     await page.goto("/genshin/characters/Aino");
     await expect(page.getByRole("heading", { level: 1, name: "Aino" })).toBeVisible();
@@ -115,6 +140,10 @@ test.describe("signed in with the sample upload", () => {
     await expect(page.getByText("Nod-Krai", { exact: true })).toBeVisible();
     await expect(page.getByText("Playstyle", { exact: true })).toBeVisible();
     await expect(page.getByText("Lv. 70", { exact: true })).toBeVisible();
+    // Reactions: the main one's note shows, and pressing another chip swaps it.
+    await expect(page.getByText("Lunar-Charged (Electro + Hydro):")).toBeVisible();
+    await page.getByRole("button", { name: "Lunar-Bloom" }).click();
+    await expect(page.getByText("Lunar-Bloom (Dendro + Hydro):")).toBeVisible();
     // Weapon: name, stats and passive, with the refinement buttons.
     const weapon = page.locator("section", { has: page.getByRole("heading", { name: "Weapon" }) });
     await expect(weapon.getByText("Flame-Forged Insight", { exact: true })).toBeVisible();
@@ -135,6 +164,18 @@ test.describe("signed in with the sample upload", () => {
   test("a character that isn't in the upload says so", async () => {
     await page.goto("/genshin/characters/NotARealOne");
     await expect(page.getByText("You don't have this character in your latest upload.")).toBeVisible();
+  });
+
+  test("the Traveler's page shows reactions for the picked element and remembers it", async () => {
+    await page.goto("/genshin/characters/Traveler");
+    const element = page.getByRole("combobox", { name: "Your Traveler's element" });
+    await expect(element).toHaveText("Choose your element");
+    await element.click();
+    await page.getByRole("option", { name: "Hydro" }).click();
+    await expect(page.getByText("Vaporize (Pyro + Hydro):")).toBeVisible();
+    await page.reload();
+    await expect(element).toHaveText("Hydro");
+    await expect(page.getByText("Vaporize (Pyro + Hydro):")).toBeVisible();
   });
 
   test("the weapons page searches, filters and switches to a table", async () => {

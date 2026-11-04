@@ -32,13 +32,16 @@ export interface CharacterFilterState {
 
 export const NO_FILTERS: CharacterFilterState = { element: [], weapon: [], rarity: [], role: [], region: [] };
 
+/** Groups where choosing a chip replaces the current one, since a character only has one of each. */
+const SINGLE_CHOICE: (keyof CharacterFilterState)[] = ["element", "weapon", "rarity"];
+
 export function activeFilterCount(filters: CharacterFilterState): number {
   return Object.values(filters).reduce((n, values) => n + values.length, 0);
 }
 
 /**
  * Whether a roster character matches: any chosen value within a group
- * (Pyro or Hydro), and every group with a choice (Pyro and Sword).
+ * (Support or Healer), and every group with a choice (Pyro and Sword).
  */
 export function matchesCharacterFilters(
   character: { key: string; rarity: number },
@@ -68,9 +71,10 @@ export default function CharacterFilters({
 }) {
   const toggle = (group: keyof CharacterFilterState, value: string) => {
     const chosen = filters[group];
+    const others = SINGLE_CHOICE.includes(group) ? [] : chosen;
     onChange({
       ...filters,
-      [group]: chosen.includes(value) ? chosen.filter((v) => v !== value) : [...chosen, value],
+      [group]: chosen.includes(value) ? chosen.filter((v) => v !== value) : [...others, value],
     });
   };
   const count = activeFilterCount(filters);

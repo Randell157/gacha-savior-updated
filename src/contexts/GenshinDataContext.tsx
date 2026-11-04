@@ -8,6 +8,7 @@ import {
   loadGenshin,
   saveGenshin,
   saveShowcase,
+  saveTravelerElement,
   type Showcase,
   type StoredGenshin,
 } from "@/lib/genshin/firestoreStore";
@@ -20,6 +21,7 @@ import type { GenshinData } from "@/lib/genshin/types";
 export interface GenshinDataContextValue {
   data: GenshinData | null;
   showcase: Showcase;
+  travelerElement: string | null;
   /** True until auth has settled and the user's data has been fetched */
   loading: boolean;
   /** Set when saved data exists but couldn't be loaded */
@@ -27,9 +29,10 @@ export interface GenshinDataContextValue {
   lastUploadedAt: Date | null;
   /** True right after data saved in this browser's localStorage was moved to the account */
   migratedFromLocal: boolean;
-  /** Replaces the saved upload (keeps the current showcase) */
+  /** Replaces the saved upload (keeps the current showcase and Traveler element) */
   save: (data: GenshinData) => Promise<void>;
   setShowcase: (showcase: Showcase) => Promise<void>;
+  setTravelerElement: (element: string) => Promise<void>;
 }
 
 export const GenshinDataContext = createContext<GenshinDataContextValue | null>(null);
@@ -124,7 +127,8 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
           uid,
           data,
           previous?.showcase ?? emptyShowcase(),
-          previous?.artifactChunkCount ?? 0
+          previous?.artifactChunkCount ?? 0,
+          previous?.travelerElement ?? null
         );
         setState({ uid, stored, error: null, migratedFromLocal: false });
       } catch (error) {
@@ -153,15 +157,35 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
     [uid, current?.stored]
   );
 
+  const setTravelerElement = useCallback(
+    async (travelerElement: string) => {
+      const stored = current?.stored;
+      if (!uid || !stored) return;
+      // Update the screen right away, and undo it if the write fails.
+      setState((s) => (s && s.stored ? { ...s, stored: { ...s.stored, travelerElement } } : s));
+      try {
+        await saveTravelerElement(uid, travelerElement);
+      } catch (error) {
+        console.error("Saving Traveler element failed:", error);
+        setState((s) =>
+          s && s.stored ? { ...s, stored: { ...s.stored, travelerElement: stored.travelerElement } } : s
+        );
+      }
+    },
+    [uid, current?.stored]
+  );
+
   const value: GenshinDataContextValue = {
     data: current?.stored?.data ?? null,
     showcase: current?.stored?.showcase ?? emptyShowcase(),
+    travelerElement: current?.stored?.travelerElement ?? null,
     loading: authLoading || (!!uid && !current),
     loadError: current?.error ?? null,
     lastUploadedAt: current?.stored?.uploadedAt ?? null,
     migratedFromLocal: current?.migratedFromLocal ?? false,
     save,
     setShowcase,
+    setTravelerElement,
   };
 
   return <GenshinDataContext.Provider value={value}>{children}</GenshinDataContext.Provider>;

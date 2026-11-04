@@ -24,6 +24,8 @@ export type Showcase = (string | null)[];
 export interface StoredGenshin {
   data: GenshinData;
   showcase: Showcase;
+  /** The element the player chose on the Traveler's page; the export doesn't say */
+  travelerElement: string | null;
   uploadedAt: Date | null;
   /** Number of artifact chunks currently stored, used to clean up on re-upload */
   artifactChunkCount: number;
@@ -71,6 +73,7 @@ export async function loadGenshin(uid: string): Promise<StoredGenshin | null> {
   return {
     data: parsed.data,
     showcase: normalizeShowcase(stored.showcase),
+    travelerElement: typeof stored.travelerElement === "string" ? stored.travelerElement : null,
     uploadedAt: stored.uploadedAt instanceof Timestamp ? stored.uploadedAt.toDate() : null,
     artifactChunkCount: chunkCount,
   };
@@ -85,7 +88,8 @@ export async function saveGenshin(
   uid: string,
   data: GenshinData,
   showcase: Showcase,
-  previousChunkCount: number
+  previousChunkCount: number,
+  travelerElement: string | null = null
 ): Promise<StoredGenshin> {
   const chunks: GenshinData["artifacts"][] = [];
   for (let i = 0; i < data.artifacts.length; i += ARTIFACTS_PER_CHUNK) {
@@ -108,6 +112,7 @@ export async function saveGenshin(
     weapons: data.weapons,
     materials: data.materials,
     showcase,
+    travelerElement,
   });
   chunks.forEach((items, i) => batch.set(chunkRef(uid, i), { items }));
   for (let i = chunks.length; i < previousChunkCount; i++) {
@@ -115,9 +120,13 @@ export async function saveGenshin(
   }
   await batch.commit();
 
-  return { data, showcase, uploadedAt: new Date(), artifactChunkCount: chunks.length };
+  return { data, showcase, travelerElement, uploadedAt: new Date(), artifactChunkCount: chunks.length };
 }
 
 export async function saveShowcase(uid: string, showcase: Showcase) {
   await updateDoc(gameRef(uid), { showcase });
+}
+
+export async function saveTravelerElement(uid: string, travelerElement: string) {
+  await updateDoc(gameRef(uid), { travelerElement });
 }

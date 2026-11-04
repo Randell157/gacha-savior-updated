@@ -1,0 +1,623 @@
+{
+  "_note": "Elemental reactions shown on each character's page, the main one first. Hand-written from community consensus and the site owner's picks (not game data), keyed by roster key. Reaction names and their elements are listed in REACTION_ELEMENTS in src/lib/genshin/characterDetails.ts. Generalist and Swirl support are tags in the same list: Generalist for characters who don't rely on their own element, Swirl support for Anemo characters who are there to Swirl. Stellar Glimmer is a state, not a reaction, so it isn't listed. Characters in elementOnly are best with their own element alone and show a single chip instead. An empty or missing list hides the Reactions row.",
+  "elementOnly": ["faruzan","lyney","xiao"],
+  "travelerReactions": {
+    "Anemo": [
+      { "reaction": "Swirl support", "note": "Shreds enemy resistance with Swirl, as a support or quickswap damage dealer." },
+      { "reaction": "Melt", "note": "Fits Melt teams, Swirling Pyro or Cryo." },
+      { "reaction": "Vaporize", "note": "Fits Vaporize teams, Swirling Pyro or Hydro." }
+    ],
+    "Geo": [
+      { "reaction": "Vaporize", "note": "Best known in Hu Tao's Vaporize team as a quickswap damage dealer." },
+      { "reaction": "Crystallize", "note": "Their Geo makes shields with other elements." }
+    ],
+    "Electro": [
+      { "reaction": "Electro-Charged", "note": "Mainly a battery that gives teammates Energy; their Electro reacts with Hydro." },
+      { "reaction": "Overloaded", "note": "Their Electro reacts with a Pyro teammate." },
+      { "reaction": "Superconduct", "note": "Their Electro reacts with a Cryo teammate." }
+    ],
+    "Dendro": [
+      { "reaction": "Hyperbloom", "note": "Off-field Dendro that makes Dendro Core and buffs reactions." },
+      { "reaction": "Quicken", "note": "Keeps enemies Quickened for Electro teammates." },
+      { "reaction": "Burgeon", "note": "Makes Dendro Core for a Pyro teammate." },
+      { "reaction": "Bloom", "note": "Makes Dendro Core with a Hydro teammate." }
+    ],
+    "Hydro": [
+      { "reaction": "Vaporize", "note": "Deals damage with their Hold Skill while applying Hydro for Pyro teammates." },
+      { "reaction": "Bloom", "note": "Their Hydro makes Dendro Core." },
+      { "reaction": "Hyperbloom", "note": "Their Hydro makes Dendro Core for an Electro teammate." },
+      { "reaction": "Freeze", "note": "Their Hydro works with Cryo teammates." }
+    ],
+    "Pyro": [
+      { "reaction": "Overloaded", "note": "An off-field Pyro applier and buffer, most often with Electro teammates." },
+      { "reaction": "Vaporize", "note": "Their Pyro reacts with Hydro." },
+      { "reaction": "Burgeon", "note": "Their Pyro bursts Dendro Core." },
+      { "reaction": "Melt", "note": "Their Pyro reacts with Cryo." },
+      { "reaction": "Burning", "note": "Their Pyro reacts with Dendro." }
+    ],
+    "Cryo": [
+      { "reaction": "Stellar-Conduct", "note": "Their Cryo fits Stellar-Conduct teams, using the Radiance: Stellar-Conduct state." },
+      { "reaction": "Stellar Swirl", "note": "Also fits Stellar Swirl teams with an Anemo teammate." }
+    ]
+  },
+  "reactions": {
+    "aino": [
+      { "reaction": "Lunar-Charged", "note": "Her off-field Hydro and extra Moonsign level support Lunar-Charged teams (Flins, Ineffa)." },
+      { "reaction": "Vaporize", "note": "Her Hydro also feeds Overvape teams." },
+      { "reaction": "Lunar-Bloom", "note": "Does the same job for Lunar-Bloom teams with Lauma." },
+      { "reaction": "Freeze", "note": "Her Hydro works with Cryo teammates." }
+    ],
+    "albedo": [
+      { "reaction": "Lunar-Crystallize", "note": "Mostly off-field Geo damage, but fits Lunar-Crystallize teams." },
+      { "reaction": "Crystallize", "note": "His Geo makes shields and shards with other elements." }
+    ],
+    "alhaitham": [
+      { "reaction": "Spread", "note": "His Dendro blades Spread on enemies an Electro teammate keeps in Quicken." },
+      { "reaction": "Hyperbloom", "note": "Can also drive Hyperbloom with Hydro and Electro teammates." },
+      { "reaction": "Burgeon", "note": "Works with Hydro and Pyro teammates." }
+    ],
+    "aloy": [
+      { "reaction": "Melt", "note": "Her Cryo attacks reverse Melt with a Pyro teammate." },
+      { "reaction": "Freeze", "note": "Works in Cryo teams with a Hydro teammate." }
+    ],
+    "alyosha": [
+      { "reaction": "Stellar-Conduct", "note": "Boosts the party's Stellar-Conduct damage while inside a Polestar Field." },
+      { "reaction": "Overloaded", "note": "Also fits Arlecchino teams." },
+      { "reaction": "Lunar-Charged", "note": "Also fits Flins teams." }
+    ],
+    "amber": [
+      { "reaction": "Melt", "note": "Her charged shots Melt on enemies a Cryo teammate has applied." },
+      { "reaction": "Burgeon", "note": "Her Pyro bursts Dendro Core with Dendro and Hydro teammates." },
+      { "reaction": "Vaporize", "note": "Baron Bunny and charged shots can also Vaporize with Hydro." }
+    ],
+    "aratakiitto": [
+      { "reaction": "Crystallize", "note": "His Geo makes shields in most of his teams." },
+      { "reaction": "Vaporize", "note": "Also works with Mavuika and Furina." }
+    ],
+    "arlecchino": [
+      { "reaction": "Vaporize", "note": "Her Normal Attacks Vaporize with a Hydro teammate." },
+      { "reaction": "Melt", "note": "Reverse Melt with a Cryo teammate also works well." },
+      { "reaction": "Overloaded", "note": "Fits Chevreuse teams with an Electro teammate." }
+    ],
+    "baizhu": [
+      { "reaction": "Bloom", "note": "Boosts the party's Bloom damage and keeps them healed." },
+      { "reaction": "Lunar-Bloom", "note": "Boosts Lunar-Bloom damage in Moonsign teams." },
+      { "reaction": "Hyperbloom", "note": "Also boosts Hyperbloom damage." },
+      { "reaction": "Burgeon", "note": "Also boosts Burgeon damage." },
+      { "reaction": "Spread", "note": "Also boosts Aggravate and Spread damage in Quicken teams." }
+    ],
+    "barbara": [
+      { "reaction": "Vaporize", "note": "Off-field Hydro and healing for Pyro damage dealers." },
+      { "reaction": "Electro-Charged", "note": "Off-field Hydro for an Electro damage dealer." },
+      { "reaction": "Bloom", "note": "Her Hydro makes Dendro Core while she heals the team." },
+      { "reaction": "Burgeon", "note": "Her Hydro makes Dendro Core for a Pyro teammate." }
+    ],
+    "beidou": [
+      { "reaction": "Aggravate", "note": "Her Burst arcs Aggravate on Quickened enemies." },
+      { "reaction": "Hyperbloom", "note": "Her Burst turns Dendro Core into Hyperbloom." },
+      { "reaction": "Electro-Charged", "note": "Her Burst keeps reacting with a Hydro teammate on the field." },
+      { "reaction": "Overloaded", "note": "Her Burst reacts with a Pyro teammate." }
+    ],
+    "bennett": [
+      { "reaction": "Generalist", "note": "His ATK buff and healing help almost any team, whatever its element." },
+      { "reaction": "Vaporize", "note": "Mostly a buffer, but his Pyro helps Vaporize teams." },
+      { "reaction": "Melt", "note": "Applies Pyro for Cryo Melt damage dealers." },
+      { "reaction": "Overloaded", "note": "Fits Chevreuse teams with an Electro teammate." },
+      { "reaction": "Burgeon", "note": "His Pyro bursts Dendro Core." }
+    ],
+    "candace": [
+      { "reaction": "Bloom", "note": "Her Hydro makes Dendro Core, including in Hyperbloom teams." },
+      { "reaction": "Vaporize", "note": "Her Burst's Hydro and buff suit Pyro damage dealers." },
+      { "reaction": "Lunar-Charged", "note": "Her Hydro reacts with Electro in Lunar-Charged teams." },
+      { "reaction": "Electro-Charged", "note": "Her Hydro reacts with Electro damage dealers." }
+    ],
+    "charlotte": [
+      { "reaction": "Freeze", "note": "Mostly a healer, but her Cryo freezes enemies with a Hydro teammate." },
+      { "reaction": "Hyperbloom", "note": "Heals in Hyperbloom teams without getting in the way of Dendro Core." },
+      { "reaction": "Burgeon", "note": "Also heals in Burgeon teams." }
+    ],
+    "chasca": [
+      { "reaction": "Vaporize", "note": "Pyro teammates turn her bullets Pyro, and they Vaporize with a Hydro teammate." },
+      { "reaction": "Melt", "note": "Her Pyro bullets also Melt with a Cryo teammate." },
+      { "reaction": "Overloaded", "note": "Used in Overvape teams with Pyro and Electro teammates." }
+    ],
+    "chevreuse": [
+      { "reaction": "Overloaded", "note": "Her whole kit buffs Pyro and Electro teams that Overload." },
+      { "reaction": "Vaporize", "note": "Also fits Overvape teams with Hydro." }
+    ],
+    "chiori": [
+      { "reaction": "Lunar-Crystallize", "note": "Fits Lunar-Crystallize teams; many of her other teams just use Geo Resonance." },
+      { "reaction": "Crystallize", "note": "Her Geo makes shards with other elements." }
+    ],
+    "chongyun": [
+      { "reaction": "Melt", "note": "His Skill and Burst reverse Melt with a Pyro teammate." },
+      { "reaction": "Freeze", "note": "His Cryo works in Freeze teams with Hydro." }
+    ],
+    "citlali": [
+      { "reaction": "Melt", "note": "Supplies Cryo and lowers enemy Pyro resistance for Melt damage dealers." },
+      { "reaction": "Freeze", "note": "Her Cryo and shield work in Freeze teams with Hydro." }
+    ],
+    "clorinde": [
+      { "reaction": "Aggravate", "note": "Her Skill attacks Aggravate on enemies a Dendro teammate keeps Quickened." },
+      { "reaction": "Overloaded", "note": "Fits Chevreuse teams with a Pyro teammate." },
+      { "reaction": "Hyperbloom", "note": "Also fits Hyperbloom teams." },
+      { "reaction": "Electro-Charged", "note": "Also works with Hydro teammates, mainly for raw damage." }
+    ],
+    "collei": [
+      { "reaction": "Quicken", "note": "Off-field Dendro that keeps enemies Quickened for Electro teammates." },
+      { "reaction": "Hyperbloom", "note": "Her Dendro makes Dendro Core with a Hydro teammate." },
+      { "reaction": "Burgeon", "note": "Her Dendro makes Dendro Core for a Pyro teammate." },
+      { "reaction": "Bloom", "note": "Her Dendro makes Dendro Core with Hydro." },
+      { "reaction": "Lunar-Bloom", "note": "Her Dendro works in Lunar-Bloom teams." }
+    ],
+    "columbina": [
+      { "reaction": "Lunar-Charged", "note": "Her main teams: thunderclouds gain a chance of an extra lightning strike." },
+      { "reaction": "Lunar-Bloom", "note": "Her Normal Attacks count as Lunar-Bloom damage, and the party gains Moonridge Dew." },
+      { "reaction": "Lunar-Crystallize", "note": "Works in Lunar-Crystallize teams too." }
+    ],
+    "cyno": [
+      { "reaction": "Hyperbloom", "note": "His Elemental Mastery suits Hyperbloom with Dendro and Hydro." },
+      { "reaction": "Aggravate", "note": "His Burst Normal Attacks Aggravate with a Dendro teammate." },
+      { "reaction": "Overloaded", "note": "His Electro reacts with a Pyro teammate." }
+    ],
+    "dahlia": [
+      { "reaction": "Generalist", "note": "His shield and Attack SPD buff help any team that attacks a lot, whatever its element." },
+      { "reaction": "Freeze", "note": "His Burst's blessed characters gain him stacks when they trigger Freeze." }
+    ],
+    "dehya": [
+      { "reaction": "Vaporize", "note": "Her off-field Pyro reacts with Hydro." },
+      { "reaction": "Melt", "note": "Her Pyro Melts with a Cryo teammate." },
+      { "reaction": "Overloaded", "note": "Her Pyro reacts with an Electro teammate." },
+      { "reaction": "Burgeon", "note": "Her off-field Pyro bursts Dendro Core." }
+    ],
+    "diluc": [
+      { "reaction": "Vaporize", "note": "His Skill and Burst Vaporize with a Hydro teammate." },
+      { "reaction": "Melt", "note": "Reverse Melt with a Cryo teammate also works." },
+      { "reaction": "Burgeon", "note": "His Pyro bursts Dendro Core." }
+    ],
+    "diona": [
+      { "reaction": "Stellar-Conduct", "note": "Her shield and healing suit Stellar-Conduct teams." },
+      { "reaction": "Stellar Swirl", "note": "Does the same job in Stellar Swirl teams." },
+      { "reaction": "Melt", "note": "Off-field Cryo for Pyro Melt damage dealers." },
+      { "reaction": "Freeze", "note": "Her Cryo and shield fit Freeze teams with Hydro." }
+    ],
+    "dori": [
+      { "reaction": "Hyperbloom", "note": "Her Electro turns Dendro Core into Hyperbloom while she heals and restores Energy." },
+      { "reaction": "Aggravate", "note": "Her Electro Aggravates on Quickened enemies." },
+      { "reaction": "Lunar-Charged", "note": "Her kit supports Lunar-Charged teams." },
+      { "reaction": "Stellar-Conduct", "note": "Her kit supports Stellar-Conduct teams." }
+    ],
+    "durin": [
+      { "reaction": "Overloaded", "note": "His most common teams, with Electro teammates." },
+      { "reaction": "Vaporize", "note": "His talent adds 40% to his Vaporize damage too." },
+      { "reaction": "Melt", "note": "His talent adds 40% to his Melt damage." },
+      { "reaction": "Burgeon", "note": "His Pyro bursts Dendro Core." }
+    ],
+    "emilie": [
+      { "reaction": "Burning", "note": "Her Lumidouce Case hits harder on Burning enemies, so she wants a Pyro teammate." }
+    ],
+    "escoffier": [
+      { "reaction": "Freeze", "note": "Lowers enemy Cryo and Hydro resistance in Cryo and Hydro teams." },
+      { "reaction": "Melt", "note": "Her off-field Cryo also supports Pyro Melt damage dealers." },
+      { "reaction": "Stellar-Conduct", "note": "Her Cryo also fits Stellar-Conduct teams." }
+    ],
+    "eula": [
+      { "reaction": "Superconduct", "note": "Superconduct lowers Physical resistance for her Physical damage." }
+    ],
+    "fischl": [
+      { "reaction": "Electro-Charged", "note": "Oz reacts with Hydro in Electro-Charged teams." },
+      { "reaction": "Overloaded", "note": "Oz triggers Overloaded with a Pyro teammate." },
+      { "reaction": "Aggravate", "note": "Oz keeps Aggravating on Quickened enemies from off-field." },
+      { "reaction": "Hyperbloom", "note": "Oz turns Dendro Core into Hyperbloom." },
+      { "reaction": "Superconduct", "note": "Oz reacts with Cryo teammates." }
+    ],
+    "flins": [
+      { "reaction": "Lunar-Charged", "note": "His Burst and talents deal Lunar-Charged damage from thunderclouds." },
+      { "reaction": "Overloaded", "note": "Also fits Durin teams." }
+    ],
+    "freminet": [
+      { "reaction": "Shatter", "note": "His Physical hits Shatter enemies a Hydro teammate has helped Freeze." },
+      { "reaction": "Superconduct", "note": "Superconduct lowers Physical resistance for his Physical damage." },
+      { "reaction": "Freeze", "note": "His Cryo freezes enemies with a Hydro teammate." }
+    ],
+    "furina": [
+      { "reaction": "Vaporize", "note": "Her Salon Members add off-field Hydro for Pyro damage dealers." },
+      { "reaction": "Freeze", "note": "Her Hydro keeps Freeze going with Cryo damage dealers." },
+      { "reaction": "Electro-Charged", "note": "Her Hydro reacts with Electro damage dealers." },
+      { "reaction": "Lunar-Charged", "note": "Her Hydro also feeds Lunar-Charged teams." }
+    ],
+    "gaming": [
+      { "reaction": "Melt", "note": "His plunges Melt with a Cryo teammate." },
+      { "reaction": "Vaporize", "note": "His plunges Vaporize with a Hydro teammate." }
+    ],
+    "ganyu": [
+      { "reaction": "Freeze", "note": "Her Burst keeps enemies in Freeze with a Hydro teammate." },
+      { "reaction": "Melt", "note": "Her charged shots Melt with a Pyro teammate." }
+    ],
+    "gorou": [
+      { "reaction": "Lunar-Crystallize", "note": "Fits Zibai and Columbina teams, though his buffs are the main draw." },
+      { "reaction": "Crystallize", "note": "His Geo makes shards and shields." }
+    ],
+    "hutao": [
+      { "reaction": "Vaporize", "note": "Her Charged Attacks Vaporize on enemies a Hydro teammate (Xingqiu, Yelan) keeps soaked." },
+      { "reaction": "Melt", "note": "Reverse Melt with a Cryo teammate works, but is weaker than Vaporize for her." }
+    ],
+    "iansan": [
+      { "reaction": "Generalist", "note": "Her ATK buff helps almost any team, whatever its element." },
+      { "reaction": "Overloaded", "note": "Fits Chevreuse teams with Clorinde or Varesa." },
+      { "reaction": "Electro-Charged", "note": "Fits Varesa and Chasca teams with Hydro." },
+      { "reaction": "Melt", "note": "Fits Mavuika and Citlali teams." },
+      { "reaction": "Lunar-Charged", "note": "Fits Flins teams." }
+    ],
+    "ifa": [
+      { "reaction": "Swirl support", "note": "Rescue Essentials raises the party's Swirl damage." },
+      { "reaction": "Electro-Charged", "note": "Rescue Essentials raises Electro-Charged damage." },
+      { "reaction": "Lunar-Charged", "note": "Rescue Essentials raises Lunar-Charged damage." },
+      { "reaction": "Aggravate", "note": "His Anemo also fits Quicken teams." },
+      { "reaction": "Hyperbloom", "note": "His Anemo also fits Hyperbloom teams." },
+      { "reaction": "Stellar Swirl", "note": "Rescue Essentials also raises Stellar Swirl damage." }
+    ],
+    "illuga": [
+      { "reaction": "Lunar-Crystallize", "note": "Scales the party's Lunar-Crystallize damage with his Elemental Mastery." },
+      { "reaction": "Lunar-Charged", "note": "Also works with Ineffa." }
+    ],
+    "ineffa": [
+      { "reaction": "Lunar-Charged", "note": "Turns Electro-Charged into Lunar-Charged, and Birgitta adds Lunar-Charged hits." },
+      { "reaction": "Hyperbloom", "note": "Her Electro turns Dendro Core into Hyperbloom." },
+      { "reaction": "Vaporize", "note": "Also fits Overvape teams." },
+      { "reaction": "Overloaded", "note": "Her Electro reacts with a Pyro teammate." }
+    ],
+    "jahoda": [
+      { "reaction": "Lunar-Charged", "note": "Her extra Moonsign level helps Ineffa, Flins and Furina teams." },
+      { "reaction": "Vaporize", "note": "Also fits Overvape teams with Mona." }
+    ],
+    "jean": [
+      { "reaction": "Swirl support", "note": "Her Anemo Swirls teammates' elements on enemies." }
+    ],
+    "kachina": [
+      { "reaction": "Crystallize", "note": "Her Geo makes shields and Crystallize shards in Natlan teams." }
+    ],
+    "kaedeharakazuha": [
+      { "reaction": "Swirl support", "note": "Swirl gives the party bonus damage of the Swirled element." },
+      { "reaction": "Vaporize", "note": "Most often Swirls Pyro or Hydro for Vaporize damage dealers." },
+      { "reaction": "Melt", "note": "Also Swirls for Melt teams." },
+      { "reaction": "Lunar-Charged", "note": "Also fits Lunar-Charged teams." },
+      { "reaction": "Stellar Swirl", "note": "Stellar Swirl triggers his bonus in Cryo Swirl teams." }
+    ],
+    "kaeya": [
+      { "reaction": "Freeze", "note": "His Cryo freezes enemies with a Hydro teammate." },
+      { "reaction": "Melt", "note": "His Skill and Burst reverse Melt with a Pyro teammate." },
+      { "reaction": "Superconduct", "note": "Works with Electro teammates to lower Physical resistance." }
+    ],
+    "kamisatoayaka": [
+      { "reaction": "Freeze", "note": "Her Burst and Normal Attacks keep enemies in Freeze with a Hydro teammate." },
+      { "reaction": "Melt", "note": "Reverse Melt with a Pyro teammate also works." }
+    ],
+    "kamisatoayato": [
+      { "reaction": "Freeze", "note": "His Hydro works with Cryo teammates in Freeze teams." },
+      { "reaction": "Hyperbloom", "note": "His Hydro makes Dendro Core for an Electro teammate." },
+      { "reaction": "Bloom", "note": "Fits Nilou Bloom teams." },
+      { "reaction": "Electro-Charged", "note": "His Burst's Hydro reacts with Electro teammates." },
+      { "reaction": "Vaporize", "note": "His Normal Attacks and Burst Vaporize with a Pyro teammate." }
+    ],
+    "kaveh": [
+      { "reaction": "Bloom", "note": "His Skill bursts Dendro Core, and his Burst raises Bloom damage." },
+      { "reaction": "Hyperbloom", "note": "His Dendro makes Dendro Core for an Electro teammate." },
+      { "reaction": "Burgeon", "note": "His Dendro makes Dendro Core for a Pyro teammate." },
+      { "reaction": "Lunar-Bloom", "note": "His Dendro works in Lunar-Bloom teams." }
+    ],
+    "keqing": [
+      { "reaction": "Aggravate", "note": "Her Electro Aggravates on enemies a Dendro teammate keeps Quickened." },
+      { "reaction": "Hyperbloom", "note": "Her Electro turns Dendro Core into Hyperbloom." },
+      { "reaction": "Overloaded", "note": "Her Electro reacts with a Pyro teammate." },
+      { "reaction": "Lunar-Charged", "note": "Her Electro also fits Lunar-Charged teams." }
+    ],
+    "kinich": [
+      { "reaction": "Burning", "note": "Scoring Burning or Burgeon on enemies gives him Nightsoul Points." },
+      { "reaction": "Burgeon", "note": "Also works in Hydro teams with Furina, Thoma or Xingqiu." }
+    ],
+    "kirara": [
+      { "reaction": "Aggravate", "note": "Her Dendro keeps enemies Quickened for Electro teammates." },
+      { "reaction": "Bloom", "note": "Her shield and Dendro fit Bloom teams." },
+      { "reaction": "Hyperbloom", "note": "Her Dendro makes Dendro Core for an Electro teammate." },
+      { "reaction": "Burgeon", "note": "Her Dendro makes Dendro Core for a Pyro teammate." },
+      { "reaction": "Spread", "note": "Fits Quicken teams with a Dendro damage dealer." }
+    ],
+    "klee": [
+      { "reaction": "Overloaded", "note": "Her main teams: Pyro and Electro, often with Chevreuse." },
+      { "reaction": "Vaporize", "note": "Her Charged Attacks and bombs Vaporize with a Hydro teammate." },
+      { "reaction": "Burning", "note": "Also works in Burning teams with Dendro." }
+    ],
+    "kujousara": [
+      { "reaction": "Electro-Charged", "note": "Mostly a buffer for Electro damage, but fits Electro-Charged teams." }
+    ],
+    "kukishinobu": [
+      { "reaction": "Hyperbloom", "note": "Her Electro turns Dendro Core into Hyperbloom, scaling with Elemental Mastery." },
+      { "reaction": "Aggravate", "note": "Her ring also keeps Aggravating on Quickened enemies." }
+    ],
+    "lanyan": [
+      { "reaction": "Swirl support", "note": "Her Anemo Swirls teammates' elements." }
+    ],
+    "lauma": [
+      { "reaction": "Lunar-Bloom", "note": "Her Skill deals Lunar-Bloom damage, and Pale Hymn boosts the party's." },
+      { "reaction": "Bloom", "note": "Pale Hymn also boosts Bloom damage." },
+      { "reaction": "Hyperbloom", "note": "Pale Hymn also boosts Hyperbloom damage." },
+      { "reaction": "Burgeon", "note": "Pale Hymn also boosts Burgeon damage." }
+    ],
+    "layla": [
+      { "reaction": "Melt", "note": "Off-field Cryo for Pyro Melt damage dealers." },
+      { "reaction": "Freeze", "note": "Her shield and Cryo fit Freeze teams with Hydro." },
+      { "reaction": "Superconduct", "note": "Fits Physical teams with an Electro teammate." }
+    ],
+    "linnea": [
+      { "reaction": "Lunar-Crystallize", "note": "Lumi's Geo attacks count as Lunar-Crystallize damage." }
+    ],
+    "lisa": [
+      { "reaction": "Aggravate", "note": "Her Electro Aggravates on Quickened enemies." },
+      { "reaction": "Hyperbloom", "note": "Her Electro turns Dendro Core into Hyperbloom." },
+      { "reaction": "Overloaded", "note": "Her Electro reacts with a Pyro teammate." },
+      { "reaction": "Lunar-Charged", "note": "Her Electro also fits Lunar-Charged teams." }
+    ],
+    "lohen": [
+      { "reaction": "Melt", "note": "Applies a lot of Cryo so off-field Pyro (Durin, Mavuika, Xiangling) can Melt; Nicole is a top teammate." },
+      { "reaction": "Freeze", "note": "Also works with Hydro teammates (Escoffier, Furina), though it's weaker." }
+    ],
+    "lynette": [
+      { "reaction": "Swirl support", "note": "Her Skill and Burst Swirl other elements on enemies." },
+      { "reaction": "Hyperbloom", "note": "Also fits Hyperbloom teams." }
+    ],
+    "mavuika": [
+      { "reaction": "Melt", "note": "Her Burst Melts on enemies a Cryo teammate has applied (Citlali)." },
+      { "reaction": "Vaporize", "note": "Vaporize with a Hydro teammate also works." },
+      { "reaction": "Overloaded", "note": "Fits Natlan and Chevreuse teams with an Electro teammate." }
+    ],
+    "mika": [
+      { "reaction": "Superconduct", "note": "His Cryo and an Electro teammate lower Physical resistance." }
+    ],
+    "mona": [
+      { "reaction": "Vaporize", "note": "Her Burst and Hydro help Vaporize teams." },
+      { "reaction": "Electro-Charged", "note": "Her Hydro reacts with Electro teammates." },
+      { "reaction": "Lunar-Charged", "note": "Her Hydro feeds Lunar-Charged teams." },
+      { "reaction": "Freeze", "note": "Her Hydro works with Cryo teammates." }
+    ],
+    "mualani": [
+      { "reaction": "Vaporize", "note": "Her bites Vaporize with a Pyro teammate (Bennett, Xiangling)." }
+    ],
+    "nahida": [
+      { "reaction": "Hyperbloom", "note": "Her Dendro and Elemental Mastery suit Hyperbloom." },
+      { "reaction": "Burgeon", "note": "Her Dendro and Elemental Mastery suit Burgeon." },
+      { "reaction": "Bloom", "note": "Fits Nilou Bloom teams." },
+      { "reaction": "Spread", "note": "Tri-Karma Purification keeps Dendro on enemies for Quicken teams." },
+      { "reaction": "Aggravate", "note": "Also keeps enemies Quickened for Electro teammates." }
+    ],
+    "navia": [
+      { "reaction": "Crystallize", "note": "Her Skill consumes Crystallize shards, so she wants Pyro, Hydro, Electro or Cryo teammates." },
+      { "reaction": "Lunar-Crystallize", "note": "Works with Lunar-Crystallize teams too." }
+    ],
+    "nefer": [
+      { "reaction": "Lunar-Bloom", "note": "Her Seeds of Deceit feed her Lunar-Bloom attacks." }
+    ],
+    "neuvillette": [
+      { "reaction": "Lunar-Charged", "note": "Among his strongest teams, especially with Ineffa." },
+      { "reaction": "Hyperbloom", "note": "Strong with Dendro and Electro teammates (Lauma, Ineffa, Raiden)." },
+      { "reaction": "Vaporize", "note": "Works with Pyro teammates such as Xiangling." },
+      { "reaction": "Freeze", "note": "Strong with Escoffier and Furina." },
+      { "reaction": "Electro-Charged", "note": "Works with Fischl or Ororon, though it's weaker than Lunar-Charged." },
+      { "reaction": "Bloom", "note": "A multi-target option with Nilou and two Dendro teammates." }
+    ],
+    "nicole": [
+      { "reaction": "Generalist", "note": "Their flat ATK buff helps almost any team, and their Burst can't react by itself." },
+      { "reaction": "Vaporize", "note": "A buffer whose own Burst can't react; fits Vaporize teams with Durin and Mona." },
+      { "reaction": "Overloaded", "note": "Also fits Chevreuse teams." }
+    ],
+    "nilou": [
+      { "reaction": "Bloom", "note": "Bountiful Cores turn Dendro Core into larger explosions in Hydro and Dendro teams." },
+      { "reaction": "Lunar-Bloom", "note": "Her Hydro also works in Lunar-Bloom teams." }
+    ],
+    "ningguang": [
+      { "reaction": "Crystallize", "note": "Her Geo makes shields in many of her teams." }
+    ],
+    "noelle": [
+      { "reaction": "Lunar-Crystallize", "note": "Her Geo fits Lunar-Crystallize teams, though most of her teams don't rely on reactions." }
+    ],
+    "odette": [
+      { "reaction": "Stellar-Conduct", "note": "Superconduct from an Electro teammate becomes Stellar-Conduct, boosted by her ATK." },
+      { "reaction": "Stellar Swirl", "note": "Cryo Swirl from an Anemo teammate becomes Stellar Swirl, also boosted by her ATK." }
+    ],
+    "ororon": [
+      { "reaction": "Electro-Charged", "note": "His Skill and Burst react with Hydro, and he fits Electro-Charged teams." },
+      { "reaction": "Lunar-Charged", "note": "His Electro reacts with Hydro to make thunderclouds." },
+      { "reaction": "Overloaded", "note": "His Electro also reacts with Pyro." }
+    ],
+    "prune": [
+      { "reaction": "Swirl", "note": "Her buffs need Swirl, and it gives her Banehunter Oathhammer the Swirled element." },
+      { "reaction": "Stellar Swirl", "note": "Her Witchlure Bell Swirls Cryo for Stellar Swirl." }
+    ],
+    "qiqi": [
+      { "reaction": "Stellar-Conduct", "note": "Her Cryo and healing support Sandrone and Yae Miko teams." },
+      { "reaction": "Superconduct", "note": "Her Cryo and an Electro teammate trigger Superconduct." },
+      { "reaction": "Melt", "note": "Off-field Cryo for Pyro damage dealers (Arlecchino, Mavuika)." },
+      { "reaction": "Freeze", "note": "Her Cryo freezes enemies with a Hydro teammate." }
+    ],
+    "raidenshogun": [
+      { "reaction": "Aggravate", "note": "Her Skill and Burst Aggravate on Quickened enemies." },
+      { "reaction": "Hyperbloom", "note": "Her Skill's coordinated attacks turn Dendro Core into Hyperbloom." },
+      { "reaction": "Overloaded", "note": "Her Electro reacts with Pyro in National teams." },
+      { "reaction": "Superconduct", "note": "Her Electro reacts with a Cryo teammate." }
+    ],
+    "razor": [
+      { "reaction": "Superconduct", "note": "Superconduct lowers Physical resistance for his Physical damage." },
+      { "reaction": "Aggravate", "note": "His Electro Aggravates on Quickened enemies." },
+      { "reaction": "Hyperbloom", "note": "His Electro turns Dendro Core into Hyperbloom." },
+      { "reaction": "Overloaded", "note": "His Electro reacts with a Pyro teammate." }
+    ],
+    "rosaria": [
+      { "reaction": "Melt", "note": "Her Skill and Burst reverse Melt with a Pyro teammate." },
+      { "reaction": "Freeze", "note": "Her Cryo freezes enemies with a Hydro teammate." }
+    ],
+    "sandrone": [
+      { "reaction": "Stellar-Conduct", "note": "Superconduct from an Electro teammate becomes Stellar-Conduct, boosted by her ATK." }
+    ],
+    "sangonomiyakokomi": [
+      { "reaction": "Freeze", "note": "Her jellyfish keeps Hydro on enemies for Cryo teammates." },
+      { "reaction": "Electro-Charged", "note": "Off-field Hydro for Electro damage dealers." },
+      { "reaction": "Lunar-Charged", "note": "Her Hydro feeds Lunar-Charged teams." },
+      { "reaction": "Vaporize", "note": "Off-field Hydro for Pyro teammates." },
+      { "reaction": "Hyperbloom", "note": "Her Hydro makes Dendro Core for an Electro teammate." },
+      { "reaction": "Bloom", "note": "Her jellyfish keeps Hydro on enemies for Dendro Core." }
+    ],
+    "sayu": [
+      { "reaction": "Swirl support", "note": "Her Skill's kicks Swirl and buff the party's Elemental Mastery." },
+      { "reaction": "Stellar Swirl", "note": "Her Anemo also Swirls Cryo for Stellar Swirl." }
+    ],
+    "sethos": [
+      { "reaction": "Aggravate", "note": "His Skill and Burst Aggravate with a Dendro teammate." },
+      { "reaction": "Lunar-Charged", "note": "His Electro works in Lunar-Charged teams." },
+      { "reaction": "Stellar-Conduct", "note": "His Electro works in Stellar-Conduct teams." }
+    ],
+    "shenhe": [
+      { "reaction": "Freeze", "note": "Her Icy Quills boost Cryo damage in Ayaka's Freeze teams." },
+      { "reaction": "Melt", "note": "Boosts Cryo Melt damage dealers too." }
+    ],
+    "shikanoinheizou": [
+      { "reaction": "Swirl", "note": "His Burst Swirls other elements." },
+      { "reaction": "Electro-Charged", "note": "Mostly Swirls Electro in Electro-Charged teams." },
+      { "reaction": "Hyperbloom", "note": "Also fits Hyperbloom teams." },
+      { "reaction": "Stellar Swirl", "note": "His Anemo also Swirls Cryo for Stellar Swirl." }
+    ],
+    "sigewinne": [
+      { "reaction": "Vaporize", "note": "Her modest off-field Hydro helps Vaporize teams, especially with Furina." },
+      { "reaction": "Electro-Charged", "note": "Her Hydro reacts with Electro teammates." },
+      { "reaction": "Hyperbloom", "note": "Her Hydro makes Dendro Core while she heals the team." },
+      { "reaction": "Freeze", "note": "Her Hydro works with Cryo teammates." }
+    ],
+    "skirk": [
+      { "reaction": "Freeze", "note": "Her Void Rifts appear after the party triggers Freeze; she wants Cryo and Hydro teammates." },
+      { "reaction": "Superconduct", "note": "Void Rifts also appear on Superconduct." },
+      { "reaction": "Stellar-Conduct", "note": "Void Rifts also appear on Stellar-Conduct." },
+      { "reaction": "Stellar Swirl", "note": "Void Rifts also appear on Stellar Swirl." }
+    ],
+    "sucrose": [
+      { "reaction": "Swirl support", "note": "Swirl gives teammates of the Swirled element bonus Elemental Mastery." },
+      { "reaction": "Lunar-Charged", "note": "Her Elemental Mastery bonus suits Lunar-Charged teams." },
+      { "reaction": "Electro-Charged", "note": "It also suits Electro-Charged teams." },
+      { "reaction": "Stellar Swirl", "note": "Stellar Swirl triggers the same bonus." }
+    ],
+    "tartaglia": [
+      { "reaction": "Vaporize", "note": "His Melee Stance Vaporizes with a Pyro teammate." },
+      { "reaction": "Electro-Charged", "note": "His Hydro reacts with Electro teammates." },
+      { "reaction": "Freeze", "note": "His Hydro works with Cryo teammates." }
+    ],
+    "thoma": [
+      { "reaction": "Burgeon", "note": "His Burst bursts Dendro Core on every hit." },
+      { "reaction": "Vaporize", "note": "His Pyro and shield also fit Vaporize teams." },
+      { "reaction": "Melt", "note": "His Pyro Melts with Cryo." }
+    ],
+    "tighnari": [
+      { "reaction": "Spread", "note": "His charged shots Spread on enemies an Electro teammate keeps Quickened." }
+    ],
+    "traveler": [],
+    "varesa": [
+      { "reaction": "Overloaded", "note": "Her best fit: Pyro and Electro teams with Chevreuse, or Durin and Nicole." },
+      { "reaction": "Lunar-Charged", "note": "Fits Columbina and Ineffa teams." },
+      { "reaction": "Stellar-Conduct", "note": "Fits Odette and Yae Miko teams." }
+    ],
+    "varka": [
+      { "reaction": "Stellar Swirl", "note": "His best teams are Odette-led Cryo teams; Stellar Swirl gives him stacks too." },
+      { "reaction": "Swirl", "note": "Swirl gives him Azure Fang's Oath stacks, raising his attacks' damage." }
+    ],
+    "venti": [
+      { "reaction": "Swirl support", "note": "His Burst Swirls teammates' elements and gathers enemies." }
+    ],
+    "vesna": [
+      { "reaction": "Stellar Swirl", "note": "An on-field damage dealer whose Spirit Blades count as Stellar Swirl damage; she also turns the party's Cryo Swirl into Stellar Swirl." }
+    ],
+    "vodyanitsa": [
+      { "reaction": "Freeze", "note": "Her Hydro keeps Freeze going with Cryo teammates." },
+      { "reaction": "Stellar Swirl", "note": "Song of Ages Past makes Stellar Swirl generate Wandering Vortex." }
+    ],
+    "wanderer": [
+      { "reaction": "Swirl", "note": "His Anemo Swirls teammates' Pyro, Cryo or Hydro." }
+    ],
+    "wonderlandmanekin": [],
+    "wriothesley": [
+      { "reaction": "Stellar-Conduct", "note": "His Cryo fits Stellar-Conduct teams with an Electro teammate." },
+      { "reaction": "Melt", "note": "His Charged Attacks reverse Melt with a Pyro teammate." },
+      { "reaction": "Freeze", "note": "His Cryo freezes enemies with a Hydro teammate." }
+    ],
+    "xiangling": [
+      { "reaction": "Vaporize", "note": "Pyronado Vaporizes with an off-field Hydro teammate." },
+      { "reaction": "Melt", "note": "Pyronado Melts with Cryo." },
+      { "reaction": "Overloaded", "note": "Pyronado reacts with Electro in National teams." },
+      { "reaction": "Burgeon", "note": "Pyronado bursts Dendro Core." }
+    ],
+    "xianyun": [
+      { "reaction": "Vaporize", "note": "Her healing and plunge buffs suit Vaporize teams (Hu Tao, Gaming, Diluc)." },
+      { "reaction": "Melt", "note": "Also suits Melt plunge teams (Gaming, Wriothesley)." },
+      { "reaction": "Freeze", "note": "Fits Wriothesley and Shenhe teams." },
+      { "reaction": "Swirl", "note": "Her Anemo Swirls teammates' elements." }
+    ],
+    "xilonen": [
+      { "reaction": "Generalist", "note": "Her shred and healing help teams of many elements, and her Geo isn't the point." },
+      { "reaction": "Vaporize", "note": "Her buffs and shred most often support Vaporize teams." },
+      { "reaction": "Melt", "note": "Also fits Melt teams." },
+      { "reaction": "Freeze", "note": "Also fits Freeze teams." },
+      { "reaction": "Aggravate", "note": "Also fits Quicken teams." }
+    ],
+    "xingqiu": [
+      { "reaction": "Vaporize", "note": "His rain swords add Hydro for Pyro damage dealers." },
+      { "reaction": "Hyperbloom", "note": "His rain swords make Dendro Core for an Electro teammate." },
+      { "reaction": "Freeze", "note": "His Hydro reacts with Cryo damage dealers (Ayaka)." },
+      { "reaction": "Electro-Charged", "note": "His rain swords react with Electro teammates." }
+    ],
+    "xinyan": [
+      { "reaction": "Overloaded", "note": "Her Pyro reacts with an Electro teammate." },
+      { "reaction": "Melt", "note": "Her Pyro can Melt with a Cryo teammate." }
+    ],
+    "yaemiko": [
+      { "reaction": "Stellar-Conduct", "note": "Her Sesshou Sakura is a top Electro partner for Cryo Stellar-Conduct teams." },
+      { "reaction": "Aggravate", "note": "Her Sesshou Sakura Aggravates on Quickened enemies from off-field." },
+      { "reaction": "Superconduct", "note": "Her Electro reacts with Cryo teammates." },
+      { "reaction": "Overloaded", "note": "Her Electro reacts with a Pyro teammate." },
+      { "reaction": "Hyperbloom", "note": "Sesshou Sakura turns Dendro Core into Hyperbloom." },
+      { "reaction": "Lunar-Charged", "note": "Her Electro also fits Lunar-Charged teams." }
+    ],
+    "yanfei": [
+      { "reaction": "Vaporize", "note": "Her Charged Attacks Vaporize with a Hydro teammate." },
+      { "reaction": "Overloaded", "note": "Her Pyro reacts with an Electro teammate." }
+    ],
+    "yaoyao": [
+      { "reaction": "Quicken", "note": "Her Dendro keeps enemies Quickened for Electro teammates." },
+      { "reaction": "Bloom", "note": "Her Dendro and healing fit Bloom teams." },
+      { "reaction": "Hyperbloom", "note": "Her Dendro makes Dendro Core for an Electro teammate." },
+      { "reaction": "Burgeon", "note": "Her Dendro makes Dendro Core for a Pyro teammate." }
+    ],
+    "yelan": [
+      { "reaction": "Vaporize", "note": "Her Burst's Hydro Vaporizes with Pyro damage dealers." },
+      { "reaction": "Electro-Charged", "note": "Her Hydro reacts with Electro teammates." },
+      { "reaction": "Hyperbloom", "note": "Her Hydro makes Dendro Core for an Electro teammate." },
+      { "reaction": "Bloom", "note": "Her Hydro makes Dendro Core." }
+    ],
+    "yoimiya": [
+      { "reaction": "Vaporize", "note": "Her Normal Attacks Vaporize with a Hydro teammate." },
+      { "reaction": "Overloaded", "note": "Fits Chevreuse teams with an Electro teammate." },
+      { "reaction": "Melt", "note": "Reverse Melt with a Cryo teammate also works." }
+    ],
+    "yumemizukimizuki": [
+      { "reaction": "Stellar Swirl", "note": "Her main teams: her Anemo Swirls Cryo for Stellar Swirl." },
+      { "reaction": "Swirl", "note": "Her Skill Swirls off-field teammates' elements, scaling with Elemental Mastery." }
+    ],
+    "yunjin": [
+      { "reaction": "Generalist", "note": "Her Normal Attack buff helps Normal Attack damage dealers of any element." },
+      { "reaction": "Crystallize", "note": "Her Geo makes shields in most of her teams." },
+      { "reaction": "Vaporize", "note": "Also fits Yoimiya and Hu Tao teams." }
+    ],
+    "zhongli": [
+      { "reaction": "Generalist", "note": "His shield and shred help almost any team, whatever its element." }
+    ],
+    "zibai": [
+      { "reaction": "Lunar-Crystallize", "note": "Turns Hydro Crystallize into Lunar-Crystallize, boosted by her DEF." },
+      { "reaction": "Lunar-Charged", "note": "Also fits teams with Columbina and Ineffa." }
+    ]
+  }
+}
