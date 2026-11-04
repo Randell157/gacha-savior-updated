@@ -121,6 +121,19 @@ test.describe("signed in with the sample upload", () => {
     await expect(owned).toHaveCount(ownedCount);
   });
 
+  test("owned roster tiles show the build, and sorting keeps owned characters first", async () => {
+    await page.goto("/genshin/characters");
+    const owned = page.locator('main a[href^="/genshin/characters/"]');
+    const aino = owned.filter({ hasText: "Aino" });
+    await expect(aino).toContainText("Lv 70 · C6");
+    await expect(aino).toContainText("1/1/1");
+
+    await page.locator("#sort-order").click();
+    await page.getByRole("option", { name: "Level (Low to High)" }).click();
+    const firstTile = page.locator("main").locator('a[href^="/genshin/characters/"], [title$="(not owned)"]').first();
+    await expect(firstTile).not.toHaveAttribute("title", /\(not owned\)$/);
+  });
+
   test("a character that isn't owned opens a quick view without a log-in prompt", async () => {
     await page.goto("/genshin/characters");
     await page.locator('main [title$="(not owned)"]').first().click();

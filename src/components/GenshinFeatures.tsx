@@ -19,7 +19,7 @@ const FEATURES = [
   {
     icon: Users,
     title: "Character roster",
-    text: "Every character in the game, with the ones you own in color. Sort and filter.",
+    text: "Every character in the game, with yours in color and their level, constellation and talents. Sort and filter.",
   },
   {
     icon: IdCard,

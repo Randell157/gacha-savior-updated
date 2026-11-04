@@ -29,6 +29,45 @@ import {
 } from "@/lib/genshinCharacters";
 import type { GoodCharacter } from "@/lib/genshin/types";
 
+type SortField = "name" | "level" | "constellation" | "auto" | "skill" | "burst";
+
+function sortValue(character: GoodCharacter, field: Exclude<SortField, "name">): number {
+  if (field === "level" || field === "constellation") return character[field];
+  return character.talent?.[field] ?? -1;
+}
+
+/**
+ * The two lines under an owned character's name: level and constellation, then
+ * Normal Attack / Skill / Burst. The value being sorted by turns indigo, so the
+ * order explains itself.
+ */
+function BuildLines({ character, sortField }: { character: GoodCharacter; sortField: string }) {
+  const { level, constellation, talent } = character;
+  const value = (field: SortField, text: string | number) => (
+    <span className={cn(sortField === field && "font-bold text-indigo-700 dark:text-indigo-300")}>{text}</span>
+  );
+  return (
+    <>
+      <span
+        aria-hidden
+        className="mt-1 text-center text-xs leading-snug tabular-nums text-gray-600 dark:text-slate-400"
+      >
+        {value("level", `Lv ${level}`)} · {value("constellation", `C${constellation}`)}
+        {talent && (
+          <>
+            <br />
+            {value("auto", talent.auto)}/{value("skill", talent.skill)}/{value("burst", talent.burst)}
+          </>
+        )}
+      </span>
+      <span className="sr-only">
+        , level {level}, constellation {constellation}
+        {talent && `, talents: Normal Attack ${talent.auto}, Skill ${talent.skill}, Burst ${talent.burst}`}
+      </span>
+    </>
+  );
+}
+
 export default function CharactersPage() {
   const { data: genshinData, loading } = useGenshinData();
   const { user } = useAuth();
@@ -55,10 +94,8 @@ export default function CharactersPage() {
       const owned = ownedByNormalizedKey.get(normalizeCharacterKey(entry.key));
       return {
         ...entry,
-        owned: !!owned,
+        owned: owned ?? null,
         ownedKey: owned?.key ?? entry.key,
-        level: owned?.level ?? -1,
-        constellation: owned?.constellation ?? -1,
       };
     }).filter((character) => {
       if (ownedFilter === "owned" && !character.owned) return false;
@@ -66,34 +103,22 @@ export default function CharactersPage() {
       return matchesCharacterFilters(character, filters);
     });
 
-    switch (sortOrder) {
-      case "name-desc":
-        return list.sort((a, b) =>
-          formatCharacterDisplayName(b.key).localeCompare(
-            formatCharacterDisplayName(a.key)
-          )
-        );
-      case "level-asc":
-        return list.sort((a, b) => a.level - b.level || a.key.localeCompare(b.key));
-      case "level-desc":
-        return list.sort((a, b) => b.level - a.level || a.key.localeCompare(b.key));
-      case "constellation-asc":
-        return list.sort(
-          (a, b) => a.constellation - b.constellation || a.key.localeCompare(b.key)
-        );
-      case "constellation-desc":
-        return list.sort(
-          (a, b) => b.constellation - a.constellation || a.key.localeCompare(b.key)
-        );
-      case "name-asc":
-      default:
-        return list.sort((a, b) =>
-          formatCharacterDisplayName(a.key).localeCompare(
-            formatCharacterDisplayName(b.key)
-          )
-        );
+    const byName = (a: { key: string }, b: { key: string }) =>
+      formatCharacterDisplayName(a.key).localeCompare(formatCharacterDisplayName(b.key));
+    const [field, direction] = sortOrder.split("-") as [SortField, "asc" | "desc"];
+    if (field === "name") {
+      return list.sort((a, b) => (direction === "asc" ? byName(a, b) : byName(b, a)));
     }
+    // Owned characters come first either way, so low-to-high starts on your
+    // least-built character rather than on everyone you don't own.
+    return list.sort((a, b) => {
+      if (!a.owned || !b.owned) return Number(!a.owned) - Number(!b.owned) || byName(a, b);
+      const difference = sortValue(a.owned, field) - sortValue(b.owned, field);
+      return (direction === "asc" ? difference : -difference) || byName(a, b);
+    });
   }, [ownedByNormalizedKey, sortOrder, ownedFilter, filters]);
+
+  const sortField = sortOrder.split("-")[0];
 
   if (loading) {
     return <PageSkeleton kind="grid" />;
@@ -119,6 +144,9 @@ export default function CharactersPage() {
                 <SelectItem value="level-asc">Level (Low to High)</SelectItem>
                 <SelectItem value="constellation-desc">Constellation (High to Low)</SelectItem>
                 <SelectItem value="constellation-asc">Constellation (Low to High)</SelectItem>
+                <SelectItem value="auto-desc">Normal Attack (High to Low)</SelectItem>
+                <SelectItem value="skill-desc">Elemental Skill (High to Low)</SelectItem>
+                <SelectItem value="burst-desc">Elemental Burst (High to Low)</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -149,10 +177,13 @@ export default function CharactersPage() {
       <CharacterFilters filters={filters} onChange={setFilters} />
       <p className="text-sm text-gray-500 dark:text-slate-400 mb-4" aria-live="polite">
         {activeFilterCount(filters) > 0 || ownedFilter !== "all"
-          ? `Showing ${roster.length} of ${GENSHIN_CHARACTERS.length} characters.`
+          ? `Showing ${roster.length} of ${GENSHIN_CHARACTERS.length} characters. `
           : user
-            ? "Greyed-out portraits are characters you don't own yet."
+            ? "Greyed-out portraits are characters you don't own yet. "
             : null}
+        {genshinData?.characters.length
+          ? "Under each name: level, constellation, then Normal Attack / Skill / Burst."
+          : null}
       </p>
       {roster.length === 0 ? (
         <p className="text-sm text-gray-500 dark:text-slate-400 mb-6">
@@ -197,6 +228,7 @@ export default function CharactersPage() {
               >
                 {displayName}
               </span>
+              {character.owned && <BuildLines character={character.owned} sortField={sortField} />}
             </>
           );
 
