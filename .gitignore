@@ -53,3 +53,7 @@ next-env.d.ts
 # Playwright test results and report
 /test-results/
 /playwright-report/
+
+# Impeccable critique reports (ignore.md is shared)
+.impeccable/critique/*.md
+!.impeccable/critique/ignore.md

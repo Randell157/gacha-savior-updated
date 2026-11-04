@@ -8,7 +8,7 @@ Gacha Savior is a CS capstone project: a website where players track and organiz
 
 Stack: Next.js 16 (App Router), React 19, TypeScript (strict), Tailwind CSS 3, shadcn/ui (Radix + lucide-react icons), and Firebase (Auth + Firestore). The Firebase project is on the Spark (free) plan.
 
-Planned work is in [docs/DESIGN.md](docs/DESIGN.md), organized into phases with a "Done when" check for each. Read the relevant phase before starting feature work.
+Planned work is in [docs/DESIGN.md](docs/DESIGN.md), organized into phases with a "Done when" check for each. Read the relevant phase before starting feature work. Who the site is for and what it's trying to be are in [PRODUCT.md](PRODUCT.md), written with the Impeccable design plugin (`/impeccable init`); keep it current when those facts change.
 
 The project is local-only for now: there is no git remote. Don't push. A new GitHub repo will be created later.
 
