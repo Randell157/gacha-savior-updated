@@ -571,8 +571,8 @@
       { "reaction": "Electro-Charged", "note": "His rain swords react with Electro teammates." }
     ],
     "xinyan": [
-      { "reaction": "Overloaded", "note": "Her Pyro reacts with an Electro teammate." },
-      { "reaction": "Melt", "note": "Her Pyro can Melt with a Cryo teammate." }
+      { "reaction": "Vaporize", "note": "As a Pyro damage dealer, her infused attacks Vaporize or let a Hydro teammate Vaporize; as a shielder, her Pyro helps Swirl-based Vaporize teams." },
+      { "reaction": "Superconduct", "note": "In her Physical build, Superconduct from Electro and Cryo teammates raises her Physical damage." }
     ],
     "yaemiko": [
       { "reaction": "Stellar-Conduct", "note": "Her Sesshou Sakura is a top Electro partner for Cryo Stellar-Conduct teams." },

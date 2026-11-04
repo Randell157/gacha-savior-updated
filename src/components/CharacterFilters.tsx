@@ -21,6 +21,12 @@ const ELEMENT_CHIP: Record<string, string> = {
   Cryo: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/40 dark:text-cyan-200 ring-cyan-500",
 };
 
+/** Chip colours per rarity, the same pairs as the character page's rarity chip. */
+const RARITY_CHIP: Record<string, string> = {
+  "5": "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200 ring-amber-500",
+  "4": "bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-200 ring-purple-500",
+};
+
 /** The chosen values in each group; an empty group means any. */
 export interface CharacterFilterState {
   element: string[];
@@ -107,8 +113,11 @@ export default function CharacterFilters({
                     onClick={() => toggle(group, value)}
                     className={cn(
                       "rounded-full px-3 py-1 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
-                      group === "element"
-                        ? cn(ELEMENT_CHIP[value], pressed && "ring-2 ring-offset-1 dark:ring-offset-slate-900")
+                      group === "element" || group === "rarity"
+                        ? cn(
+                            group === "element" ? ELEMENT_CHIP[value] : RARITY_CHIP[value],
+                            pressed && "ring-2 ring-offset-1 dark:ring-offset-slate-900"
+                          )
                         : pressed
                           ? "bg-indigo-600 text-white"
                           : "bg-gray-100 text-gray-700 hover:bg-indigo-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-indigo-900/40"
