@@ -29,12 +29,12 @@ const FEATURES = [
   {
     icon: Swords,
     title: "Weapons",
-    text: "Cards or a table, search and sort, and duplicate copies grouped together.",
+    text: "Cards or a table, with search, type and rarity filters, and duplicate copies grouped together.",
   },
   {
     icon: Flower2,
     title: "Artifacts",
-    text: "Who's wearing what, their active set bonuses, and a filter for every set.",
+    text: "Who's wearing what, their active set bonuses, and filters for set, slot and main stat.",
   },
   {
     icon: LayoutGrid,

@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import GenshinShell from "@/components/GenshinShell";
 import RequireAuth from "@/components/RequireAuth";
 import Segmented from "@/components/Segmented";
+import SearchInput from "@/components/SearchInput";
+import { ClearFilters, FilterChip } from "@/components/FilterChip";
 import CharacterAvatar from "@/components/CharacterAvatar";
 import ArtifactIcon from "@/components/ArtifactIcon";
 import ArtifactSetBonuses from "@/components/ArtifactSetBonuses";
@@ -34,6 +36,12 @@ import {
 type Show = "equipped" | "all" | "unequipped";
 
 const ALL_SETS = "__all__";
+const ANY_MAIN_STAT = "__any__";
+
+/** Flowers and plumes only ever have one main stat, so filtering them by it does nothing. */
+const SINGLE_MAIN_STAT = ["flower", "plume"];
+
+type ArtifactSort = "upload" | "level-desc" | "level-asc" | "set";
 
 /** Cards drawn at a time in the All and Unequipped views; "Show more" adds this many. */
 const PAGE_SIZE = 60;
@@ -58,6 +66,10 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
   const [show, setShow] = useState<Show>("equipped");
   const [limit, setLimit] = useState(PAGE_SIZE);
   const [setFilter, setSetFilter] = useState(ALL_SETS);
+  const [slotFilter, setSlotFilter] = useState<string | null>(null);
+  const [mainStatFilter, setMainStatFilter] = useState(ANY_MAIN_STAT);
+  const [sort, setSort] = useState<ArtifactSort>("upload");
+  const [characterSearch, setCharacterSearch] = useState("");
   const artifacts = useMemo(() => genshinData?.artifacts ?? [], [genshinData]);
 
   const equippedCount = useMemo(() => artifacts.filter((a) => a.location).length, [artifacts]);
@@ -75,6 +87,11 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
       .map(([key, pieces]) => ({ key, name: formatCharacterDisplayName(key), pieces: pieces.sort(bySlot) }))
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [artifacts]);
+
+  const visibleGroups = useMemo(() => {
+    const query = characterSearch.trim().toLowerCase();
+    return query ? groups.filter((group) => group.name.toLowerCase().includes(query)) : groups;
+  }, [groups, characterSearch]);
 
   // The All or Unequipped list before the set filter, which the set counts describe.
   const viewList = useMemo(
@@ -115,13 +132,40 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
     return groups;
   }, [viewList]);
 
-  const flatList = useMemo(
+  // The list the main stat dropdown describes: every filter except main stat.
+  const beforeMainStat = useMemo(
     () =>
-      setFilter === ALL_SETS
-        ? viewList
-        : viewList.filter((a) => artifactSetId(a.setKey) === setFilter),
-    [viewList, setFilter]
+      viewList.filter(
+        (a) =>
+          (setFilter === ALL_SETS || artifactSetId(a.setKey) === setFilter) &&
+          (!slotFilter || a.slotKey === slotFilter)
+      ),
+    [viewList, setFilter, slotFilter]
   );
+
+  const mainStats = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const a of beforeMainStat) {
+      if (a.mainStatKey) counts.set(a.mainStatKey, (counts.get(a.mainStatKey) ?? 0) + 1);
+    }
+    return [...counts]
+      .map(([key, count]) => ({ key, count, name: formatStatName(key) }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [beforeMainStat]);
+
+  const flatList = useMemo(() => {
+    const list =
+      mainStatFilter === ANY_MAIN_STAT
+        ? [...beforeMainStat]
+        : beforeMainStat.filter((a) => a.mainStatKey === mainStatFilter);
+    if (sort === "level-desc") list.sort((a, b) => b.level - a.level);
+    if (sort === "level-asc") list.sort((a, b) => a.level - b.level);
+    if (sort === "set") list.sort((a, b) => artifactSetName(a.setKey).localeCompare(artifactSetName(b.setKey)));
+    return list;
+  }, [beforeMainStat, mainStatFilter, sort]);
+
+  const filterCount =
+    Number(setFilter !== ALL_SETS) + Number(slotFilter !== null) + Number(mainStatFilter !== ANY_MAIN_STAT);
 
   const changeShow = (next: Show) => {
     setShow(next);
@@ -130,6 +174,20 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
 
   const changeSetFilter = (next: string) => {
     setSetFilter(next);
+    setMainStatFilter(ANY_MAIN_STAT);
+    setLimit(PAGE_SIZE);
+  };
+
+  const changeSlotFilter = (next: string | null) => {
+    setSlotFilter(next);
+    setMainStatFilter(ANY_MAIN_STAT);
+    setLimit(PAGE_SIZE);
+  };
+
+  const clearFilters = () => {
+    setSetFilter(ALL_SETS);
+    setSlotFilter(null);
+    setMainStatFilter(ANY_MAIN_STAT);
     setLimit(PAGE_SIZE);
   };
 
@@ -167,7 +225,8 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
 
   return (
     <GenshinShell title="Artifacts">
-      <div className="mb-6 flex flex-wrap items-center gap-3">
+      <div className="mb-6 space-y-3">
+        <div className="flex flex-wrap items-center gap-3">
         <Segmented
           label="Show"
           value={show}
@@ -181,13 +240,53 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
             },
           ]}
         />
+          {show === "equipped" ? (
+            <SearchInput value={characterSearch} onChange={setCharacterSearch} label="Search by character" />
+          ) : (
+            <div className="flex items-center gap-2">
+              <label htmlFor="artifact-sort" className="text-sm font-medium">
+                Sort by:
+              </label>
+              <Select
+                value={sort}
+                onValueChange={(next) => {
+                  setSort(next as ArtifactSort);
+                  setLimit(PAGE_SIZE);
+                }}
+              >
+                <SelectTrigger id="artifact-sort" className="w-[11.5rem]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="upload">Upload order</SelectItem>
+                  <SelectItem value="level-desc">Level (High to Low)</SelectItem>
+                  <SelectItem value="level-asc">Level (Low to High)</SelectItem>
+                  <SelectItem value="set">Set (A-Z)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
         {show !== "equipped" && (
+          <>
+          <div role="group" aria-label="Filter by slot" className="flex flex-wrap gap-2">
+            {SLOT_ORDER.map((slot) => (
+              <FilterChip
+                key={slot}
+                pressed={slotFilter === slot}
+                onClick={() => changeSlotFilter(slotFilter === slot ? null : slot)}
+              >
+                {formatSlotName(slot).split(" ")[0]}
+              </FilterChip>
+            ))}
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
             <label htmlFor="artifact-set" className="text-sm font-medium">
               Set:
             </label>
             <Select value={setFilter} onValueChange={changeSetFilter}>
-              <SelectTrigger id="artifact-set" className="w-[17rem]">
+              <SelectTrigger id="artifact-set" className="w-[15rem] sm:w-[17rem]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="max-h-80">
@@ -208,6 +307,38 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
               </SelectContent>
             </Select>
           </div>
+          {!(slotFilter && SINGLE_MAIN_STAT.includes(slotFilter)) && (
+            <div className="flex items-center gap-2">
+              <label htmlFor="artifact-main-stat" className="text-sm font-medium">
+                Main stat:
+              </label>
+              <Select
+                value={mainStatFilter}
+                onValueChange={(next) => {
+                  setMainStatFilter(next);
+                  setLimit(PAGE_SIZE);
+                }}
+              >
+                <SelectTrigger id="artifact-main-stat" className="w-[14rem]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="max-h-80">
+                  <SelectItem value={ANY_MAIN_STAT}>Any</SelectItem>
+                  {mainStatFilter !== ANY_MAIN_STAT && !mainStats.some((m) => m.key === mainStatFilter) && (
+                    <SelectItem value={mainStatFilter}>{formatStatName(mainStatFilter)} (0)</SelectItem>
+                  )}
+                  {mainStats.map((stat) => (
+                    <SelectItem key={stat.key} value={stat.key}>
+                      {stat.name} ({stat.count.toLocaleString()})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          <ClearFilters count={filterCount} onClick={clearFilters} />
+          </div>
+          </>
         )}
       </div>
 
@@ -223,16 +354,24 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
                 <span key={slot}>{formatSlotName(slot)}</span>
               ))}
             </div>
-            {groups.map((group) => (
+            {characterSearch.trim() && (
+              <p className="text-sm text-gray-500 dark:text-slate-400" aria-live="polite">
+                {visibleGroups.length === 0
+                  ? "No equipped characters match that name."
+                  : `Showing ${visibleGroups.length} of ${groups.length} characters`}
+              </p>
+            )}
+            {visibleGroups.map((group) => (
               <EquippedRow key={group.key} characterKey={group.key} name={group.name} pieces={group.pieces} />
             ))}
           </div>
         )
       ) : (
         <>
-          <p className="mb-4 text-sm text-gray-500 dark:text-slate-400">
-            Showing {Math.min(limit, flatList.length).toLocaleString()} of{" "}
-            {flatList.length.toLocaleString()}
+          <p className="mb-4 text-sm text-gray-500 dark:text-slate-400" aria-live="polite">
+            {flatList.length === 0
+              ? "No artifacts match these filters."
+              : `Showing ${Math.min(limit, flatList.length).toLocaleString()} of ${flatList.length.toLocaleString()}`}
           </p>
           <ArtifactGrid artifacts={flatList.slice(0, limit)} />
           {limit < flatList.length && (

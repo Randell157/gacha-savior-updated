@@ -1,10 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { LayoutGrid, Rows3, Search } from "lucide-react";
+import { LayoutGrid, Rows3 } from "lucide-react";
 import { useGenshinData } from "@/hooks/useGenshinData";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -23,14 +22,16 @@ import {
 import GenshinShell from "@/components/GenshinShell";
 import RequireAuth from "@/components/RequireAuth";
 import Segmented from "@/components/Segmented";
+import SearchInput from "@/components/SearchInput";
+import { ClearFilters, FilterChip, RARITY_CHIP, WEAPON_TYPES } from "@/components/FilterChip";
 import CharacterAvatar from "@/components/CharacterAvatar";
 import WeaponIcon from "@/components/WeaponIcon";
 import SignedOutBanner, { EmptyList } from "@/components/SignedOutBanner";
 import { cn, formatCharacterDisplayName } from "@/lib/utils";
-import { weaponName } from "@/lib/genshin/weapons";
+import { getWeapon, weaponName } from "@/lib/genshin/weapons";
 import type { GoodWeapon } from "@/lib/genshin/types";
 
-type SortKey = "level-desc" | "level-asc" | "name-asc" | "refinement-desc";
+type SortKey = "level-desc" | "level-asc" | "name-asc" | "rarity-desc" | "refinement-desc";
 type ShowFilter = "all" | "equipped" | "unequipped";
 type View = "cards" | "table";
 
@@ -49,6 +50,10 @@ const SORTERS: Record<SortKey, (a: WeaponRow, b: WeaponRow) => number> = {
   "level-desc": (a, b) => b.weapon.level - a.weapon.level || byName(a.name, b.name),
   "level-asc": (a, b) => a.weapon.level - b.weapon.level || byName(a.name, b.name),
   "name-asc": (a, b) => byName(a.name, b.name) || b.weapon.level - a.weapon.level,
+  "rarity-desc": (a, b) =>
+    (getWeapon(b.weapon.key)?.rarity ?? 0) - (getWeapon(a.weapon.key)?.rarity ?? 0) ||
+    b.weapon.level - a.weapon.level ||
+    byName(a.name, b.name),
   "refinement-desc": (a, b) =>
     b.weapon.refinement - a.weapon.refinement || b.weapon.level - a.weapon.level,
 };
@@ -69,13 +74,24 @@ function Weapons({ signedOut = false }: { signedOut?: boolean }) {
   const [show, setShow] = useState<ShowFilter>("all");
   const [groupCopies, setGroupCopies] = useState(true);
   const [view, setView] = useState<View>("cards");
+  const [typeFilter, setTypeFilter] = useState<string | null>(null);
+  const [rarityFilter, setRarityFilter] = useState<number | null>(null);
   const weapons = useMemo(() => genshinData?.weapons ?? [], [genshinData]);
+
+  // Only the rarities this account has, highest first.
+  const rarities = useMemo(
+    () => [...new Set(weapons.map((w) => getWeapon(w.key)?.rarity ?? 0))].filter(Boolean).sort((a, b) => b - a),
+    [weapons]
+  );
 
   const rows = useMemo(() => {
     const query = search.trim().toLowerCase();
     const matching = weapons.filter((w) => {
       if (show === "equipped" && !w.location) return false;
       if (show === "unequipped" && w.location) return false;
+      const info = getWeapon(w.key);
+      if (typeFilter && info?.type !== typeFilter) return false;
+      if (rarityFilter && info?.rarity !== rarityFilter) return false;
       return !query || weaponName(w.key).toLowerCase().includes(query);
     });
 
@@ -91,20 +107,12 @@ function Weapons({ signedOut = false }: { signedOut?: boolean }) {
       else byId.set(id, { id, weapon, name: weaponName(weapon.key), copies: 1 });
     });
     return [...byId.values()].sort(SORTERS[sort]);
-  }, [weapons, search, show, groupCopies, sort]);
+  }, [weapons, search, show, groupCopies, sort, typeFilter, rarityFilter]);
 
   const toolbar = (
-          <div className="mb-6 flex flex-wrap items-center gap-3">
-            <div className="relative w-full sm:w-56">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-slate-500" />
-              <Input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search weapons"
-                aria-label="Search weapons"
-                className="pl-9"
-              />
-            </div>
+        <div className="mb-6 space-y-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <SearchInput value={search} onChange={setSearch} label="Search weapons" />
             <div className="flex items-center gap-2">
               <label htmlFor="weapon-sort" className="text-sm font-medium">
                 Sort by:
@@ -117,6 +125,7 @@ function Weapons({ signedOut = false }: { signedOut?: boolean }) {
                   <SelectItem value="level-desc">Level (High to Low)</SelectItem>
                   <SelectItem value="level-asc">Level (Low to High)</SelectItem>
                   <SelectItem value="name-asc">Name (A-Z)</SelectItem>
+                  <SelectItem value="rarity-desc">Rarity (High to Low)</SelectItem>
                   <SelectItem value="refinement-desc">Refinement (High to Low)</SelectItem>
                 </SelectContent>
               </Select>
@@ -152,6 +161,44 @@ function Weapons({ signedOut = false }: { signedOut?: boolean }) {
               />
             </div>
           </div>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <div role="group" aria-label="Filter by weapon type" className="flex flex-wrap gap-2">
+              {WEAPON_TYPES.map((type) => (
+                <FilterChip
+                  key={type}
+                  pressed={typeFilter === type}
+                  onClick={() => setTypeFilter(typeFilter === type ? null : type)}
+                >
+                  {type}
+                </FilterChip>
+              ))}
+            </div>
+            {rarities.length > 0 && (
+              <>
+                <span className="h-5 w-px bg-gray-200 dark:bg-slate-700" aria-hidden />
+                <div role="group" aria-label="Filter by rarity" className="flex flex-wrap gap-2">
+                  {rarities.map((rarity) => (
+                    <FilterChip
+                      key={rarity}
+                      pressed={rarityFilter === rarity}
+                      onClick={() => setRarityFilter(rarityFilter === rarity ? null : rarity)}
+                      colors={RARITY_CHIP[rarity]}
+                    >
+                      {rarity}★
+                    </FilterChip>
+                  ))}
+                </div>
+              </>
+            )}
+            <ClearFilters
+              count={Number(typeFilter !== null) + Number(rarityFilter !== null)}
+              onClick={() => {
+                setTypeFilter(null);
+                setRarityFilter(null);
+              }}
+            />
+          </div>
+        </div>
   );
 
   if (signedOut) {
@@ -226,7 +273,12 @@ function WeaponCards({ rows }: { rows: WeaponRow[] }) {
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm">
-            <div className="flex gap-1.5">
+            <div className="flex flex-wrap gap-1.5">
+              {getWeapon(weapon.key) && (
+                <span className="rounded bg-gray-100 dark:bg-slate-800 px-2 py-0.5">
+                  {getWeapon(weapon.key)?.type} · {getWeapon(weapon.key)?.rarity}★
+                </span>
+              )}
               <span className="rounded bg-gray-100 dark:bg-slate-800 px-2 py-0.5">Lv. {weapon.level}</span>
               <span className="rounded bg-gray-100 dark:bg-slate-800 px-2 py-0.5">R{weapon.refinement}</span>
             </div>

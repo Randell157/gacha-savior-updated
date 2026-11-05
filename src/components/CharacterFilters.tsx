@@ -1,10 +1,19 @@
 "use client";
 
+import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { getCharacterDetails, getCharacterRoles } from "@/lib/genshin/characterDetails";
+import { ClearFilters, FilterChip, RARITY_CHIP, WEAPON_TYPES } from "@/components/FilterChip";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
 export const ELEMENTS = ["Anemo", "Geo", "Electro", "Dendro", "Hydro", "Pyro", "Cryo"];
-export const WEAPON_TYPES = ["Sword", "Claymore", "Polearm", "Bow", "Catalyst"];
 export const RARITIES = ["5", "4"];
 export const ROLES = ["Main DPS", "Sub-DPS", "Support", "Healer", "Shielder"];
 /** Characters with no region in the game data are listed under "Other". */
@@ -19,12 +28,6 @@ const ELEMENT_CHIP: Record<string, string> = {
   Hydro: "bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-200 ring-sky-500",
   Pyro: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200 ring-red-500",
   Cryo: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/40 dark:text-cyan-200 ring-cyan-500",
-};
-
-/** Chip colours per rarity, the same pairs as the character page's rarity chip. */
-const RARITY_CHIP: Record<string, string> = {
-  "5": "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200 ring-amber-500",
-  "4": "bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-200 ring-purple-500",
 };
 
 /** The chosen values in each group; an empty group means any. */
@@ -64,9 +67,63 @@ export function matchesCharacterFilters(
   return checks.every(([chosen, values]) => chosen.length === 0 || chosen.some((v) => values.includes(v)));
 }
 
+type Group = keyof CharacterFilterState;
+
+const GROUPS: { group: Group; label: string; values: string[]; text?: (v: string) => string; colors?: Record<string, string> }[] = [
+  { group: "element", label: "Element", values: ELEMENTS, colors: ELEMENT_CHIP },
+  { group: "weapon", label: "Weapon", values: WEAPON_TYPES },
+  { group: "rarity", label: "Rarity", values: RARITIES, text: (v) => `${v}★`, colors: RARITY_CHIP },
+  { group: "role", label: "Playstyle", values: ROLES },
+  { group: "region", label: "Region", values: REGIONS },
+];
+const groupInfo = (group: Group) => GROUPS.find((g) => g.group === group)!;
+
+/** A tick-box menu for the groups that allow several choices (Playstyle, Region). */
+function FilterMenu({
+  group,
+  chosen,
+  onToggle,
+}: {
+  group: Group;
+  chosen: string[];
+  onToggle: (value: string) => void;
+}) {
+  const { label, values } = groupInfo(group);
+  const summary = chosen.length > 2 ? `${chosen.length} selected` : chosen.join(", ");
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="outline"
+          className={cn(chosen.length > 0 && "border-indigo-500 text-indigo-700 dark:text-indigo-300")}
+        >
+          {label}
+          {summary && `: ${summary}`}
+          <ChevronDown className="ml-2 h-4 w-4" aria-hidden />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start">
+        {values.map((value) => (
+          <DropdownMenuCheckboxItem
+            key={value}
+            checked={chosen.includes(value)}
+            onCheckedChange={() => onToggle(value)}
+            // Stay open, so several can be ticked in a row.
+            onSelect={(event) => event.preventDefault()}
+          >
+            {value}
+          </DropdownMenuCheckboxItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 /**
- * The filter chips above the roster: one row per group, the label in its own
- * column so chips that wrap stay lined up, and "Clear filters" once any is set.
+ * The filters above the roster. From the `sm` breakpoint up: Element, Weapon and
+ * Rarity as chips, Playstyle and Region as tick-box menus. On phones, where all
+ * that would push the portraits far down, a Filters button opens the same
+ * filters as labeled chip rows.
  */
 export default function CharacterFilters({
   filters,
@@ -75,7 +132,8 @@ export default function CharacterFilters({
   filters: CharacterFilterState;
   onChange: (filters: CharacterFilterState) => void;
 }) {
-  const toggle = (group: keyof CharacterFilterState, value: string) => {
+  const [phoneOpen, setPhoneOpen] = useState(false);
+  const toggle = (group: Group, value: string) => {
     const chosen = filters[group];
     const others = SINGLE_CHOICE.includes(group) ? [] : chosen;
     onChange({
@@ -84,64 +142,65 @@ export default function CharacterFilters({
     });
   };
   const count = activeFilterCount(filters);
-  const rows: { group: keyof CharacterFilterState; label: string; values: string[]; text?: (v: string) => string }[] = [
-    { group: "element", label: "Element", values: ELEMENTS },
-    { group: "weapon", label: "Weapon", values: WEAPON_TYPES },
-    { group: "rarity", label: "Rarity", values: RARITIES, text: (v) => `${v}★` },
-    { group: "role", label: "Playstyle", values: ROLES },
-    { group: "region", label: "Region", values: REGIONS },
-  ];
-  return (
-    <div className="mb-6 rounded-lg border border-gray-200 dark:border-slate-700 p-4 sm:p-5">
-      <div className="space-y-3">
-        {rows.map(({ group, label, values, text }) => (
-          <div
-            key={group}
-            role="group"
-            aria-label={`Filter by ${label.toLowerCase()}`}
-            className="grid grid-cols-1 items-start gap-x-3 gap-y-1.5 sm:grid-cols-[6.5rem_1fr]"
+  const clear = () => onChange(NO_FILTERS);
+  const chips = (group: Group) => {
+    const { label, values, text, colors } = groupInfo(group);
+    return (
+      <div role="group" aria-label={`Filter by ${label.toLowerCase()}`} className="flex flex-wrap gap-2">
+        {values.map((value) => (
+          <FilterChip
+            key={value}
+            pressed={filters[group].includes(value)}
+            onClick={() => toggle(group, value)}
+            colors={colors?.[value]}
           >
-            <span className="text-sm font-bold text-gray-800 dark:text-slate-200 sm:pt-1.5">{label}</span>
-            <div className="flex flex-wrap gap-2">
-              {values.map((value) => {
-                const pressed = filters[group].includes(value);
-                return (
-                  <button
-                    key={value}
-                    type="button"
-                    aria-pressed={pressed}
-                    onClick={() => toggle(group, value)}
-                    className={cn(
-                      "rounded-full px-3 py-1 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
-                      group === "element" || group === "rarity"
-                        ? cn(
-                            group === "element" ? ELEMENT_CHIP[value] : RARITY_CHIP[value],
-                            pressed && "ring-2 ring-offset-1 dark:ring-offset-slate-900"
-                          )
-                        : pressed
-                          ? "bg-indigo-600 text-white"
-                          : "bg-gray-100 text-gray-700 hover:bg-indigo-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-indigo-900/40"
-                    )}
-                  >
-                    {text ? text(value) : value}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+            {text ? text(value) : value}
+          </FilterChip>
         ))}
       </div>
-      {count > 0 && (
-        <div className="mt-4 border-t border-gray-200 dark:border-slate-700 pt-3">
-          <button
-            type="button"
-            onClick={() => onChange(NO_FILTERS)}
-            className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline underline-offset-2"
-          >
-            Clear filters ({count})
-          </button>
+    );
+  };
+
+  return (
+    <div className="mb-6">
+      <div className="hidden space-y-3 sm:block">
+        {chips("element")}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          {chips("weapon")}
+          <span className="h-5 w-px bg-gray-200 dark:bg-slate-700" aria-hidden />
+          {chips("rarity")}
         </div>
-      )}
+        <div className="flex flex-wrap items-center gap-3">
+          <FilterMenu group="role" chosen={filters.role} onToggle={(v) => toggle("role", v)} />
+          <FilterMenu group="region" chosen={filters.region} onToggle={(v) => toggle("region", v)} />
+          <ClearFilters count={count} onClick={clear} />
+        </div>
+      </div>
+
+      <div className="sm:hidden">
+        <div className="flex flex-wrap items-center gap-3">
+          <Button
+            variant="outline"
+            aria-expanded={phoneOpen}
+            onClick={() => setPhoneOpen((open) => !open)}
+            className={cn(count > 0 && "border-indigo-500 text-indigo-700 dark:text-indigo-300")}
+          >
+            Filters{count > 0 && ` (${count})`}
+            <ChevronDown className={cn("ml-2 h-4 w-4 transition-transform", phoneOpen && "rotate-180")} aria-hidden />
+          </Button>
+          <ClearFilters count={count} onClick={clear} />
+        </div>
+        {phoneOpen && (
+          <div className="mt-3 space-y-3 rounded-lg border border-gray-200 p-4 dark:border-slate-700">
+            {GROUPS.map(({ group, label }) => (
+              <div key={group} className="space-y-1.5">
+                <span className="text-sm font-bold text-gray-800 dark:text-slate-200">{label}</span>
+                {chips(group)}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

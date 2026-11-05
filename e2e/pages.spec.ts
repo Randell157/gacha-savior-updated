@@ -29,6 +29,12 @@ test.describe("signed out", () => {
     const all = await tiles.count();
     const chip = (group: string, name: string) =>
       page.getByRole("group", { name: `Filter by ${group}` }).getByRole("button", { name, exact: true });
+    // Playstyle and Region are tick-box menus.
+    const tick = async (menu: string, name: string) => {
+      await page.getByRole("button", { name: new RegExp(`^${menu}`) }).click();
+      await page.getByRole("menuitemcheckbox", { name }).click();
+      await page.keyboard.press("Escape");
+    };
 
     // An element chip replaces the current one; across groups they narrow (and Main DPS).
     await chip("element", "Hydro").click();
@@ -37,17 +43,17 @@ test.describe("signed out", () => {
     await chip("element", "Pyro").click();
     await expect(chip("element", "Pyro")).toHaveAttribute("aria-pressed", "true");
     await expect(chip("element", "Hydro")).toHaveAttribute("aria-pressed", "false");
-    await chip("playstyle", "Main DPS").click();
+    await tick("Playstyle", "Main DPS");
     await expect(page.getByText(/^Showing \d+ of \d+ characters\.$/)).toBeVisible();
     await expect(page.locator('main [title="Hu Tao (not owned)"]')).toBeVisible();
     await expect(page.locator('main [title="Bennett (not owned)"]')).toHaveCount(0);
-    // Playstyle chips still add up.
-    await chip("playstyle", "Support").click();
+    // Playstyle choices still add up.
+    await tick("Playstyle", "Support");
     await expect(page.locator('main [title="Bennett (not owned)"]')).toBeVisible();
 
     await page.getByRole("button", { name: "Clear filters (3)" }).click();
     await expect(tiles).toHaveCount(all);
-    await chip("region", "Fontaine").click();
+    await tick("Region", "Fontaine");
     await chip("weapon", "Catalyst").click();
     await chip("rarity", "5★").click();
     await expect(page.locator('main [title="Neuvillette (not owned)"]')).toBeVisible();
@@ -113,12 +119,15 @@ test.describe("signed in with the sample upload", () => {
     const ownedCount = await owned.count();
     expect(ownedCount).toBeGreaterThan(80);
 
-    await page.locator("#owned-filter").click();
-    await page.getByRole("option", { name: "Not owned" }).click();
+    const show = page.getByRole("group", { name: "Show" });
+    await show.getByRole("button", { name: "Not owned" }).click();
     await expect(owned).toHaveCount(0);
-    await page.locator("#owned-filter").click();
-    await page.getByRole("option", { name: "Owned", exact: true }).click();
+    await show.getByRole("button", { name: "Owned", exact: true }).click();
     await expect(owned).toHaveCount(ownedCount);
+    await show.getByRole("button", { name: "All", exact: true }).click();
+
+    await page.getByPlaceholder("Search characters").fill("Aino");
+    await expect(owned).toHaveCount(1);
   });
 
   test("owned roster tiles show the build, and sorting keeps owned characters first", async () => {
@@ -132,6 +141,17 @@ test.describe("signed in with the sample upload", () => {
     await page.getByRole("option", { name: "Level (Low to High)" }).click();
     const firstTile = page.locator("main").locator('a[href^="/genshin/characters/"], [title$="(not owned)"]').first();
     await expect(firstTile).not.toHaveAttribute("title", /\(not owned\)$/);
+  });
+
+  test("on a phone the roster's filters open from a Filters button", async () => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto("/genshin/characters");
+    const pyro = page.getByRole("button", { name: "Pyro", exact: true });
+    await expect(pyro).toBeHidden();
+    await page.getByRole("button", { name: "Filters" }).click();
+    await pyro.click();
+    await expect(page.getByRole("button", { name: "Filters (1)", exact: true })).toBeVisible();
+    await page.setViewportSize({ width: 1280, height: 720 });
   });
 
   test("a character that isn't owned opens a quick view without a log-in prompt", async () => {
@@ -202,6 +222,14 @@ test.describe("signed in with the sample upload", () => {
     await expect(page.getByText("Aquila Favonia")).toHaveCount(0);
     await page.getByPlaceholder("Search weapons").fill("");
 
+    const bow = page.getByRole("group", { name: "Filter by weapon type" }).getByRole("button", { name: "Bow" });
+    await bow.click();
+    await page.getByRole("group", { name: "Filter by rarity" }).getByRole("button", { name: "5★" }).click();
+    await expect(page.getByText("Skyward Harp")).toBeVisible();
+    await expect(page.getByText("Aquila Favonia")).toHaveCount(0);
+    await page.getByRole("button", { name: "Clear filters (2)" }).click();
+    await expect(page.getByText("Showing 162 entries")).toBeVisible();
+
     await page.getByRole("button", { name: "Group copies" }).or(page.getByLabel("Group copies")).click();
     await expect(page.getByText("Showing 336 entries")).toBeVisible();
 
@@ -215,6 +243,10 @@ test.describe("signed in with the sample upload", () => {
     const show = page.getByRole("group", { name: "Show" });
     await expect(show.getByRole("button", { name: "Equipped (378)" })).toHaveAttribute("aria-pressed", "true");
     await expect(page.getByRole("link", { name: "Aino" })).toBeVisible();
+    await page.getByPlaceholder("Search by character").fill("Xiao");
+    await expect(page.getByText("Showing 1 of 81 characters")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Aino" })).toHaveCount(0);
+    await page.getByPlaceholder("Search by character").fill("");
     // Each piece shows its set's icon for its slot.
     await expect(page.locator('main img[src*="artifact-icons%2Fsilkenmoonsserenade-flower.webp"]').first()).toBeVisible();
 
@@ -225,6 +257,15 @@ test.describe("signed in with the sample upload", () => {
     const set = page.getByRole("option", { name: /^Silken Moon's Serenade \(\d+\)$/ });
     await set.click();
     await expect(page.locator("#artifact-set")).toContainText("Silken Moon's Serenade");
+
+    // Slot and main stat narrow it further; main stat hides for a slot with only one.
+    await page.getByRole("button", { name: "Clear filters (1)" }).click();
+    await page.getByRole("group", { name: "Filter by slot" }).getByRole("button", { name: "Goblet" }).click();
+    await page.locator("#artifact-main-stat").click();
+    await page.getByRole("option", { name: /^Pyro DMG Bonus \(\d+\)$/ }).click();
+    await expect(page.getByText("Goblet of Eonothem").first()).toBeVisible();
+    await page.getByRole("group", { name: "Filter by slot" }).getByRole("button", { name: "Flower" }).click();
+    await expect(page.locator("#artifact-main-stat")).toHaveCount(0);
   });
 
   test("the profile shows the account and links back to the hub", async () => {

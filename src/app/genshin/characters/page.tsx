@@ -14,6 +14,8 @@ import CharacterFilters, {
 } from "@/components/CharacterFilters";
 import GenshinShell from "@/components/GenshinShell";
 import PageSkeleton from "@/components/PageSkeleton";
+import SearchInput from "@/components/SearchInput";
+import Segmented from "@/components/Segmented";
 import {
   Select,
   SelectContent,
@@ -73,7 +75,8 @@ export default function CharactersPage() {
   const { user } = useAuth();
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [sortOrder, setSortOrder] = useState("name-asc");
-  const [ownedFilter, setOwnedFilter] = useState("all");
+  const [ownedFilter, setOwnedFilter] = useState<"all" | "owned" | "unowned">("all");
+  const [search, setSearch] = useState("");
   const [filters, setFilters] = useState(NO_FILTERS);
   const [quickView, setQuickView] = useState<string | null>(null);
 
@@ -90,6 +93,7 @@ export default function CharactersPage() {
   }, [genshinData]);
 
   const roster = useMemo(() => {
+    const query = search.trim().toLowerCase();
     const list = GENSHIN_CHARACTERS.map((entry) => {
       const owned = ownedByNormalizedKey.get(normalizeCharacterKey(entry.key));
       return {
@@ -100,6 +104,7 @@ export default function CharactersPage() {
     }).filter((character) => {
       if (ownedFilter === "owned" && !character.owned) return false;
       if (ownedFilter === "unowned" && character.owned) return false;
+      if (query && !formatCharacterDisplayName(character.key).toLowerCase().includes(query)) return false;
       return matchesCharacterFilters(character, filters);
     });
 
@@ -116,7 +121,7 @@ export default function CharactersPage() {
       const difference = sortValue(a.owned, field) - sortValue(b.owned, field);
       return (direction === "asc" ? difference : -difference) || byName(a, b);
     });
-  }, [ownedByNormalizedKey, sortOrder, ownedFilter, filters]);
+  }, [ownedByNormalizedKey, sortOrder, ownedFilter, filters, search]);
 
   const sortField = sortOrder.split("-")[0];
 
@@ -125,65 +130,58 @@ export default function CharactersPage() {
   }
 
   return (
-    <GenshinShell
-      title="Characters"
-      actions={
-        <>
-          <div className="flex items-center gap-2">
-            <label htmlFor="sort-order" className="text-sm font-medium">
-              Sort by:
-            </label>
-            <Select value={sortOrder} onValueChange={setSortOrder}>
-              <SelectTrigger id="sort-order" className="w-[13rem]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="name-asc">Name (A-Z)</SelectItem>
-                <SelectItem value="name-desc">Name (Z-A)</SelectItem>
-                <SelectItem value="level-desc">Level (High to Low)</SelectItem>
-                <SelectItem value="level-asc">Level (Low to High)</SelectItem>
-                <SelectItem value="constellation-desc">Constellation (High to Low)</SelectItem>
-                <SelectItem value="constellation-asc">Constellation (Low to High)</SelectItem>
-                <SelectItem value="auto-desc">Normal Attack (High to Low)</SelectItem>
-                <SelectItem value="skill-desc">Elemental Skill (High to Low)</SelectItem>
-                <SelectItem value="burst-desc">Elemental Burst (High to Low)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex items-center gap-2">
-            <label htmlFor="owned-filter" className="text-sm font-medium">
-              Filter:
-            </label>
-            <Select value={ownedFilter} onValueChange={setOwnedFilter}>
-              <SelectTrigger id="owned-filter" className="w-[10rem]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All characters</SelectItem>
-                <SelectItem value="owned">Owned</SelectItem>
-                <SelectItem value="unowned">Not owned</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </>
-      }
-    >
+    <GenshinShell title="Characters">
       {!user && (
         <SignedOutBanner>
           Log in to see which characters you own, with their levels and builds. Until then, every
           character shows greyed out.
         </SignedOutBanner>
       )}
+      <div className="mb-3 flex flex-wrap items-center gap-3">
+        <SearchInput value={search} onChange={setSearch} label="Search characters" />
+        <div className="flex items-center gap-2">
+          <label htmlFor="sort-order" className="text-sm font-medium">
+            Sort by:
+          </label>
+          <Select value={sortOrder} onValueChange={setSortOrder}>
+            <SelectTrigger id="sort-order" className="w-[13rem]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="name-asc">Name (A-Z)</SelectItem>
+              <SelectItem value="name-desc">Name (Z-A)</SelectItem>
+              <SelectItem value="level-desc">Level (High to Low)</SelectItem>
+              <SelectItem value="level-asc">Level (Low to High)</SelectItem>
+              <SelectItem value="constellation-desc">Constellation (High to Low)</SelectItem>
+              <SelectItem value="constellation-asc">Constellation (Low to High)</SelectItem>
+              <SelectItem value="auto-desc">Normal Attack (High to Low)</SelectItem>
+              <SelectItem value="skill-desc">Elemental Skill (High to Low)</SelectItem>
+              <SelectItem value="burst-desc">Elemental Burst (High to Low)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <Segmented
+          label="Show"
+          value={ownedFilter}
+          onChange={setOwnedFilter}
+          options={[
+            { value: "all", label: "All" },
+            { value: "owned", label: "Owned" },
+            { value: "unowned", label: "Not owned" },
+          ]}
+        />
+      </div>
       <CharacterFilters filters={filters} onChange={setFilters} />
       <p className="text-sm text-gray-500 dark:text-slate-400 mb-4" aria-live="polite">
-        {activeFilterCount(filters) > 0 || ownedFilter !== "all"
-          ? `Showing ${roster.length} of ${GENSHIN_CHARACTERS.length} characters. `
-          : user
-            ? "Greyed-out portraits are characters you don't own yet. "
-            : null}
-        {genshinData?.characters.length
-          ? "Under each name: level, constellation, then Normal Attack / Skill / Burst."
-          : null}
+        {[
+          activeFilterCount(filters) > 0 || ownedFilter !== "all" || search.trim()
+            ? `Showing ${roster.length} of ${GENSHIN_CHARACTERS.length} characters.`
+            : user && "Greyed-out portraits are characters you don't own yet.",
+          genshinData?.characters.length &&
+            "Under each name: level, constellation, then Normal Attack / Skill / Burst.",
+        ]
+          .filter(Boolean)
+          .join(" ")}
       </p>
       {roster.length === 0 ? (
         <p className="text-sm text-gray-500 dark:text-slate-400 mb-6">
