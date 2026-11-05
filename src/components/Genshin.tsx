@@ -13,13 +13,6 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowRight, UserPlus, X } from "lucide-react";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   cn,
   formatCharacterDisplayName,
   formatMaterialDisplayName,
@@ -27,6 +20,7 @@ import {
 import type { GenshinData } from "@/lib/genshin/types";
 import { getWeapon, weaponName } from "@/lib/genshin/weapons";
 import CharacterAvatar from "@/components/CharacterAvatar";
+import ShowcasePicker from "@/components/ShowcasePicker";
 import WeaponIcon from "@/components/WeaponIcon";
 import { buildEquipmentIndex } from "@/lib/genshin/equipment";
 import { getCharacterPortrait, getCharacterRarity, rarityBackground } from "@/lib/genshinCharacters";
@@ -72,9 +66,7 @@ export default function Genshin({
 
   const characterEquipment = buildEquipmentIndex(data);
 
-  const allCharacters = [...data.characters].sort((a, b) =>
-    a.key.localeCompare(b.key)
-  );
+  const characterKeys = data.characters.map((c) => c.key);
   const showcaseSlots = showcaseKeys.map((key) => {
     if (!key) return null;
     const char = data.characters.find((c) => c.key === key);
@@ -91,12 +83,6 @@ export default function Genshin({
     next[index] = characterKey;
     onShowcaseChange(next);
   };
-
-  const getOptionsForSlot = (slotIndex: number) =>
-    allCharacters.filter(
-      (c) =>
-        !showcaseKeys.some((k, i) => i !== slotIndex && k === c.key)
-    );
 
   const topWeapons = [...data.weapons]
     .sort(
@@ -250,30 +236,13 @@ export default function Genshin({
                     </div>
                   )}
 
-                  <Select
-                    value={showcaseKeys[i] ?? "__none__"}
-                    onValueChange={(v) =>
-                      setShowcaseSlot(i, v === "__none__" ? null : v)
-                    }
-                  >
-                    <SelectTrigger className="mt-auto h-9 text-xs" aria-label={`Showcase slot ${i + 1}`}>
-                      <SelectValue
-                        placeholder={
-                          char ? "Change character" : "Choose character"
-                        }
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="__none__">
-                        {char ? "Clear slot" : "Choose character"}
-                      </SelectItem>
-                      {getOptionsForSlot(i).map((c) => (
-                        <SelectItem key={c.key} value={c.key}>
-                          {formatCharacterDisplayName(c.key)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <ShowcasePicker
+                    slot={i}
+                    value={showcaseKeys[i]}
+                    characterKeys={characterKeys}
+                    showcaseKeys={showcaseKeys}
+                    onChange={(key) => setShowcaseSlot(i, key)}
+                  />
                 </div>
               );
             })}

@@ -290,6 +290,27 @@ test.describe("signed in with the sample upload", () => {
     await expect(page.locator("#artifact-main-stat")).toHaveCount(0);
   });
 
+  test("the showcase picker takes a typed name, and Enter picks the first match", async () => {
+    await page.goto("/genshin");
+    await page.getByRole("button", { name: "Choose character for slot 1" }).click();
+    const search = page.getByRole("textbox", { name: "Search characters" });
+    await expect(search).toBeFocused();
+    await page.keyboard.type("amb");
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("button", { name: "Change character for slot 1" })).toBeFocused();
+    await expect(page.getByRole("link", { name: /Amber/ })).toBeVisible();
+
+    // Someone in another slot is greyed out and can't be picked twice.
+    await page.getByRole("button", { name: "Choose character for slot 2" }).click();
+    await page.keyboard.type("amb");
+    await expect(page.getByRole("group", { name: "Characters" }).getByRole("button", { name: /Amber/ })).toBeDisabled();
+    await page.keyboard.press("Escape");
+
+    await page.getByRole("button", { name: "Change character for slot 1" }).click();
+    await page.getByRole("button", { name: "Clear slot" }).click();
+    await expect(page.getByRole("button", { name: "Choose character for slot 1" })).toBeVisible();
+  });
+
   test("the profile shows the account and links back to the hub", async () => {
     await page.goto("/profile");
     await expect(page.getByText("Last upload")).toBeVisible();
