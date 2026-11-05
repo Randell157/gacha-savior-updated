@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useGenshinData } from "@/hooks/useGenshinData";
+import { useRememberedState } from "@/hooks/useRememberedState";
 import { useAuth } from "@/contexts/AuthContext";
 import SignedOutBanner from "@/components/SignedOutBanner";
 import CharacterQuickView from "@/components/CharacterQuickView";
@@ -95,11 +96,13 @@ export default function CharactersPage() {
   const { data: genshinData, loading } = useGenshinData();
   const { user } = useAuth();
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
-  const [sortOrder, setSortOrder] = useState("name-asc");
-  const [ownedFilter, setOwnedFilter] = useState<"all" | "owned" | "unowned">("all");
-  const [search, setSearch] = useState("");
-  const [filters, setFilters] = useState(NO_FILTERS);
+  const [rememberedSort, setSortOrder] = useRememberedState("roster:sort", "name-asc");
+  const [ownedFilter, setOwnedFilter] = useRememberedState<"all" | "owned" | "unowned">("roster:show", "all");
+  const [search, setSearch] = useRememberedState("roster:search", "");
+  const [filters, setFilters] = useRememberedState("roster:filters", NO_FILTERS);
   const [quickView, setQuickView] = useState<string | null>(null);
+  // The tile that opened the quick view, which gets focus back when it closes.
+  const quickViewTile = useRef<HTMLElement | null>(null);
 
   const ownedByNormalizedKey = useMemo(() => {
     const map = new Map<string, GoodCharacter>();
@@ -116,6 +119,8 @@ export default function CharactersPage() {
   // Irminsul lists characters in the order the account got them, Traveler first.
   // Inventory Kamera uses the in-game list's order, which says nothing about that.
   const hasObtainedOrder = genshinData?.source === "Irminsul";
+  // A remembered Obtained sort can outlive the upload that allowed it.
+  const sortOrder = rememberedSort.startsWith("obtained") && !hasObtainedOrder ? "name-asc" : rememberedSort;
   const obtainedPosition = useMemo(() => {
     const map = new Map<string, number>();
     genshinData?.characters.forEach((char, index) => {
@@ -315,7 +320,10 @@ export default function CharactersPage() {
                 key={character.key}
                 type="button"
                 title={`${displayName} (not owned)`}
-                onClick={() => setQuickView(character.key)}
+                onClick={(event) => {
+                  quickViewTile.current = event.currentTarget;
+                  setQuickView(character.key);
+                }}
                 className="group flex flex-col items-center w-full max-w-[7.5rem] rounded-lg p-2 transition-colors hover:bg-indigo-50 dark:hover:bg-indigo-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
               >
                 {portrait}
@@ -336,7 +344,14 @@ export default function CharactersPage() {
         })}
       </div>
       )}
-      <CharacterQuickView characterKey={quickView} onClose={() => setQuickView(null)} />
+      <CharacterQuickView
+        characterKey={quickView}
+        onClose={() => setQuickView(null)}
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          quickViewTile.current?.focus();
+        }}
+      />
     </GenshinShell>
   );
 }

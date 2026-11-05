@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useGenshinData } from "@/hooks/useGenshinData";
+import { useRememberedState } from "@/hooks/useRememberedState";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import GenshinShell from "@/components/GenshinShell";
@@ -63,13 +64,13 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
   const { data: genshinData } = useGenshinData();
   // Equipped is the default: a few hundred pieces grouped by character loads
   // quickly, where drawing every artifact at once was slow.
-  const [show, setShow] = useState<Show>("equipped");
+  const [show, setShow] = useRememberedState<Show>("artifacts:show", "equipped");
   const [limit, setLimit] = useState(PAGE_SIZE);
-  const [setFilter, setSetFilter] = useState(ALL_SETS);
-  const [slotFilter, setSlotFilter] = useState<string | null>(null);
-  const [mainStatFilter, setMainStatFilter] = useState(ANY_MAIN_STAT);
-  const [sort, setSort] = useState<ArtifactSort>("upload");
-  const [characterSearch, setCharacterSearch] = useState("");
+  const [setFilter, setSetFilter] = useRememberedState("artifacts:set", ALL_SETS);
+  const [slotFilter, setSlotFilter] = useRememberedState<string | null>("artifacts:slot", null);
+  const [mainStatFilter, setMainStatFilter] = useRememberedState("artifacts:mainStat", ANY_MAIN_STAT);
+  const [sort, setSort] = useRememberedState<ArtifactSort>("artifacts:sort", "upload");
+  const [characterSearch, setCharacterSearch] = useRememberedState("artifacts:search", "");
   const artifacts = useMemo(() => genshinData?.artifacts ?? [], [genshinData]);
 
   const equippedCount = useMemo(() => artifacts.filter((a) => a.location).length, [artifacts]);

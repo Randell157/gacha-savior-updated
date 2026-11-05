@@ -113,6 +113,10 @@ test.describe("signed in with the sample upload", () => {
     await logIn(page, await createUser());
     await uploadSample(page);
   });
+  // Filters are remembered for the browser tab, and this group shares one.
+  test.beforeEach(async () => {
+    await page.evaluate(() => sessionStorage.clear());
+  });
   test.afterAll(async () => {
     await page.close();
   });
@@ -189,6 +193,31 @@ test.describe("signed in with the sample upload", () => {
     await expect(dialog.getByRole("link", { name: "Log in" })).toHaveCount(0);
     await page.keyboard.press("Escape");
     await expect(dialog).toHaveCount(0);
+    // Focus goes back to the tile that opened it.
+    await expect(page.locator('main button[title$="(not owned)"]').first()).toBeFocused();
+  });
+
+  test("roster filters and sort come back after leaving the page", async () => {
+    await page.goto("/genshin/characters");
+    const hydro = page.getByRole("group", { name: "Filter by element" }).getByRole("button", { name: "Hydro", exact: true });
+    await hydro.click();
+    await page.locator("#sort-order").click();
+    await page.getByRole("option", { name: "Level (Low to High)" }).click();
+
+    // Back from a character.
+    await page.locator('main a[href="/genshin/characters/Furina"]').click();
+    await expect(page.getByRole("heading", { level: 1, name: "Furina" })).toBeVisible();
+    await page.goBack();
+    await expect(hydro).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator("#sort-order")).toContainText("Level (Low to High)");
+
+    // By the section's tabs, and after a refresh.
+    await page.getByRole("link", { name: "Weapons", exact: true }).click();
+    await expect(page).toHaveURL(/\/genshin\/weapons$/);
+    await page.getByRole("link", { name: "Characters", exact: true }).click();
+    await expect(hydro).toHaveAttribute("aria-pressed", "true");
+    await page.reload();
+    await expect(hydro).toHaveAttribute("aria-pressed", "true");
   });
 
   test("a character page shows the profile, weapon, talents and artifacts", async () => {
@@ -279,6 +308,12 @@ test.describe("signed in with the sample upload", () => {
     await page.getByRole("button", { name: "Table" }).click();
     await expect(page.getByRole("table")).toBeVisible();
     await expect(page.getByRole("columnheader", { name: /Weapon/ })).toBeVisible();
+
+    // The Table view stays on this device, even in a new tab's session.
+    await page.evaluate(() => sessionStorage.clear());
+    await page.reload();
+    await expect(page.getByRole("table")).toBeVisible();
+    await page.getByRole("button", { name: "Cards" }).click();
   });
 
   test("the artifacts page opens on Equipped and pages the full list", async () => {

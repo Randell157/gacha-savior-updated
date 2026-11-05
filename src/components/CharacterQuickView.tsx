@@ -19,14 +19,21 @@ import { cn, formatCharacterDisplayName } from "@/lib/utils";
 export default function CharacterQuickView({
   characterKey,
   onClose,
+  onCloseAutoFocus,
 }: {
   characterKey: string | null;
   onClose: () => void;
+  /** The dialog has no trigger of its own, so the page says where focus goes back to. */
+  onCloseAutoFocus: (event: Event) => void;
 }) {
   const name = characterKey ? formatCharacterDisplayName(characterKey) : "";
   return (
     <Dialog open={characterKey !== null} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent aria-describedby={undefined} className="max-h-[90vh] max-w-2xl overflow-y-auto">
+      <DialogContent
+        aria-describedby={undefined}
+        onCloseAutoFocus={onCloseAutoFocus}
+        className="max-h-[90vh] max-w-2xl overflow-y-auto"
+      >
         <DialogTitle className="text-xl font-bold text-indigo-900 dark:text-indigo-200">{name}</DialogTitle>
         {/* Keyed so the open talent and constellation don't carry over to the next character. */}
         {characterKey && <QuickViewBody key={characterKey} characterKey={characterKey} name={name} />}

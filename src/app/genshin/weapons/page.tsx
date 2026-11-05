@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { LayoutGrid, Rows3 } from "lucide-react";
 import { useGenshinData } from "@/hooks/useGenshinData";
+import { useRememberedState } from "@/hooks/useRememberedState";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -69,13 +70,13 @@ export default function WeaponsPage() {
 /** Signed out, the page shows the log-in banner, the toolbar faded and disabled, and an empty list. */
 function Weapons({ signedOut = false }: { signedOut?: boolean }) {
   const { data: genshinData } = useGenshinData();
-  const [search, setSearch] = useState("");
-  const [sort, setSort] = useState<SortKey>("level-desc");
-  const [show, setShow] = useState<ShowFilter>("all");
-  const [groupCopies, setGroupCopies] = useState(true);
-  const [view, setView] = useState<View>("cards");
-  const [typeFilter, setTypeFilter] = useState<string | null>(null);
-  const [rarityFilter, setRarityFilter] = useState<number | null>(null);
+  const [search, setSearch] = useRememberedState("weapons:search", "");
+  const [sort, setSort] = useRememberedState<SortKey>("weapons:sort", "level-desc");
+  const [show, setShow] = useRememberedState<ShowFilter>("weapons:show", "all");
+  const [groupCopies, setGroupCopies] = useRememberedState("weapons:group", true);
+  const [view, setView] = useRememberedState<View>("weapons:view", "cards", "device");
+  const [typeFilter, setTypeFilter] = useRememberedState<string | null>("weapons:type", null);
+  const [rarityFilter, setRarityFilter] = useRememberedState<number | null>("weapons:rarity", null);
   const weapons = useMemo(() => genshinData?.weapons ?? [], [genshinData]);
 
   // Only the rarities this account has, highest first.

@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
+import { clearRememberedTabState } from "@/hooks/useRememberedState";
 import { GAMES, gameForPath } from "@/lib/games";
 import GameIcon from "@/components/GameIcon";
 import { Button } from "@/components/ui/button";
@@ -51,6 +52,7 @@ export default function Header() {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      clearRememberedTabState();
       router.push("/login");
     } catch (error) {
       console.error("Failed to log out", error);
