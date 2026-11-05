@@ -10,6 +10,7 @@
       "region": null,
       "affiliation": null,
       "constellation": "Viator",
+      "version": "1.0",
       "talents": null
     },
     "aino": {
@@ -21,6 +22,7 @@
       "region": "Nod-Krai",
       "affiliation": "Clink-Clank Krumkake Craftshop",
       "constellation": "Cistellula Mira",
+      "version": "6.0",
       "talents": {
         "auto": "Bish-Bash-Bosh Repair",
         "skill": "Musecatcher",
@@ -36,6 +38,7 @@
       "region": "Mondstadt",
       "affiliation": "Knights of Favonius",
       "constellation": "Princeps Cretaceus",
+      "version": "1.2",
       "talents": {
         "auto": "Favonius Bladework - Weiss",
         "skill": "Abiogenesis: Solar Isotoma",
@@ -51,6 +54,7 @@
       "region": "Sumeru",
       "affiliation": "Sumeru Akademiya",
       "constellation": "Vultur Volans",
+      "version": "3.4",
       "talents": {
         "auto": "Abductive Reasoning",
         "skill": "Universality: An Elaboration on Form",
@@ -66,6 +70,7 @@
       "region": null,
       "affiliation": "Wandering Heroine",
       "constellation": "Nora Fortis",
+      "version": "2.1",
       "talents": {
         "auto": "Rapid Fire",
         "skill": "Frozen Wilds",
@@ -81,6 +86,7 @@
       "region": "Snezhnaya",
       "affiliation": "Snezhnaya",
       "constellation": "Canis Borzoides",
+      "version": "7.0",
       "talents": {
         "auto": "Skirmishing Spear",
         "skill": "Thunderbolt Strike",
@@ -96,6 +102,7 @@
       "region": "Mondstadt",
       "affiliation": "Knights of Favonius",
       "constellation": "Lepus",
+      "version": "1.0",
       "talents": {
         "auto": "Sharpshooter",
         "skill": "Explosive Puppet",
@@ -111,6 +118,7 @@
       "region": "Inazuma",
       "affiliation": "Arataki Gang",
       "constellation": "Taurus Iracundus",
+      "version": "2.3",
       "talents": {
         "auto": "Fight Club Legend",
         "skill": "Masatsu Zetsugi: Akaushi Burst!",
@@ -126,6 +134,7 @@
       "region": "Snezhnaya",
       "affiliation": "Fatui",
       "constellation": "Ignis Purgatorius",
+      "version": "4.6",
       "talents": {
         "auto": "Invitation to a Beheading",
         "skill": "All Is Ash",
@@ -141,6 +150,7 @@
       "region": "Liyue",
       "affiliation": "Bubu Pharmacy",
       "constellation": "Lagenaria",
+      "version": "3.6",
       "talents": {
         "auto": "The Classics of Acupuncture",
         "skill": "Universal Diagnosis",
@@ -156,6 +166,7 @@
       "region": "Mondstadt",
       "affiliation": "Church of Favonius",
       "constellation": "Crater",
+      "version": "1.0",
       "talents": {
         "auto": "Whisper of Water",
         "skill": "Let the Show Begin♪",
@@ -171,6 +182,7 @@
       "region": "Liyue",
       "affiliation": "The Crux",
       "constellation": "Victor Mare",
+      "version": "1.0",
       "talents": {
         "auto": "Oceanborne",
         "skill": "Tidecaller",
@@ -186,6 +198,7 @@
       "region": "Mondstadt",
       "affiliation": "Adventurers' Guild",
       "constellation": "Rota Calamitas",
+      "version": "1.0",
       "talents": {
         "auto": "Strike of Fortune",
         "skill": "Passion Overload",
@@ -201,6 +214,7 @@
       "region": "Sumeru",
       "affiliation": "Aaru Village",
       "constellation": "Sagitta Scutum",
+      "version": "3.1",
       "talents": {
         "auto": "Gleaming Spear - Guardian Stance",
         "skill": "Sacred Rite: Heron's Sanctum",
@@ -216,6 +230,7 @@
       "region": "Fontaine",
       "affiliation": "The Steambird",
       "constellation": "Hualina Veritas",
+      "version": "4.2",
       "talents": {
         "auto": "Cool-Color Capture",
         "skill": "Framing: Freezing Point Composition",
@@ -231,6 +246,7 @@
       "region": "Natlan",
       "affiliation": "Tlalocan",
       "constellation": "Vultur Gryphus",
+      "version": "5.2",
       "talents": {
         "auto": "Phantom Feather Flurry",
         "skill": "Spirit Reins, Shadow Hunt",
@@ -246,6 +262,7 @@
       "region": "Fontaine",
       "affiliation": "Special Security and Surveillance Patrol",
       "constellation": "Sclopetum Ensiferum",
+      "version": "4.3",
       "talents": {
         "auto": "Line Bayonet Thrust EX",
         "skill": "Short-Range Rapid Interdiction Fire",
@@ -261,6 +278,7 @@
       "region": "Inazuma",
       "affiliation": "Court of Fontaine",
       "constellation": "Cisoria",
+      "version": "4.5",
       "talents": {
         "auto": "Weaving Blade",
         "skill": "Fluttering Hasode",
@@ -276,6 +294,7 @@
       "region": "Liyue",
       "affiliation": "Tianheng Thaumaturges",
       "constellation": "Nubis Caesor",
+      "version": "1.0",
       "talents": {
         "auto": "Demonbane",
         "skill": "Spirit Blade: Chonghua's Layered Frost",
@@ -291,6 +310,7 @@
       "region": "Natlan",
       "affiliation": "Mictlan",
       "constellation": "Patina Anavatlaca",
+      "version": "5.3",
       "talents": {
         "auto": "Shadow-Stealing Spirit Vessel",
         "skill": "Dawnfrost Darkstar",
@@ -306,6 +326,7 @@
       "region": "Fontaine",
       "affiliation": "Trial Court",
       "constellation": "Rapperia",
+      "version": "4.7",
       "talents": {
         "auto": "Oath of Hunting Shadows",
         "skill": "Hunter's Vigil",
@@ -321,6 +342,7 @@
       "region": "Sumeru",
       "affiliation": "Gandharva Ville",
       "constellation": "Leptailurus Cervarius",
+      "version": "3.0",
       "talents": {
         "auto": "Supplicant's Bowmanship",
         "skill": "Floral Brush",
@@ -336,6 +358,7 @@
       "region": "Nod-Krai",
       "affiliation": "Silvermoon Hall",
       "constellation": "???",
+      "version": "6.3",
       "talents": {
         "auto": "Moondew Cascade",
         "skill": "Eternal Tides",
@@ -351,6 +374,7 @@
       "region": "Sumeru",
       "affiliation": "Temple of Silence",
       "constellation": "Lupus Aureus",
+      "version": "3.1",
       "talents": {
         "auto": "Invoker's Spear",
         "skill": "Secret Rite: Chasmic Soulfarer",
@@ -366,6 +390,7 @@
       "region": "Mondstadt",
       "affiliation": "Church of Favonius",
       "constellation": "Cantus Choralis",
+      "version": "5.7",
       "talents": {
         "auto": "Favonius Bladework - Ritual",
         "skill": "Immersive Ordinance",
@@ -381,6 +406,7 @@
       "region": "Sumeru",
       "affiliation": "The Eremites",
       "constellation": "Mantichora",
+      "version": "3.5",
       "talents": {
         "auto": "Sandstorm Assault",
         "skill": "Molten Inferno",
@@ -396,6 +422,7 @@
       "region": "Mondstadt",
       "affiliation": "Dawn Winery",
       "constellation": "Noctua",
+      "version": "1.0",
       "talents": {
         "auto": "Tempered Sword",
         "skill": "Searing Onslaught",
@@ -411,6 +438,7 @@
       "region": "Mondstadt",
       "affiliation": "The Cat's Tail",
       "constellation": "Feles",
+      "version": "1.1",
       "talents": {
         "auto": "Kätzlein Style",
         "skill": "Icy Paws",
@@ -426,6 +454,7 @@
       "region": "Sumeru",
       "affiliation": "The Palace of Alcazarzaray",
       "constellation": "Magicae Lucerna",
+      "version": "3.0",
       "talents": {
         "auto": "Marvelous Sword-Dance (Modified)",
         "skill": "Spirit-Warding Lamp: Troubleshooter Cannon",
@@ -441,6 +470,7 @@
       "region": "Mondstadt",
       "affiliation": "Hexenzirkel",
       "constellation": "Draco Rubedo",
+      "version": "6.2",
       "talents": {
         "auto": "Radiant Wingslash",
         "skill": "Binary Form: Convergence and Division",
@@ -456,6 +486,7 @@
       "region": "Fontaine",
       "affiliation": "Court of Fontaine",
       "constellation": "Pomum de Ambra",
+      "version": "4.8",
       "talents": {
         "auto": "Shadow-Hunting Spear (Custom)",
         "skill": "Fragrance Extraction",
@@ -471,6 +502,7 @@
       "region": "Fontaine",
       "affiliation": "Fontaine",
       "constellation": "Dulciaria Structura",
+      "version": "5.6",
       "talents": {
         "auto": "Kitchen Skills",
         "skill": "Low-Temperature Cooking",
@@ -486,6 +518,7 @@
       "region": "Mondstadt",
       "affiliation": "Knights of Favonius",
       "constellation": "Aphros Delos",
+      "version": "1.5",
       "talents": {
         "auto": "Favonius Bladework - Edel",
         "skill": "Icetide Vortex",
@@ -501,6 +534,7 @@
       "region": "Sumeru",
       "affiliation": "Haravatat",
       "constellation": "Flosculi Implexi",
+      "version": "3.3",
       "talents": {
         "auto": "Parthian Shot",
         "skill": "Wind Realm of Nasamjnin",
@@ -516,6 +550,7 @@
       "region": "Mondstadt",
       "affiliation": "Adventurers' Guild",
       "constellation": "Corvus",
+      "version": "1.0",
       "talents": {
         "auto": "Bolts of Downfall",
         "skill": "Nightrider",
@@ -531,6 +566,7 @@
       "region": "Nod-Krai",
       "affiliation": "Lightkeepers",
       "constellation": "Laterna Vigilis",
+      "version": "6.0",
       "talents": {
         "auto": "Pocztowy Demonspear",
         "skill": "Ancient Rite: Arcane Light",
@@ -546,6 +582,7 @@
       "region": "Fontaine",
       "affiliation": "Hotel Bouffes d'ete",
       "constellation": "Automaton",
+      "version": "4.0",
       "talents": {
         "auto": "Flowing Eddies",
         "skill": "Pressurized Floe",
@@ -561,6 +598,7 @@
       "region": "Fontaine",
       "affiliation": "Court of Fontaine",
       "constellation": "Animula Choragi",
+      "version": "4.2",
       "talents": {
         "auto": "Soloist's Solicitation",
         "skill": "Salon Solitaire",
@@ -576,6 +614,7 @@
       "region": "Liyue",
       "affiliation": "Sword and Strongbox Secure Transport Agency",
       "constellation": "Leo Expergiscens",
+      "version": "4.4",
       "talents": {
         "auto": "Stellar Rend",
         "skill": "Bestial Ascent",
@@ -591,6 +630,7 @@
       "region": "Liyue",
       "affiliation": "Yuehai Pavilion",
       "constellation": "Sinae Unicornis",
+      "version": "1.2",
       "talents": {
         "auto": "Liutian Archery",
         "skill": "Trail of the Qilin",
@@ -606,6 +646,7 @@
       "region": "Inazuma",
       "affiliation": "Watatsumi Island",
       "constellation": "Canis Bellatoris",
+      "version": "2.3",
       "talents": {
         "auto": "Ripping Fang Fletching",
         "skill": "Inuzaka All-Round Defense",
@@ -621,6 +662,7 @@
       "region": "Liyue",
       "affiliation": "Wangsheng Funeral Parlor",
       "constellation": "Papilio Charontis",
+      "version": "1.3",
       "talents": {
         "auto": "Secret Spear of Wangsheng",
         "skill": "Guide to Afterlife",
@@ -636,6 +678,7 @@
       "region": "Natlan",
       "affiliation": "Teteocan",
       "constellation": "Carnotaurus",
+      "version": "5.5",
       "talents": {
         "auto": "Weighted Spike",
         "skill": "Thunderbolt Rush",
@@ -651,6 +694,7 @@
       "region": "Natlan",
       "affiliation": "Tlalocan",
       "constellation": "Catena Opele",
+      "version": "5.6",
       "talents": {
         "auto": "Rite of Dispelling Winds",
         "skill": "Airborne Disease Prevention",
@@ -666,6 +710,7 @@
       "region": "Nod-Krai",
       "affiliation": "Lightkeepers",
       "constellation": "Oriolus",
+      "version": "6.3",
       "talents": {
         "auto": "Oathkeeper's Spear",
         "skill": "Dawnbearing Songbird",
@@ -681,6 +726,7 @@
       "region": "Nod-Krai",
       "affiliation": "Clink-Clank Krumkake Craftshop",
       "constellation": "Vanilla Planifolia",
+      "version": "5.8",
       "talents": {
         "auto": "Cyclonic Duster",
         "skill": "Cleaning Mode: Carrier Frequency",
@@ -696,6 +742,7 @@
       "region": "Nod-Krai",
       "affiliation": "Curatorium of Secrets",
       "constellation": "Fragum",
+      "version": "6.2",
       "talents": {
         "auto": "Strike While the Arrow's Hot",
         "skill": "Savvy Strategy: Splitting the Spoils",
@@ -711,6 +758,7 @@
       "region": "Mondstadt",
       "affiliation": "Knights of Favonius",
       "constellation": "Leo Minor",
+      "version": "1.0",
       "talents": {
         "auto": "Favonius Bladework",
         "skill": "Gale Blade",
@@ -726,6 +774,7 @@
       "region": "Natlan",
       "affiliation": "Nanatzcayan",
       "constellation": "Ochotona Princeps",
+      "version": "5.0",
       "talents": {
         "auto": "Cragbiter",
         "skill": "Go, Go Turbo Twirly!",
@@ -741,6 +790,7 @@
       "region": "Inazuma",
       "affiliation": "The Crux",
       "constellation": "Acer Palmatum",
+      "version": "1.6",
       "talents": {
         "auto": "Garyuu Bladework",
         "skill": "Chihayaburu",
@@ -756,6 +806,7 @@
       "region": "Mondstadt",
       "affiliation": "Knights of Favonius",
       "constellation": "Pavo Ocellus",
+      "version": "1.0",
       "talents": {
         "auto": "Ceremonial Bladework",
         "skill": "Frostgnaw",
@@ -771,6 +822,7 @@
       "region": "Inazuma",
       "affiliation": "Yashiro Commission",
       "constellation": "Grus Nivis",
+      "version": "2.0",
       "talents": {
         "auto": "Kamisato Art: Kabuki",
         "skill": "Kamisato Art: Hyouka",
@@ -786,6 +838,7 @@
       "region": "Inazuma",
       "affiliation": "Yashiro Commission",
       "constellation": "Cypressus Custos",
+      "version": "2.6",
       "talents": {
         "auto": "Kamisato Art: Marobashi",
         "skill": "Kamisato Art: Kyouka",
@@ -801,6 +854,7 @@
       "region": "Sumeru",
       "affiliation": "Independent Design Studio",
       "constellation": "Paradisaea",
+      "version": "3.6",
       "talents": {
         "auto": "Schematic Setup",
         "skill": "Artistic Ingenuity",
@@ -816,6 +870,7 @@
       "region": "Liyue",
       "affiliation": "Liyue Qixing",
       "constellation": "Trulla Cementarii",
+      "version": "1.0",
       "talents": {
         "auto": "Yunlai Swordsmanship",
         "skill": "Stellar Restoration",
@@ -831,6 +886,7 @@
       "region": "Natlan",
       "affiliation": "Huitztlan",
       "constellation": "Chimaera Alebriius",
+      "version": "5.0",
       "talents": {
         "auto": "Nightsun Style",
         "skill": "Canopy Hunter: Riding High",
@@ -846,6 +902,7 @@
       "region": "Inazuma",
       "affiliation": "Komaniya Express",
       "constellation": "Arcella",
+      "version": "3.7",
       "talents": {
         "auto": "Boxcutter",
         "skill": "Meow-teor Kick",
@@ -861,6 +918,7 @@
       "region": "Mondstadt",
       "affiliation": "Knights of Favonius",
       "constellation": "Trifolium",
+      "version": "1.0",
       "talents": {
         "auto": "Kaboom!",
         "skill": "Jumpy Dumpty",
@@ -876,6 +934,7 @@
       "region": "Inazuma",
       "affiliation": "Tenryou Commission",
       "constellation": "Flabellum",
+      "version": "2.1",
       "talents": {
         "auto": "Tengu Bowmanship",
         "skill": "Tengu Stormcall",
@@ -891,6 +950,7 @@
       "region": "Inazuma",
       "affiliation": "Arataki Gang",
       "constellation": "Tribulatio Demptio",
+      "version": "2.7",
       "talents": {
         "auto": "Shinobu's Shadowsword",
         "skill": "Sanctifying Ring",
@@ -906,6 +966,7 @@
       "region": "Liyue",
       "affiliation": "Chenyu Vale",
       "constellation": "Hirundo Lazuli",
+      "version": "5.3",
       "talents": {
         "auto": "Black Pheasant Strides on Water",
         "skill": "Swallow-Wisp Pinion Dance",
@@ -921,6 +982,7 @@
       "region": "Nod-Krai",
       "affiliation": "Frostmoon Scions",
       "constellation": "Cerva Nivea",
+      "version": "6.0",
       "talents": {
         "auto": "Peregrination of Linnunrata",
         "skill": "Runo: Dawnless Rest of Karsikko",
@@ -936,6 +998,7 @@
       "region": "Sumeru",
       "affiliation": "Rtawahist",
       "constellation": "Luscinia",
+      "version": "3.2",
       "talents": {
         "auto": "Sword of the Radiant Path",
         "skill": "Nights of Formal Focus",
@@ -951,6 +1014,7 @@
       "region": "Nod-Krai",
       "affiliation": "Adventurers' Guild",
       "constellation": "Alcyon",
+      "version": "6.5",
       "talents": {
         "auto": "Capture Protocol",
         "skill": "Countermeasure: Lumi's Battle Cry!",
@@ -966,6 +1030,7 @@
       "region": "Mondstadt",
       "affiliation": "Knights of Favonius",
       "constellation": "Tempus Fugit",
+      "version": "1.0",
       "talents": {
         "auto": "Lightning Touch",
         "skill": "Violet Arc",
@@ -981,6 +1046,7 @@
       "region": "Mondstadt",
       "affiliation": "Knights of Favonius",
       "constellation": "Lepus Miles",
+      "version": "6.6",
       "talents": {
         "auto": "Spear of Favonius — Broken Oath",
         "skill": "Unforeseen Strike",
@@ -996,6 +1062,7 @@
       "region": "Fontaine",
       "affiliation": "Hotel Bouffes d'ete",
       "constellation": "Felis Alba",
+      "version": "4.0",
       "talents": {
         "auto": "Rapid Ritesword",
         "skill": "Enigmatic Feint",
@@ -1011,6 +1078,7 @@
       "region": "Fontaine",
       "affiliation": "Hotel Bouffes d'ete",
       "constellation": "Felis Fuscus",
+      "version": "4.0",
       "talents": {
         "auto": "Card Force Translocation",
         "skill": "Bewildering Lights",
@@ -1026,6 +1094,7 @@
       "region": null,
       "affiliation": "——",
       "constellation": "——",
+      "version": "6.1",
       "talents": null
     },
     "mavuika": {
@@ -1037,6 +1106,7 @@
       "region": "Natlan",
       "affiliation": "Huitztlan",
       "constellation": "Sol Invictus",
+      "version": "5.3",
       "talents": {
         "auto": "Flames Weave Life",
         "skill": "The Named Moment",
@@ -1052,6 +1122,7 @@
       "region": "Mondstadt",
       "affiliation": "Knights of Favonius",
       "constellation": "Palumbus",
+      "version": "3.5",
       "talents": {
         "auto": "Spear of Favonius - Arrow's Passage",
         "skill": "Starfrost Swirl",
@@ -1067,6 +1138,7 @@
       "region": "Mondstadt",
       "affiliation": "Mondstadt",
       "constellation": "Astrolabos",
+      "version": "1.0",
       "talents": {
         "auto": "Ripple of Fate",
         "skill": "Mirror Reflection of Doom",
@@ -1082,6 +1154,7 @@
       "region": "Natlan",
       "affiliation": "Meztli",
       "constellation": "Phoca Neomonachus",
+      "version": "5.0",
       "talents": {
         "auto": "Cooling Treatment",
         "skill": "Surfshark Wavebreaker",
@@ -1097,6 +1170,7 @@
       "region": "Sumeru",
       "affiliation": "Sumeru City",
       "constellation": "Sapientia Oromasdis",
+      "version": "3.2",
       "talents": {
         "auto": "Akara",
         "skill": "All Schemes to Know",
@@ -1112,6 +1186,7 @@
       "region": "Fontaine",
       "affiliation": "Spina di Rosula",
       "constellation": "Rosa Multiflora",
+      "version": "4.3",
       "talents": {
         "auto": "Blunt Refusal",
         "skill": "Ceremonial Crystalshot",
@@ -1127,6 +1202,7 @@
       "region": "Nod-Krai",
       "affiliation": "Curatorium of Secrets",
       "constellation": "Ludus Latrunculorum",
+      "version": "6.1",
       "talents": {
         "auto": "Striking Serpent",
         "skill": "Senet Strategy: Dance of a Thousand Nights",
@@ -1142,6 +1218,7 @@
       "region": "Fontaine",
       "affiliation": "Court of Fontaine",
       "constellation": "???",
+      "version": "4.1",
       "talents": {
         "auto": "As Water Seeks Equilibrium",
         "skill": "O Tears, I Shall Repay",
@@ -1157,6 +1234,7 @@
       "region": null,
       "affiliation": "Hexenzirkel",
       "constellation": "Reliquiarium",
+      "version": "6.6",
       "talents": {
         "auto": "Allegoria",
         "skill": "Revelation: Uncreated Light",
@@ -1172,6 +1250,7 @@
       "region": "Sumeru",
       "affiliation": "Zubayr Theater",
       "constellation": "Lotos Somno",
+      "version": "3.1",
       "talents": {
         "auto": "Dance of Samser",
         "skill": "Dance of Haftkarsvar",
@@ -1187,6 +1266,7 @@
       "region": "Liyue",
       "affiliation": "Liyue Qixing",
       "constellation": "Opus Aequilibrium",
+      "version": "1.0",
       "talents": {
         "auto": "Sparkling Scatter",
         "skill": "Jade Screen",
@@ -1202,6 +1282,7 @@
       "region": "Mondstadt",
       "affiliation": "Knights of Favonius",
       "constellation": "Parma Cordis",
+      "version": "1.0",
       "talents": {
         "auto": "Favonius Bladework - Maid",
         "skill": "Breastplate",
@@ -1217,6 +1298,7 @@
       "region": "Snezhnaya",
       "affiliation": "Korolevskiy Troupe",
       "constellation": "Cygnus Olor",
+      "version": "7.0",
       "talents": {
         "auto": "Snow Swan Variation",
         "skill": "Adagio: Phantom Night Dancers",
@@ -1232,6 +1314,7 @@
       "region": "Natlan",
       "affiliation": "Mictlan",
       "constellation": "Vampyrum Spectrum",
+      "version": "5.2",
       "talents": {
         "auto": "Spiritvessel Snapshot",
         "skill": "Night's Sling",
@@ -1247,6 +1330,7 @@
       "region": "Mondstadt",
       "affiliation": "Mondstadt",
       "constellation": "Turris Venefica",
+      "version": "6.6",
       "talents": {
         "auto": "Badaboom! Hexbuster Hammer",
         "skill": "Ring-A-Ding-Ding! Hexhunter Chime",
@@ -1262,6 +1346,7 @@
       "region": "Liyue",
       "affiliation": "Bubu Pharmacy",
       "constellation": "Pristina Nola",
+      "version": "1.0",
       "talents": {
         "auto": "Ancient Sword Art",
         "skill": "Adeptus Art: Herald of Frost",
@@ -1277,6 +1362,7 @@
       "region": "Inazuma",
       "affiliation": "Inazuma City",
       "constellation": "Imperatrix Umbrosa",
+      "version": "2.1",
       "talents": {
         "auto": "Origin",
         "skill": "Transcendence: Baleful Omen",
@@ -1292,6 +1378,7 @@
       "region": "Mondstadt",
       "affiliation": "Wolvendom",
       "constellation": "Lupus Minor",
+      "version": "1.0",
       "talents": {
         "auto": "Steel Fang",
         "skill": "Claw and Thunder",
@@ -1307,6 +1394,7 @@
       "region": "Mondstadt",
       "affiliation": "Church of Favonius",
       "constellation": "Spinea Corona",
+      "version": "1.4",
       "talents": {
         "auto": "Spear of the Church",
         "skill": "Ravaging Confession",
@@ -1322,6 +1410,7 @@
       "region": "Snezhnaya",
       "affiliation": "Fatui",
       "constellation": "Narcissorolegium",
+      "version": "6.7",
       "talents": {
         "auto": "Formule Phenomenale: Self-Evident Proposition",
         "skill": "Formule Phenomenale: Differential Analysis",
@@ -1337,6 +1426,7 @@
       "region": "Inazuma",
       "affiliation": "Watatsumi Island",
       "constellation": "Dracaena Somnolenta",
+      "version": "2.1",
       "talents": {
         "auto": "The Shape of Water",
         "skill": "Kurage's Oath",
@@ -1352,6 +1442,7 @@
       "region": "Inazuma",
       "affiliation": "Shuumatsuban",
       "constellation": "Nyctereutes Minor",
+      "version": "2.0",
       "talents": {
         "auto": "Shuumatsuban Ninja Blade",
         "skill": "Yoohoo Art: Fuuin Dash",
@@ -1367,6 +1458,7 @@
       "region": "Sumeru",
       "affiliation": "Temple of Silence",
       "constellation": "Basileos Delta",
+      "version": "4.7",
       "talents": {
         "auto": "Royal Reed Archery",
         "skill": "Ancient Rite: The Thundering Sands",
@@ -1382,6 +1474,7 @@
       "region": "Liyue",
       "affiliation": "Cloud Retainer's Abode",
       "constellation": "Crista Doloris",
+      "version": "2.4",
       "talents": {
         "auto": "Dawnstar Piercer",
         "skill": "Spring Spirit Summoning",
@@ -1397,6 +1490,7 @@
       "region": "Inazuma",
       "affiliation": "Tenryou Commission",
       "constellation": "Cervus Minor",
+      "version": "2.8",
       "talents": {
         "auto": "Fudou Style Martial Arts",
         "skill": "Heartstopper Strike",
@@ -1412,6 +1506,7 @@
       "region": "Fontaine",
       "affiliation": "Fortress of Meropide",
       "constellation": "Nereides",
+      "version": "4.7",
       "talents": {
         "auto": "Targeted Treatment",
         "skill": "Rebound Hydrotherapy",
@@ -1427,6 +1522,7 @@
       "region": null,
       "affiliation": "Cosmic Calamity",
       "constellation": "Crystallina",
+      "version": "5.7",
       "talents": {
         "auto": "Havoc: Sunder",
         "skill": "Havoc: Warp",
@@ -1442,6 +1538,7 @@
       "region": "Mondstadt",
       "affiliation": "Knights of Favonius",
       "constellation": "Ampulla",
+      "version": "1.0",
       "talents": {
         "auto": "Wind Spirit Creation",
         "skill": "Astable Anemohypostasis Creation - 6308",
@@ -1457,6 +1554,7 @@
       "region": "Snezhnaya",
       "affiliation": "Fatui",
       "constellation": "Monoceros Caeli",
+      "version": "1.1",
       "talents": {
         "auto": "Cutting Torrent",
         "skill": "Foul Legacy: Raging Tide",
@@ -1472,6 +1570,7 @@
       "region": "Inazuma",
       "affiliation": "Yashiro Commission",
       "constellation": "Rubeum Scutum",
+      "version": "2.2",
       "talents": {
         "auto": "Swiftshatter Spear",
         "skill": "Blazing Blessing",
@@ -1487,6 +1586,7 @@
       "region": "Sumeru",
       "affiliation": "Gandharva Ville",
       "constellation": "Vulpes Zerda",
+      "version": "3.0",
       "talents": {
         "auto": "Khanda Barrier-Buster",
         "skill": "Vijnana-Phala Mine",
@@ -1502,6 +1602,7 @@
       "region": "Natlan",
       "affiliation": "Teteocan",
       "constellation": "Mascara Luctatori",
+      "version": "5.5",
       "talents": {
         "auto": "By the Horns",
         "skill": "Riding the Night-Rainbow",
@@ -1517,6 +1618,7 @@
       "region": "Mondstadt",
       "affiliation": "Knights of Favonius",
       "constellation": "Lupus Majoris",
+      "version": "6.4",
       "talents": {
         "auto": "Favonius Bladework: Dancing Radiance",
         "skill": "Windbound Execution",
@@ -1532,6 +1634,7 @@
       "region": "Mondstadt",
       "affiliation": "Mondstadt",
       "constellation": "Carmen Dei",
+      "version": "1.0",
       "talents": {
         "auto": "Divine Marksmanship",
         "skill": "Skyward Sonnet",
@@ -1547,6 +1650,7 @@
       "region": "Snezhnaya",
       "affiliation": "Druzhna",
       "constellation": "Amentum Vernum",
+      "version": "7.1",
       "talents": {
         "auto": "Vila Blade Dance",
         "skill": "The Art of Victory",
@@ -1562,6 +1666,7 @@
       "region": "Snezhnaya",
       "affiliation": "Korolevskiy Troupe",
       "constellation": "Piscicula Aurea",
+      "version": "7.1",
       "talents": {
         "auto": "Psyshkhwe Arietta",
         "skill": "Rechitativ: Sonorous Dawn",
@@ -1577,6 +1682,7 @@
       "region": "Sumeru",
       "affiliation": "None",
       "constellation": "Peregrinus",
+      "version": "3.3",
       "talents": {
         "auto": "Yuuban Meigen",
         "skill": "Hanega: Song of the Wind",
@@ -1592,6 +1698,7 @@
       "region": "Fontaine",
       "affiliation": "Fortress of Meropide",
       "constellation": "Cerberus",
+      "version": "4.1",
       "talents": {
         "auto": "Forceful Fists of Frost",
         "skill": "Icefang Rush",
@@ -1607,6 +1714,7 @@
       "region": "Liyue",
       "affiliation": "Wanmin Restaurant",
       "constellation": "Trulla",
+      "version": "1.0",
       "talents": {
         "auto": "Dough-Fu",
         "skill": "Guoba Attack",
@@ -1622,6 +1730,7 @@
       "region": "Liyue",
       "affiliation": "Mt. Aocang",
       "constellation": "Grus Serena",
+      "version": "4.4",
       "talents": {
         "auto": "Word of Wind and Flower",
         "skill": "White Clouds at Dawn",
@@ -1637,6 +1746,7 @@
       "region": "Liyue",
       "affiliation": "Liyue Adeptus",
       "constellation": "Alatus Nemeseos",
+      "version": "1.3",
       "talents": {
         "auto": "Whirlwind Thrust",
         "skill": "Lemniscatic Wind Cycling",
@@ -1652,6 +1762,7 @@
       "region": "Natlan",
       "affiliation": "Nanatzcayan",
       "constellation": "Panthera Ocelota",
+      "version": "5.1",
       "talents": {
         "auto": "Ehecatl's Roar",
         "skill": "Yohual's Scratch",
@@ -1667,6 +1778,7 @@
       "region": "Liyue",
       "affiliation": "Feiyun Commerce Guild",
       "constellation": "Fabulae Textile",
+      "version": "1.0",
       "talents": {
         "auto": "Guhua Style",
         "skill": "Guhua Sword: Fatal Rainscreen",
@@ -1682,6 +1794,7 @@
       "region": "Liyue",
       "affiliation": "\"The Red Strings\"",
       "constellation": "Fila Ignium",
+      "version": "1.1",
       "talents": {
         "auto": "Dance on Fire",
         "skill": "Sweeping Fervor",
@@ -1697,6 +1810,7 @@
       "region": "Inazuma",
       "affiliation": "Grand Narukami Shrine",
       "constellation": "Divina Vulpes",
+      "version": "2.5",
       "talents": {
         "auto": "Spiritfox Sin-Eater",
         "skill": "Yakan Evocation: Sesshou Sakura",
@@ -1712,6 +1826,7 @@
       "region": "Liyue",
       "affiliation": "Yanfei Legal Consultancy",
       "constellation": "Bestia Iustitia",
+      "version": "1.5",
       "talents": {
         "auto": "Seal of Approval",
         "skill": "Signed Edict",
@@ -1727,6 +1842,7 @@
       "region": "Liyue",
       "affiliation": "Streetward Rambler's Abode",
       "constellation": "Osmanthus",
+      "version": "3.4",
       "talents": {
         "auto": "Toss 'N' Turn Spear",
         "skill": "Raphanus Sky Cluster",
@@ -1742,6 +1858,7 @@
       "region": "Liyue",
       "affiliation": "Yanshang Teahouse",
       "constellation": "Umbrabilis Orchis",
+      "version": "2.7",
       "talents": {
         "auto": "Stealthy Bowshot",
         "skill": "Lingering Lifeline",
@@ -1757,6 +1874,7 @@
       "region": "Inazuma",
       "affiliation": "Naganohara Fireworks",
       "constellation": "Carassius Auratus",
+      "version": "2.0",
       "talents": {
         "auto": "Firework Flare-Up",
         "skill": "Niwabi Fire-Dance",
@@ -1772,6 +1890,7 @@
       "region": "Inazuma",
       "affiliation": "Inazuma",
       "constellation": "Tapirus Somniator",
+      "version": "5.4",
       "talents": {
         "auto": "Pure Heart, Pure Dreams",
         "skill": "Aisa Utamakura Pilgrimage",
@@ -1787,6 +1906,7 @@
       "region": "Liyue",
       "affiliation": "Yun-Han Opera Troupe",
       "constellation": "Opera Grandis",
+      "version": "2.4",
       "talents": {
         "auto": "Cloud-Grazing Strike",
         "skill": "Opening Flourish",
@@ -1802,6 +1922,7 @@
       "region": "Liyue",
       "affiliation": "Liyue Harbor",
       "constellation": "Lapis Dei",
+      "version": "1.1",
       "talents": {
         "auto": "Rain of Stone",
         "skill": "Dominus Lapidis",
@@ -1817,6 +1938,7 @@
       "region": "Liyue",
       "affiliation": "Liyue Harbor",
       "constellation": "Equa Alba",
+      "version": "6.3",
       "talents": {
         "auto": "Golden Blade's Petaled Touch",
         "skill": "Heaven and Earth Made Manifest",

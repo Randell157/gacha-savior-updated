@@ -15,6 +15,8 @@ export interface CharacterDetails {
   region: string | null;
   affiliation: string | null;
   constellation: string | null;
+  /** Game version the character was released in, e.g. "5.3" */
+  version: string | null;
   /** Talent names; null for the Traveler and the Wonderland Manekin */
   talents: { auto: string | null; skill: string | null; burst: string | null } | null;
 }

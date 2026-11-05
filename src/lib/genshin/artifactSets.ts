@@ -1,6 +1,6 @@
 import data from "@/data/genshin/artifactSets.json";
 import type { GoodArtifact } from "@/lib/genshin/types";
-import { formatArtifactSetDisplayName } from "@/lib/utils";
+import { compareVersions, formatArtifactSetDisplayName } from "@/lib/utils";
 
 /** An artifact set's bonuses, from genshin-db via `npm run data:genshin`. */
 export interface ArtifactSetInfo {
@@ -43,11 +43,6 @@ export function artifactIcon(setKey: string, slotKey: string): string | null {
 }
 
 /** Compares game versions numerically, so "4.10" comes after "4.6". */
-export function compareVersions(a: string, b: string): number {
-  const [aMajor, aMinor = 0] = a.split(".").map(Number);
-  const [bMajor, bMinor = 0] = b.split(".").map(Number);
-  return aMajor - bMajor || aMinor - bMinor;
-}
 
 /** Every artifact set in the game data, newest release first, A–Z within a version. */
 export const ALL_ARTIFACT_SETS: { id: string; name: string; version: string | null }[] =

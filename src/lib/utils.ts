@@ -77,3 +77,10 @@ export function formatCharacterIconFilename(characterKey: string): string {
   }
   return `${characterKey.replace(/\s+/g, "_")}_Icon.png`
 }
+
+/** Compares game versions numerically, so "4.10" sorts after "4.6". */
+export function compareVersions(a: string, b: string): number {
+  const [aMajor, aMinor = 0] = a.split(".").map(Number);
+  const [bMajor, bMinor = 0] = b.split(".").map(Number);
+  return aMajor - bMajor || aMinor - bMinor;
+}

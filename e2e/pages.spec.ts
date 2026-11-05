@@ -143,6 +143,28 @@ test.describe("signed in with the sample upload", () => {
     await expect(firstTile).not.toHaveAttribute("title", /\(not owned\)$/);
   });
 
+  test("the roster sorts by release and by the order characters were obtained", async () => {
+    await page.goto("/genshin/characters");
+    const tiles = page.locator("main").locator('a[href^="/genshin/characters/"], [title$="(not owned)"]');
+
+    await page.locator("#sort-order").click();
+    await page.getByRole("option", { name: "Release (Oldest First)" }).click();
+    await expect(tiles.first()).toContainText("Version 1.0");
+
+    // The Irminsul sample lists the Traveler first, then Amber, then Fischl.
+    await page.locator("#sort-order").click();
+    await page.getByRole("option", { name: "Obtained (Oldest First)" }).click();
+    await expect(tiles.nth(0)).toContainText("Traveler");
+    await expect(tiles.nth(0)).toContainText("#1");
+    await expect(tiles.nth(1)).toContainText("Amber");
+    await expect(tiles.nth(2)).toContainText("Fischl");
+
+    await page.locator("#sort-order").click();
+    await page.getByRole("option", { name: "Obtained (Newest First)" }).click();
+    await expect(tiles.first()).not.toHaveAttribute("title", /\(not owned\)$/);
+    await expect(tiles.first()).toContainText("Illuga");
+  });
+
   test("on a phone the roster's filters open from a Filters button", async () => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto("/genshin/characters");

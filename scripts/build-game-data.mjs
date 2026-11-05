@@ -135,6 +135,7 @@ for (const name of db.characters("names", { matchCategories: true })) {
     region: c.region || REGION_OVERRIDES[key] || null,
     affiliation: c.affiliation || null,
     constellation: c.constellation || null,
+    version: c.version || null,
     talents: talents
       ? { auto: talents.combat1?.name ?? null, skill: talents.combat2?.name ?? null, burst: talents.combat3?.name ?? null }
       : null,

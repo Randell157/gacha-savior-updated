@@ -23,7 +23,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn, formatCharacterDisplayName } from "@/lib/utils";
+import { cn, compareVersions, formatCharacterDisplayName } from "@/lib/utils";
+import { getCharacterDetails } from "@/lib/genshin/characterDetails";
 import {
   GENSHIN_CHARACTERS,
   normalizeCharacterKey,
@@ -31,9 +32,10 @@ import {
 } from "@/lib/genshinCharacters";
 import type { GoodCharacter } from "@/lib/genshin/types";
 
-type SortField = "name" | "level" | "constellation" | "auto" | "skill" | "burst";
+type BuildField = "level" | "constellation" | "auto" | "skill" | "burst";
+type SortField = "name" | "release" | "obtained" | BuildField;
 
-function sortValue(character: GoodCharacter, field: Exclude<SortField, "name">): number {
+function sortValue(character: GoodCharacter, field: BuildField): number {
   if (field === "level" || field === "constellation") return character[field];
   return character.talent?.[field] ?? -1;
 }
@@ -70,6 +72,25 @@ function BuildLines({ character, sortField }: { character: GoodCharacter; sortFi
   );
 }
 
+/** The value behind a release or obtained sort, in the same indigo as the build values. */
+function SortedValue({ text, spoken }: { text: string; spoken: string }) {
+  return (
+    <>
+      <span
+        aria-hidden
+        className="mt-1 text-center text-xs font-bold leading-snug tabular-nums text-indigo-700 dark:text-indigo-300"
+      >
+        {text}
+      </span>
+      <span className="sr-only">, {spoken}</span>
+    </>
+  );
+}
+
+function releaseVersion(key: string): string {
+  return getCharacterDetails(key)?.version ?? "0";
+}
+
 export default function CharactersPage() {
   const { data: genshinData, loading } = useGenshinData();
   const { user } = useAuth();
@@ -91,6 +112,19 @@ export default function CharactersPage() {
     }
     return map;
   }, [genshinData]);
+
+  // Irminsul lists characters in the order the account got them, Traveler first.
+  // Inventory Kamera uses the in-game list's order, which says nothing about that.
+  const hasObtainedOrder = genshinData?.source === "Irminsul";
+  const obtainedPosition = useMemo(() => {
+    const map = new Map<string, number>();
+    genshinData?.characters.forEach((char, index) => {
+      const normalized = normalizeCharacterKey(char.key);
+      map.set(normalized.startsWith("traveler") ? "traveler" : normalized, index + 1);
+    });
+    return map;
+  }, [genshinData]);
+  const positionOf = (key: string) => obtainedPosition.get(normalizeCharacterKey(key));
 
   const roster = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -114,6 +148,23 @@ export default function CharactersPage() {
     if (field === "name") {
       return list.sort((a, b) => (direction === "asc" ? byName(a, b) : byName(b, a)));
     }
+    if (field === "release") {
+      // A fact about the game, so owned and unowned characters mix.
+      return list.sort((a, b) => {
+        const difference = compareVersions(releaseVersion(a.key), releaseVersion(b.key));
+        return (direction === "asc" ? difference : -difference) || byName(a, b);
+      });
+    }
+    if (field === "obtained") {
+      return list.sort((a, b) => {
+        const first = obtainedPosition.get(normalizeCharacterKey(a.key));
+        const second = obtainedPosition.get(normalizeCharacterKey(b.key));
+        if (first === undefined || second === undefined) {
+          return Number(first === undefined) - Number(second === undefined) || byName(a, b);
+        }
+        return direction === "asc" ? first - second : second - first;
+      });
+    }
     // Owned characters come first either way, so low-to-high starts on your
     // least-built character rather than on everyone you don't own.
     return list.sort((a, b) => {
@@ -121,7 +172,7 @@ export default function CharactersPage() {
       const difference = sortValue(a.owned, field) - sortValue(b.owned, field);
       return (direction === "asc" ? difference : -difference) || byName(a, b);
     });
-  }, [ownedByNormalizedKey, sortOrder, ownedFilter, filters, search]);
+  }, [ownedByNormalizedKey, obtainedPosition, sortOrder, ownedFilter, filters, search]);
 
   const sortField = sortOrder.split("-")[0];
 
@@ -144,12 +195,26 @@ export default function CharactersPage() {
             Sort by:
           </label>
           <Select value={sortOrder} onValueChange={setSortOrder}>
-            <SelectTrigger id="sort-order" className="w-[13rem]">
+            <SelectTrigger id="sort-order" className="w-[13rem] sm:w-[15rem]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="name-asc">Name (A-Z)</SelectItem>
               <SelectItem value="name-desc">Name (Z-A)</SelectItem>
+              <SelectItem value="release-desc">Release (Newest First)</SelectItem>
+              <SelectItem value="release-asc">Release (Oldest First)</SelectItem>
+              {hasObtainedOrder ? (
+                <>
+                  <SelectItem value="obtained-desc">Obtained (Newest First)</SelectItem>
+                  <SelectItem value="obtained-asc">Obtained (Oldest First)</SelectItem>
+                </>
+              ) : (
+                genshinData?.characters.length ? (
+                  <SelectItem value="obtained-unavailable" disabled>
+                    Obtained (Irminsul exports only)
+                  </SelectItem>
+                ) : null
+              )}
               <SelectItem value="level-desc">Level (High to Low)</SelectItem>
               <SelectItem value="level-asc">Level (Low to High)</SelectItem>
               <SelectItem value="constellation-desc">Constellation (High to Low)</SelectItem>
@@ -179,6 +244,8 @@ export default function CharactersPage() {
             : user && "Greyed-out portraits are characters you don't own yet.",
           genshinData?.characters.length &&
             "Under each name: level, constellation, then Normal Attack / Skill / Burst.",
+          sortField === "obtained" &&
+            "Obtained order comes from your Irminsul export, which lists characters in the order you got them.",
         ]
           .filter(Boolean)
           .join(" ")}
@@ -226,6 +293,18 @@ export default function CharactersPage() {
               >
                 {displayName}
               </span>
+              {sortField === "release" && (
+                <SortedValue
+                  text={`Version ${releaseVersion(character.key)}`}
+                  spoken={`released in version ${releaseVersion(character.key)}`}
+                />
+              )}
+              {sortField === "obtained" && positionOf(character.key) !== undefined && (
+                <SortedValue
+                  text={`#${positionOf(character.key)}`}
+                  spoken={`number ${positionOf(character.key)} obtained`}
+                />
+              )}
               {character.owned && <BuildLines character={character.owned} sortField={sortField} />}
             </>
           );
