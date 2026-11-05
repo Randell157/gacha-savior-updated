@@ -16,7 +16,9 @@ test("an upload is saved to the account and shown on the overview and hub", asyn
 
   // It's stored in Firestore, not just in the page.
   await page.reload();
-  await expect(page.getByText("91 characters, 336 weapons and 1,717 artifacts")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Characters 91" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Weapons 336" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Artifacts 1,717" })).toBeVisible();
   await page.goto("/dashboard");
   await expect(page.getByText("1,717")).toBeVisible();
 });

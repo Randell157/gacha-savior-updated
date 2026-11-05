@@ -307,7 +307,7 @@ test.describe("signed in with the sample upload", () => {
     await page.keyboard.press("Escape");
 
     await page.getByRole("button", { name: "Change character for slot 1" }).click();
-    await page.getByRole("button", { name: "Clear slot" }).click();
+    await page.getByRole("button", { name: "Clear slot", exact: true }).click();
     await expect(page.getByRole("button", { name: "Choose character for slot 1" })).toBeVisible();
   });
 
