@@ -66,6 +66,11 @@ test.describe("signed out", () => {
     await expect(dialog.getByText("Vaporize (Pyro + Hydro):")).toBeVisible();
     await dialog.getByRole("button", { name: "Melt" }).click();
     await expect(dialog.getByText("Melt (Pyro + Cryo):")).toBeVisible();
+    // Talents open on press, base stats show at level 90, and constellations carry no marks.
+    await dialog.getByRole("button", { name: /Guide to Afterlife/ }).click();
+    await expect(dialog.locator("#quick-view-talent")).toBeVisible();
+    await expect(dialog.getByText("Base stats at Lv. 90, before gear")).toBeVisible();
+    await expect(dialog.getByRole("group", { name: "Constellation" }).getByRole("button", { name: "C1", exact: true })).toHaveAttribute("aria-pressed", "true");
     await expect(dialog.getByRole("link", { name: "Log in" })).toBeVisible();
     await page.keyboard.press("Escape");
     await expect(dialog).toHaveCount(0);
@@ -194,7 +199,9 @@ test.describe("signed in with the sample upload", () => {
     await expect(page.getByText("Hydro", { exact: true })).toBeVisible();
     await expect(page.getByText("Nod-Krai", { exact: true })).toBeVisible();
     await expect(page.getByText("Playstyle", { exact: true })).toBeVisible();
-    await expect(page.getByText("Lv. 70", { exact: true })).toBeVisible();
+    // Build strip and base stats at the character's level.
+    await expect(page.getByText("Base stats at Lv. 70, before gear")).toBeVisible();
+    await expect(page.getByText("Ascension", { exact: true })).toBeVisible();
     // Reactions: the main one's note shows, and pressing another chip swaps it.
     await expect(page.getByText("Lunar-Charged (Electro + Hydro):")).toBeVisible();
     await page.getByRole("button", { name: "Lunar-Bloom" }).click();
@@ -209,8 +216,19 @@ test.describe("signed in with the sample upload", () => {
     await expect(refinement.getByRole("button", { name: "R5 (yours)" })).toHaveAttribute("aria-pressed", "true");
     await refinement.getByRole("button", { name: "R1", exact: true }).click();
     await expect(refinement.getByRole("button", { name: "R1", exact: true })).toHaveAttribute("aria-pressed", "true");
-    // Talents with their names, artifacts with set bonuses and full stats.
-    await expect(page.getByText("Musecatcher", { exact: true })).toBeVisible();
+    // Pressing a talent opens its description, and pressing it again closes it.
+    const talent = page.getByRole("button", { name: /Musecatcher/ });
+    await talent.click();
+    await expect(talent).toHaveAttribute("aria-expanded", "true");
+    await expect(page.locator("#character-talent")).toBeVisible();
+    await talent.click();
+    await expect(page.locator("#character-talent")).toHaveCount(0);
+    // Constellations: picking one shows its effect.
+    const constellations = page.getByRole("group", { name: "Constellation" });
+    await constellations.getByRole("button", { name: /^C6/ }).click();
+    await expect(constellations.getByRole("button", { name: /^C6/ })).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByText(/C6 · (Unlocked|Next to unlock|Locked)/)).toBeVisible();
+    // Artifacts with set bonuses and full stats.
     await expect(page.getByText("4-piece · Silken Moon's Serenade", { exact: true })).toBeVisible();
     await expect(page.getByText("Silken Moon's Serenade", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("CRIT DMG 13.2%").first()).toBeVisible();
@@ -225,9 +243,12 @@ test.describe("signed in with the sample upload", () => {
     await page.goto("/genshin/characters/Traveler");
     const element = page.getByRole("combobox", { name: "Your Traveler's element" });
     await expect(element).toHaveText("Choose your element");
+    await expect(page.getByText("Choose your element above")).toBeVisible();
     await element.click();
     await page.getByRole("option", { name: "Hydro" }).click();
     await expect(page.getByText("Vaporize (Pyro + Hydro):")).toBeVisible();
+    // The talents follow the element.
+    await expect(page.getByRole("button", { name: /Aquacrest Saber/ })).toBeVisible();
     await page.reload();
     await expect(element).toHaveText("Hydro");
     await expect(page.getByText("Vaporize (Pyro + Hydro):")).toBeVisible();

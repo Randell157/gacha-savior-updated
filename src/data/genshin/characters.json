@@ -11,6 +11,7 @@
       "affiliation": null,
       "constellation": "Viator",
       "version": "1.0",
+      "birthday": null,
       "talents": null
     },
     "aino": {
@@ -23,6 +24,7 @@
       "affiliation": "Clink-Clank Krumkake Craftshop",
       "constellation": "Cistellula Mira",
       "version": "6.0",
+      "birthday": "September 21",
       "talents": {
         "auto": "Bish-Bash-Bosh Repair",
         "skill": "Musecatcher",
@@ -39,6 +41,7 @@
       "affiliation": "Knights of Favonius",
       "constellation": "Princeps Cretaceus",
       "version": "1.2",
+      "birthday": "September 13",
       "talents": {
         "auto": "Favonius Bladework - Weiss",
         "skill": "Abiogenesis: Solar Isotoma",
@@ -55,6 +58,7 @@
       "affiliation": "Sumeru Akademiya",
       "constellation": "Vultur Volans",
       "version": "3.4",
+      "birthday": "February 11",
       "talents": {
         "auto": "Abductive Reasoning",
         "skill": "Universality: An Elaboration on Form",
@@ -71,6 +75,7 @@
       "affiliation": "Wandering Heroine",
       "constellation": "Nora Fortis",
       "version": "2.1",
+      "birthday": "April 4",
       "talents": {
         "auto": "Rapid Fire",
         "skill": "Frozen Wilds",
@@ -87,6 +92,7 @@
       "affiliation": "Snezhnaya",
       "constellation": "Canis Borzoides",
       "version": "7.0",
+      "birthday": "February 9",
       "talents": {
         "auto": "Skirmishing Spear",
         "skill": "Thunderbolt Strike",
@@ -103,6 +109,7 @@
       "affiliation": "Knights of Favonius",
       "constellation": "Lepus",
       "version": "1.0",
+      "birthday": "August 10",
       "talents": {
         "auto": "Sharpshooter",
         "skill": "Explosive Puppet",
@@ -119,6 +126,7 @@
       "affiliation": "Arataki Gang",
       "constellation": "Taurus Iracundus",
       "version": "2.3",
+      "birthday": "June 1",
       "talents": {
         "auto": "Fight Club Legend",
         "skill": "Masatsu Zetsugi: Akaushi Burst!",
@@ -135,6 +143,7 @@
       "affiliation": "Fatui",
       "constellation": "Ignis Purgatorius",
       "version": "4.6",
+      "birthday": "August 22",
       "talents": {
         "auto": "Invitation to a Beheading",
         "skill": "All Is Ash",
@@ -151,6 +160,7 @@
       "affiliation": "Bubu Pharmacy",
       "constellation": "Lagenaria",
       "version": "3.6",
+      "birthday": "April 25",
       "talents": {
         "auto": "The Classics of Acupuncture",
         "skill": "Universal Diagnosis",
@@ -167,6 +177,7 @@
       "affiliation": "Church of Favonius",
       "constellation": "Crater",
       "version": "1.0",
+      "birthday": "July 5",
       "talents": {
         "auto": "Whisper of Water",
         "skill": "Let the Show Begin♪",
@@ -183,6 +194,7 @@
       "affiliation": "The Crux",
       "constellation": "Victor Mare",
       "version": "1.0",
+      "birthday": "February 14",
       "talents": {
         "auto": "Oceanborne",
         "skill": "Tidecaller",
@@ -199,6 +211,7 @@
       "affiliation": "Adventurers' Guild",
       "constellation": "Rota Calamitas",
       "version": "1.0",
+      "birthday": "February 29",
       "talents": {
         "auto": "Strike of Fortune",
         "skill": "Passion Overload",
@@ -215,6 +228,7 @@
       "affiliation": "Aaru Village",
       "constellation": "Sagitta Scutum",
       "version": "3.1",
+      "birthday": "May 3",
       "talents": {
         "auto": "Gleaming Spear - Guardian Stance",
         "skill": "Sacred Rite: Heron's Sanctum",
@@ -231,6 +245,7 @@
       "affiliation": "The Steambird",
       "constellation": "Hualina Veritas",
       "version": "4.2",
+      "birthday": "April 10",
       "talents": {
         "auto": "Cool-Color Capture",
         "skill": "Framing: Freezing Point Composition",
@@ -247,6 +262,7 @@
       "affiliation": "Tlalocan",
       "constellation": "Vultur Gryphus",
       "version": "5.2",
+      "birthday": "December 10",
       "talents": {
         "auto": "Phantom Feather Flurry",
         "skill": "Spirit Reins, Shadow Hunt",
@@ -263,6 +279,7 @@
       "affiliation": "Special Security and Surveillance Patrol",
       "constellation": "Sclopetum Ensiferum",
       "version": "4.3",
+      "birthday": "January 10",
       "talents": {
         "auto": "Line Bayonet Thrust EX",
         "skill": "Short-Range Rapid Interdiction Fire",
@@ -279,6 +296,7 @@
       "affiliation": "Court of Fontaine",
       "constellation": "Cisoria",
       "version": "4.5",
+      "birthday": "August 17",
       "talents": {
         "auto": "Weaving Blade",
         "skill": "Fluttering Hasode",
@@ -295,6 +313,7 @@
       "affiliation": "Tianheng Thaumaturges",
       "constellation": "Nubis Caesor",
       "version": "1.0",
+      "birthday": "September 7",
       "talents": {
         "auto": "Demonbane",
         "skill": "Spirit Blade: Chonghua's Layered Frost",
@@ -311,6 +330,7 @@
       "affiliation": "Mictlan",
       "constellation": "Patina Anavatlaca",
       "version": "5.3",
+      "birthday": "January 20",
       "talents": {
         "auto": "Shadow-Stealing Spirit Vessel",
         "skill": "Dawnfrost Darkstar",
@@ -327,6 +347,7 @@
       "affiliation": "Trial Court",
       "constellation": "Rapperia",
       "version": "4.7",
+      "birthday": "September 20",
       "talents": {
         "auto": "Oath of Hunting Shadows",
         "skill": "Hunter's Vigil",
@@ -343,6 +364,7 @@
       "affiliation": "Gandharva Ville",
       "constellation": "Leptailurus Cervarius",
       "version": "3.0",
+      "birthday": "May 8",
       "talents": {
         "auto": "Supplicant's Bowmanship",
         "skill": "Floral Brush",
@@ -359,6 +381,7 @@
       "affiliation": "Silvermoon Hall",
       "constellation": "???",
       "version": "6.3",
+      "birthday": "January 14",
       "talents": {
         "auto": "Moondew Cascade",
         "skill": "Eternal Tides",
@@ -375,6 +398,7 @@
       "affiliation": "Temple of Silence",
       "constellation": "Lupus Aureus",
       "version": "3.1",
+      "birthday": "June 23",
       "talents": {
         "auto": "Invoker's Spear",
         "skill": "Secret Rite: Chasmic Soulfarer",
@@ -391,6 +415,7 @@
       "affiliation": "Church of Favonius",
       "constellation": "Cantus Choralis",
       "version": "5.7",
+      "birthday": "May 25",
       "talents": {
         "auto": "Favonius Bladework - Ritual",
         "skill": "Immersive Ordinance",
@@ -407,6 +432,7 @@
       "affiliation": "The Eremites",
       "constellation": "Mantichora",
       "version": "3.5",
+      "birthday": "April 7",
       "talents": {
         "auto": "Sandstorm Assault",
         "skill": "Molten Inferno",
@@ -423,6 +449,7 @@
       "affiliation": "Dawn Winery",
       "constellation": "Noctua",
       "version": "1.0",
+      "birthday": "April 30",
       "talents": {
         "auto": "Tempered Sword",
         "skill": "Searing Onslaught",
@@ -439,6 +466,7 @@
       "affiliation": "The Cat's Tail",
       "constellation": "Feles",
       "version": "1.1",
+      "birthday": "January 18",
       "talents": {
         "auto": "Kätzlein Style",
         "skill": "Icy Paws",
@@ -455,6 +483,7 @@
       "affiliation": "The Palace of Alcazarzaray",
       "constellation": "Magicae Lucerna",
       "version": "3.0",
+      "birthday": "December 21",
       "talents": {
         "auto": "Marvelous Sword-Dance (Modified)",
         "skill": "Spirit-Warding Lamp: Troubleshooter Cannon",
@@ -471,6 +500,7 @@
       "affiliation": "Hexenzirkel",
       "constellation": "Draco Rubedo",
       "version": "6.2",
+      "birthday": "March 14",
       "talents": {
         "auto": "Radiant Wingslash",
         "skill": "Binary Form: Convergence and Division",
@@ -487,6 +517,7 @@
       "affiliation": "Court of Fontaine",
       "constellation": "Pomum de Ambra",
       "version": "4.8",
+      "birthday": "September 22",
       "talents": {
         "auto": "Shadow-Hunting Spear (Custom)",
         "skill": "Fragrance Extraction",
@@ -503,6 +534,7 @@
       "affiliation": "Fontaine",
       "constellation": "Dulciaria Structura",
       "version": "5.6",
+      "birthday": "June 8",
       "talents": {
         "auto": "Kitchen Skills",
         "skill": "Low-Temperature Cooking",
@@ -519,6 +551,7 @@
       "affiliation": "Knights of Favonius",
       "constellation": "Aphros Delos",
       "version": "1.5",
+      "birthday": "October 25",
       "talents": {
         "auto": "Favonius Bladework - Edel",
         "skill": "Icetide Vortex",
@@ -535,6 +568,7 @@
       "affiliation": "Haravatat",
       "constellation": "Flosculi Implexi",
       "version": "3.3",
+      "birthday": "August 20",
       "talents": {
         "auto": "Parthian Shot",
         "skill": "Wind Realm of Nasamjnin",
@@ -551,6 +585,7 @@
       "affiliation": "Adventurers' Guild",
       "constellation": "Corvus",
       "version": "1.0",
+      "birthday": "May 27",
       "talents": {
         "auto": "Bolts of Downfall",
         "skill": "Nightrider",
@@ -567,6 +602,7 @@
       "affiliation": "Lightkeepers",
       "constellation": "Laterna Vigilis",
       "version": "6.0",
+      "birthday": "October 31",
       "talents": {
         "auto": "Pocztowy Demonspear",
         "skill": "Ancient Rite: Arcane Light",
@@ -583,6 +619,7 @@
       "affiliation": "Hotel Bouffes d'ete",
       "constellation": "Automaton",
       "version": "4.0",
+      "birthday": "September 24",
       "talents": {
         "auto": "Flowing Eddies",
         "skill": "Pressurized Floe",
@@ -599,6 +636,7 @@
       "affiliation": "Court of Fontaine",
       "constellation": "Animula Choragi",
       "version": "4.2",
+      "birthday": "October 13",
       "talents": {
         "auto": "Soloist's Solicitation",
         "skill": "Salon Solitaire",
@@ -615,6 +653,7 @@
       "affiliation": "Sword and Strongbox Secure Transport Agency",
       "constellation": "Leo Expergiscens",
       "version": "4.4",
+      "birthday": "December 22",
       "talents": {
         "auto": "Stellar Rend",
         "skill": "Bestial Ascent",
@@ -631,6 +670,7 @@
       "affiliation": "Yuehai Pavilion",
       "constellation": "Sinae Unicornis",
       "version": "1.2",
+      "birthday": "December 2",
       "talents": {
         "auto": "Liutian Archery",
         "skill": "Trail of the Qilin",
@@ -647,6 +687,7 @@
       "affiliation": "Watatsumi Island",
       "constellation": "Canis Bellatoris",
       "version": "2.3",
+      "birthday": "May 18",
       "talents": {
         "auto": "Ripping Fang Fletching",
         "skill": "Inuzaka All-Round Defense",
@@ -663,6 +704,7 @@
       "affiliation": "Wangsheng Funeral Parlor",
       "constellation": "Papilio Charontis",
       "version": "1.3",
+      "birthday": "July 15",
       "talents": {
         "auto": "Secret Spear of Wangsheng",
         "skill": "Guide to Afterlife",
@@ -679,6 +721,7 @@
       "affiliation": "Teteocan",
       "constellation": "Carnotaurus",
       "version": "5.5",
+      "birthday": "August 8",
       "talents": {
         "auto": "Weighted Spike",
         "skill": "Thunderbolt Rush",
@@ -695,6 +738,7 @@
       "affiliation": "Tlalocan",
       "constellation": "Catena Opele",
       "version": "5.6",
+      "birthday": "March 23",
       "talents": {
         "auto": "Rite of Dispelling Winds",
         "skill": "Airborne Disease Prevention",
@@ -711,6 +755,7 @@
       "affiliation": "Lightkeepers",
       "constellation": "Oriolus",
       "version": "6.3",
+      "birthday": "December 23",
       "talents": {
         "auto": "Oathkeeper's Spear",
         "skill": "Dawnbearing Songbird",
@@ -727,6 +772,7 @@
       "affiliation": "Clink-Clank Krumkake Craftshop",
       "constellation": "Vanilla Planifolia",
       "version": "5.8",
+      "birthday": "April 2",
       "talents": {
         "auto": "Cyclonic Duster",
         "skill": "Cleaning Mode: Carrier Frequency",
@@ -743,6 +789,7 @@
       "affiliation": "Curatorium of Secrets",
       "constellation": "Fragum",
       "version": "6.2",
+      "birthday": "January 5",
       "talents": {
         "auto": "Strike While the Arrow's Hot",
         "skill": "Savvy Strategy: Splitting the Spoils",
@@ -759,6 +806,7 @@
       "affiliation": "Knights of Favonius",
       "constellation": "Leo Minor",
       "version": "1.0",
+      "birthday": "March 14",
       "talents": {
         "auto": "Favonius Bladework",
         "skill": "Gale Blade",
@@ -775,6 +823,7 @@
       "affiliation": "Nanatzcayan",
       "constellation": "Ochotona Princeps",
       "version": "5.0",
+      "birthday": "April 22",
       "talents": {
         "auto": "Cragbiter",
         "skill": "Go, Go Turbo Twirly!",
@@ -791,6 +840,7 @@
       "affiliation": "The Crux",
       "constellation": "Acer Palmatum",
       "version": "1.6",
+      "birthday": "October 29",
       "talents": {
         "auto": "Garyuu Bladework",
         "skill": "Chihayaburu",
@@ -807,6 +857,7 @@
       "affiliation": "Knights of Favonius",
       "constellation": "Pavo Ocellus",
       "version": "1.0",
+      "birthday": "November 30",
       "talents": {
         "auto": "Ceremonial Bladework",
         "skill": "Frostgnaw",
@@ -823,6 +874,7 @@
       "affiliation": "Yashiro Commission",
       "constellation": "Grus Nivis",
       "version": "2.0",
+      "birthday": "September 28",
       "talents": {
         "auto": "Kamisato Art: Kabuki",
         "skill": "Kamisato Art: Hyouka",
@@ -839,6 +891,7 @@
       "affiliation": "Yashiro Commission",
       "constellation": "Cypressus Custos",
       "version": "2.6",
+      "birthday": "March 26",
       "talents": {
         "auto": "Kamisato Art: Marobashi",
         "skill": "Kamisato Art: Kyouka",
@@ -855,6 +908,7 @@
       "affiliation": "Independent Design Studio",
       "constellation": "Paradisaea",
       "version": "3.6",
+      "birthday": "July 9",
       "talents": {
         "auto": "Schematic Setup",
         "skill": "Artistic Ingenuity",
@@ -871,6 +925,7 @@
       "affiliation": "Liyue Qixing",
       "constellation": "Trulla Cementarii",
       "version": "1.0",
+      "birthday": "November 20",
       "talents": {
         "auto": "Yunlai Swordsmanship",
         "skill": "Stellar Restoration",
@@ -887,6 +942,7 @@
       "affiliation": "Huitztlan",
       "constellation": "Chimaera Alebriius",
       "version": "5.0",
+      "birthday": "November 11",
       "talents": {
         "auto": "Nightsun Style",
         "skill": "Canopy Hunter: Riding High",
@@ -903,6 +959,7 @@
       "affiliation": "Komaniya Express",
       "constellation": "Arcella",
       "version": "3.7",
+      "birthday": "January 22",
       "talents": {
         "auto": "Boxcutter",
         "skill": "Meow-teor Kick",
@@ -919,6 +976,7 @@
       "affiliation": "Knights of Favonius",
       "constellation": "Trifolium",
       "version": "1.0",
+      "birthday": "July 27",
       "talents": {
         "auto": "Kaboom!",
         "skill": "Jumpy Dumpty",
@@ -935,6 +993,7 @@
       "affiliation": "Tenryou Commission",
       "constellation": "Flabellum",
       "version": "2.1",
+      "birthday": "July 14",
       "talents": {
         "auto": "Tengu Bowmanship",
         "skill": "Tengu Stormcall",
@@ -951,6 +1010,7 @@
       "affiliation": "Arataki Gang",
       "constellation": "Tribulatio Demptio",
       "version": "2.7",
+      "birthday": "July 27",
       "talents": {
         "auto": "Shinobu's Shadowsword",
         "skill": "Sanctifying Ring",
@@ -967,6 +1027,7 @@
       "affiliation": "Chenyu Vale",
       "constellation": "Hirundo Lazuli",
       "version": "5.3",
+      "birthday": "January 6",
       "talents": {
         "auto": "Black Pheasant Strides on Water",
         "skill": "Swallow-Wisp Pinion Dance",
@@ -983,6 +1044,7 @@
       "affiliation": "Frostmoon Scions",
       "constellation": "Cerva Nivea",
       "version": "6.0",
+      "birthday": "March 1",
       "talents": {
         "auto": "Peregrination of Linnunrata",
         "skill": "Runo: Dawnless Rest of Karsikko",
@@ -999,6 +1061,7 @@
       "affiliation": "Rtawahist",
       "constellation": "Luscinia",
       "version": "3.2",
+      "birthday": "December 19",
       "talents": {
         "auto": "Sword of the Radiant Path",
         "skill": "Nights of Formal Focus",
@@ -1015,6 +1078,7 @@
       "affiliation": "Adventurers' Guild",
       "constellation": "Alcyon",
       "version": "6.5",
+      "birthday": "May 23",
       "talents": {
         "auto": "Capture Protocol",
         "skill": "Countermeasure: Lumi's Battle Cry!",
@@ -1031,6 +1095,7 @@
       "affiliation": "Knights of Favonius",
       "constellation": "Tempus Fugit",
       "version": "1.0",
+      "birthday": "June 9",
       "talents": {
         "auto": "Lightning Touch",
         "skill": "Violet Arc",
@@ -1047,6 +1112,7 @@
       "affiliation": "Knights of Favonius",
       "constellation": "Lepus Miles",
       "version": "6.6",
+      "birthday": "April 3",
       "talents": {
         "auto": "Spear of Favonius — Broken Oath",
         "skill": "Unforeseen Strike",
@@ -1063,6 +1129,7 @@
       "affiliation": "Hotel Bouffes d'ete",
       "constellation": "Felis Alba",
       "version": "4.0",
+      "birthday": "February 2",
       "talents": {
         "auto": "Rapid Ritesword",
         "skill": "Enigmatic Feint",
@@ -1079,6 +1146,7 @@
       "affiliation": "Hotel Bouffes d'ete",
       "constellation": "Felis Fuscus",
       "version": "4.0",
+      "birthday": "February 2",
       "talents": {
         "auto": "Card Force Translocation",
         "skill": "Bewildering Lights",
@@ -1095,6 +1163,7 @@
       "affiliation": "——",
       "constellation": "——",
       "version": "6.1",
+      "birthday": null,
       "talents": null
     },
     "mavuika": {
@@ -1107,6 +1176,7 @@
       "affiliation": "Huitztlan",
       "constellation": "Sol Invictus",
       "version": "5.3",
+      "birthday": "August 28",
       "talents": {
         "auto": "Flames Weave Life",
         "skill": "The Named Moment",
@@ -1123,6 +1193,7 @@
       "affiliation": "Knights of Favonius",
       "constellation": "Palumbus",
       "version": "3.5",
+      "birthday": "August 11",
       "talents": {
         "auto": "Spear of Favonius - Arrow's Passage",
         "skill": "Starfrost Swirl",
@@ -1139,6 +1210,7 @@
       "affiliation": "Mondstadt",
       "constellation": "Astrolabos",
       "version": "1.0",
+      "birthday": "August 31",
       "talents": {
         "auto": "Ripple of Fate",
         "skill": "Mirror Reflection of Doom",
@@ -1155,6 +1227,7 @@
       "affiliation": "Meztli",
       "constellation": "Phoca Neomonachus",
       "version": "5.0",
+      "birthday": "August 3",
       "talents": {
         "auto": "Cooling Treatment",
         "skill": "Surfshark Wavebreaker",
@@ -1171,6 +1244,7 @@
       "affiliation": "Sumeru City",
       "constellation": "Sapientia Oromasdis",
       "version": "3.2",
+      "birthday": "October 27",
       "talents": {
         "auto": "Akara",
         "skill": "All Schemes to Know",
@@ -1187,6 +1261,7 @@
       "affiliation": "Spina di Rosula",
       "constellation": "Rosa Multiflora",
       "version": "4.3",
+      "birthday": "August 16",
       "talents": {
         "auto": "Blunt Refusal",
         "skill": "Ceremonial Crystalshot",
@@ -1203,6 +1278,7 @@
       "affiliation": "Curatorium of Secrets",
       "constellation": "Ludus Latrunculorum",
       "version": "6.1",
+      "birthday": "May 9",
       "talents": {
         "auto": "Striking Serpent",
         "skill": "Senet Strategy: Dance of a Thousand Nights",
@@ -1219,6 +1295,7 @@
       "affiliation": "Court of Fontaine",
       "constellation": "???",
       "version": "4.1",
+      "birthday": "December 18",
       "talents": {
         "auto": "As Water Seeks Equilibrium",
         "skill": "O Tears, I Shall Repay",
@@ -1235,6 +1312,7 @@
       "affiliation": "Hexenzirkel",
       "constellation": "Reliquiarium",
       "version": "6.6",
+      "birthday": "September 29",
       "talents": {
         "auto": "Allegoria",
         "skill": "Revelation: Uncreated Light",
@@ -1251,6 +1329,7 @@
       "affiliation": "Zubayr Theater",
       "constellation": "Lotos Somno",
       "version": "3.1",
+      "birthday": "December 3",
       "talents": {
         "auto": "Dance of Samser",
         "skill": "Dance of Haftkarsvar",
@@ -1267,6 +1346,7 @@
       "affiliation": "Liyue Qixing",
       "constellation": "Opus Aequilibrium",
       "version": "1.0",
+      "birthday": "August 26",
       "talents": {
         "auto": "Sparkling Scatter",
         "skill": "Jade Screen",
@@ -1283,6 +1363,7 @@
       "affiliation": "Knights of Favonius",
       "constellation": "Parma Cordis",
       "version": "1.0",
+      "birthday": "March 21",
       "talents": {
         "auto": "Favonius Bladework - Maid",
         "skill": "Breastplate",
@@ -1299,6 +1380,7 @@
       "affiliation": "Korolevskiy Troupe",
       "constellation": "Cygnus Olor",
       "version": "7.0",
+      "birthday": "February 20",
       "talents": {
         "auto": "Snow Swan Variation",
         "skill": "Adagio: Phantom Night Dancers",
@@ -1315,6 +1397,7 @@
       "affiliation": "Mictlan",
       "constellation": "Vampyrum Spectrum",
       "version": "5.2",
+      "birthday": "October 14",
       "talents": {
         "auto": "Spiritvessel Snapshot",
         "skill": "Night's Sling",
@@ -1331,6 +1414,7 @@
       "affiliation": "Mondstadt",
       "constellation": "Turris Venefica",
       "version": "6.6",
+      "birthday": "November 20",
       "talents": {
         "auto": "Badaboom! Hexbuster Hammer",
         "skill": "Ring-A-Ding-Ding! Hexhunter Chime",
@@ -1347,6 +1431,7 @@
       "affiliation": "Bubu Pharmacy",
       "constellation": "Pristina Nola",
       "version": "1.0",
+      "birthday": "March 3",
       "talents": {
         "auto": "Ancient Sword Art",
         "skill": "Adeptus Art: Herald of Frost",
@@ -1363,6 +1448,7 @@
       "affiliation": "Inazuma City",
       "constellation": "Imperatrix Umbrosa",
       "version": "2.1",
+      "birthday": "June 26",
       "talents": {
         "auto": "Origin",
         "skill": "Transcendence: Baleful Omen",
@@ -1379,6 +1465,7 @@
       "affiliation": "Wolvendom",
       "constellation": "Lupus Minor",
       "version": "1.0",
+      "birthday": "September 9",
       "talents": {
         "auto": "Steel Fang",
         "skill": "Claw and Thunder",
@@ -1395,6 +1482,7 @@
       "affiliation": "Church of Favonius",
       "constellation": "Spinea Corona",
       "version": "1.4",
+      "birthday": "January 24",
       "talents": {
         "auto": "Spear of the Church",
         "skill": "Ravaging Confession",
@@ -1411,6 +1499,7 @@
       "affiliation": "Fatui",
       "constellation": "Narcissorolegium",
       "version": "6.7",
+      "birthday": "January 13",
       "talents": {
         "auto": "Formule Phenomenale: Self-Evident Proposition",
         "skill": "Formule Phenomenale: Differential Analysis",
@@ -1427,6 +1516,7 @@
       "affiliation": "Watatsumi Island",
       "constellation": "Dracaena Somnolenta",
       "version": "2.1",
+      "birthday": "February 22",
       "talents": {
         "auto": "The Shape of Water",
         "skill": "Kurage's Oath",
@@ -1443,6 +1533,7 @@
       "affiliation": "Shuumatsuban",
       "constellation": "Nyctereutes Minor",
       "version": "2.0",
+      "birthday": "October 19",
       "talents": {
         "auto": "Shuumatsuban Ninja Blade",
         "skill": "Yoohoo Art: Fuuin Dash",
@@ -1459,6 +1550,7 @@
       "affiliation": "Temple of Silence",
       "constellation": "Basileos Delta",
       "version": "4.7",
+      "birthday": "May 31",
       "talents": {
         "auto": "Royal Reed Archery",
         "skill": "Ancient Rite: The Thundering Sands",
@@ -1475,6 +1567,7 @@
       "affiliation": "Cloud Retainer's Abode",
       "constellation": "Crista Doloris",
       "version": "2.4",
+      "birthday": "March 10",
       "talents": {
         "auto": "Dawnstar Piercer",
         "skill": "Spring Spirit Summoning",
@@ -1491,6 +1584,7 @@
       "affiliation": "Tenryou Commission",
       "constellation": "Cervus Minor",
       "version": "2.8",
+      "birthday": "July 24",
       "talents": {
         "auto": "Fudou Style Martial Arts",
         "skill": "Heartstopper Strike",
@@ -1507,6 +1601,7 @@
       "affiliation": "Fortress of Meropide",
       "constellation": "Nereides",
       "version": "4.7",
+      "birthday": "March 30",
       "talents": {
         "auto": "Targeted Treatment",
         "skill": "Rebound Hydrotherapy",
@@ -1523,6 +1618,7 @@
       "affiliation": "Cosmic Calamity",
       "constellation": "Crystallina",
       "version": "5.7",
+      "birthday": "November 5",
       "talents": {
         "auto": "Havoc: Sunder",
         "skill": "Havoc: Warp",
@@ -1539,6 +1635,7 @@
       "affiliation": "Knights of Favonius",
       "constellation": "Ampulla",
       "version": "1.0",
+      "birthday": "November 26",
       "talents": {
         "auto": "Wind Spirit Creation",
         "skill": "Astable Anemohypostasis Creation - 6308",
@@ -1555,6 +1652,7 @@
       "affiliation": "Fatui",
       "constellation": "Monoceros Caeli",
       "version": "1.1",
+      "birthday": "July 20",
       "talents": {
         "auto": "Cutting Torrent",
         "skill": "Foul Legacy: Raging Tide",
@@ -1571,6 +1669,7 @@
       "affiliation": "Yashiro Commission",
       "constellation": "Rubeum Scutum",
       "version": "2.2",
+      "birthday": "January 9",
       "talents": {
         "auto": "Swiftshatter Spear",
         "skill": "Blazing Blessing",
@@ -1587,6 +1686,7 @@
       "affiliation": "Gandharva Ville",
       "constellation": "Vulpes Zerda",
       "version": "3.0",
+      "birthday": "December 29",
       "talents": {
         "auto": "Khanda Barrier-Buster",
         "skill": "Vijnana-Phala Mine",
@@ -1603,6 +1703,7 @@
       "affiliation": "Teteocan",
       "constellation": "Mascara Luctatori",
       "version": "5.5",
+      "birthday": "November 15",
       "talents": {
         "auto": "By the Horns",
         "skill": "Riding the Night-Rainbow",
@@ -1619,6 +1720,7 @@
       "affiliation": "Knights of Favonius",
       "constellation": "Lupus Majoris",
       "version": "6.4",
+      "birthday": "February 17",
       "talents": {
         "auto": "Favonius Bladework: Dancing Radiance",
         "skill": "Windbound Execution",
@@ -1635,6 +1737,7 @@
       "affiliation": "Mondstadt",
       "constellation": "Carmen Dei",
       "version": "1.0",
+      "birthday": "June 16",
       "talents": {
         "auto": "Divine Marksmanship",
         "skill": "Skyward Sonnet",
@@ -1651,6 +1754,7 @@
       "affiliation": "Druzhna",
       "constellation": "Amentum Vernum",
       "version": "7.1",
+      "birthday": "February 4",
       "talents": {
         "auto": "Vila Blade Dance",
         "skill": "The Art of Victory",
@@ -1667,6 +1771,7 @@
       "affiliation": "Korolevskiy Troupe",
       "constellation": "Piscicula Aurea",
       "version": "7.1",
+      "birthday": "March 29",
       "talents": {
         "auto": "Psyshkhwe Arietta",
         "skill": "Rechitativ: Sonorous Dawn",
@@ -1683,6 +1788,7 @@
       "affiliation": "None",
       "constellation": "Peregrinus",
       "version": "3.3",
+      "birthday": "January 3",
       "talents": {
         "auto": "Yuuban Meigen",
         "skill": "Hanega: Song of the Wind",
@@ -1699,6 +1805,7 @@
       "affiliation": "Fortress of Meropide",
       "constellation": "Cerberus",
       "version": "4.1",
+      "birthday": "November 23",
       "talents": {
         "auto": "Forceful Fists of Frost",
         "skill": "Icefang Rush",
@@ -1715,6 +1822,7 @@
       "affiliation": "Wanmin Restaurant",
       "constellation": "Trulla",
       "version": "1.0",
+      "birthday": "November 2",
       "talents": {
         "auto": "Dough-Fu",
         "skill": "Guoba Attack",
@@ -1731,6 +1839,7 @@
       "affiliation": "Mt. Aocang",
       "constellation": "Grus Serena",
       "version": "4.4",
+      "birthday": "April 11",
       "talents": {
         "auto": "Word of Wind and Flower",
         "skill": "White Clouds at Dawn",
@@ -1747,6 +1856,7 @@
       "affiliation": "Liyue Adeptus",
       "constellation": "Alatus Nemeseos",
       "version": "1.3",
+      "birthday": "April 17",
       "talents": {
         "auto": "Whirlwind Thrust",
         "skill": "Lemniscatic Wind Cycling",
@@ -1763,6 +1873,7 @@
       "affiliation": "Nanatzcayan",
       "constellation": "Panthera Ocelota",
       "version": "5.1",
+      "birthday": "March 13",
       "talents": {
         "auto": "Ehecatl's Roar",
         "skill": "Yohual's Scratch",
@@ -1779,6 +1890,7 @@
       "affiliation": "Feiyun Commerce Guild",
       "constellation": "Fabulae Textile",
       "version": "1.0",
+      "birthday": "October 9",
       "talents": {
         "auto": "Guhua Style",
         "skill": "Guhua Sword: Fatal Rainscreen",
@@ -1795,6 +1907,7 @@
       "affiliation": "\"The Red Strings\"",
       "constellation": "Fila Ignium",
       "version": "1.1",
+      "birthday": "October 16",
       "talents": {
         "auto": "Dance on Fire",
         "skill": "Sweeping Fervor",
@@ -1811,6 +1924,7 @@
       "affiliation": "Grand Narukami Shrine",
       "constellation": "Divina Vulpes",
       "version": "2.5",
+      "birthday": "June 27",
       "talents": {
         "auto": "Spiritfox Sin-Eater",
         "skill": "Yakan Evocation: Sesshou Sakura",
@@ -1827,6 +1941,7 @@
       "affiliation": "Yanfei Legal Consultancy",
       "constellation": "Bestia Iustitia",
       "version": "1.5",
+      "birthday": "July 28",
       "talents": {
         "auto": "Seal of Approval",
         "skill": "Signed Edict",
@@ -1843,6 +1958,7 @@
       "affiliation": "Streetward Rambler's Abode",
       "constellation": "Osmanthus",
       "version": "3.4",
+      "birthday": "March 6",
       "talents": {
         "auto": "Toss 'N' Turn Spear",
         "skill": "Raphanus Sky Cluster",
@@ -1859,6 +1975,7 @@
       "affiliation": "Yanshang Teahouse",
       "constellation": "Umbrabilis Orchis",
       "version": "2.7",
+      "birthday": "April 20",
       "talents": {
         "auto": "Stealthy Bowshot",
         "skill": "Lingering Lifeline",
@@ -1875,6 +1992,7 @@
       "affiliation": "Naganohara Fireworks",
       "constellation": "Carassius Auratus",
       "version": "2.0",
+      "birthday": "June 21",
       "talents": {
         "auto": "Firework Flare-Up",
         "skill": "Niwabi Fire-Dance",
@@ -1891,6 +2009,7 @@
       "affiliation": "Inazuma",
       "constellation": "Tapirus Somniator",
       "version": "5.4",
+      "birthday": "March 16",
       "talents": {
         "auto": "Pure Heart, Pure Dreams",
         "skill": "Aisa Utamakura Pilgrimage",
@@ -1907,6 +2026,7 @@
       "affiliation": "Yun-Han Opera Troupe",
       "constellation": "Opera Grandis",
       "version": "2.4",
+      "birthday": "May 21",
       "talents": {
         "auto": "Cloud-Grazing Strike",
         "skill": "Opening Flourish",
@@ -1923,6 +2043,7 @@
       "affiliation": "Liyue Harbor",
       "constellation": "Lapis Dei",
       "version": "1.1",
+      "birthday": "December 31",
       "talents": {
         "auto": "Rain of Stone",
         "skill": "Dominus Lapidis",
@@ -1939,6 +2060,7 @@
       "affiliation": "Liyue Harbor",
       "constellation": "Equa Alba",
       "version": "6.3",
+      "birthday": "May 15",
       "talents": {
         "auto": "Golden Blade's Petaled Touch",
         "skill": "Heaven and Earth Made Manifest",

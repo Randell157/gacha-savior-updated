@@ -17,6 +17,8 @@ export interface CharacterDetails {
   constellation: string | null;
   /** Game version the character was released in, e.g. "5.3" */
   version: string | null;
+  /** e.g. "October 13"; null for the Traveler */
+  birthday: string | null;
   /** Talent names; null for the Traveler and the Wonderland Manekin */
   talents: { auto: string | null; skill: string | null; burst: string | null } | null;
 }

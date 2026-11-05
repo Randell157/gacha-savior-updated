@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "ai-color-palette",
+        "value": "*",
+        "files": [
+          "src/app/genshin/characters/[key]/page.tsx"
+        ],
+        "createdAt": "2026-11-05T04:19:41.871Z",
+        "reason": "Claude's triage: text-indigo-900 with dark:text-indigo-200 is the documented dark-mode mapping in CLAUDE.md, used across the site"
+      }
+    ]
+  }
+}

@@ -368,6 +368,8 @@ The tiers live in `src/lib/genshin/artifactScore.ts` so they're easy to adjust. 
 
 ### Character page (`/genshin/characters/[key]`)
 
+**Started early (2026-11-04):** the talents with descriptions, all six constellations and base stats are built, and the signed-out quick view shows them too. [CLAUDE.md](../CLAUDE.md) describes them. The CV on artifacts and the weapon page are still to come.
+
 - Header: portrait, name, element and weapon icons, rarity, level, ascension and constellation.
 - **Talents**: the user's Normal Attack, Skill and Burst levels from the GOOD `talent` field, with names and descriptions from the game data.
 - **Constellations**: all six, with the unlocked ones highlighted.

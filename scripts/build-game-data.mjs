@@ -136,6 +136,7 @@ for (const name of db.characters("names", { matchCategories: true })) {
     affiliation: c.affiliation || null,
     constellation: c.constellation || null,
     version: c.version || null,
+    birthday: c.birthday || null,
     talents: talents
       ? { auto: talents.combat1?.name ?? null, skill: talents.combat2?.name ?? null, burst: talents.combat3?.name ?? null }
       : null,
@@ -146,6 +147,68 @@ writeFileSync(
   JSON.stringify({ source: `genshin-db ${version}`, characters }, null, 2) + "\n"
 );
 console.log(`Wrote ${Object.keys(characters).length} characters.`);
+
+// What the character page and quick view show beyond the profile: talent and
+// constellation text, and what's needed to work out base stats at any level
+// (base value x growth curve at the level + ascension bonus, as in genshin-db's
+// stats(); like weapons, read from its data file). It's large, so the site loads
+// it only when one of those opens. Each Traveler element has its own text.
+const gameText = (name) => {
+  const talents = db.talents(name);
+  const constellations = db.constellations(name);
+  return {
+    talents: talents
+      ? ["combat1", "combat2", "combat3"].map((t) => ({ name: talents[t].name, text: talents[t].description }))
+      : null,
+    constellations: constellations
+      ? [1, 2, 3, 4, 5, 6].map((n) => ({ name: constellations[`c${n}`].name, text: constellations[`c${n}`].description }))
+      : null,
+  };
+};
+const characterExtras = {};
+const noExtras = [];
+for (const name of db.characters("names", { matchCategories: true })) {
+  const c = db.characters(name);
+  if (!c || c.name === "Lumine" || c.name === "Manekina") continue;
+  const rawKey = normalize(c.name);
+  const key = c.name === "Aether" ? "traveler" : rawKey === "manekin" ? "wonderlandmanekin" : rawKey;
+  const stats = raw.stats.characters[rawKey];
+  if (!stats) noExtras.push(c.name);
+  characterExtras[key] = {
+    // The stat this character gains from ascending, e.g. "CRIT Rate".
+    substat: c.substatText || null,
+    stats: stats
+      ? {
+          base: { hp: stats.base.hp, attack: stats.base.attack, defense: stats.base.defense },
+          curve: stats.curve,
+          // Every character's starting CRIT, included in the shown value when CRIT is the ascension stat.
+          specializedBase:
+            stats.specialized === "FIGHT_PROP_CRITICAL"
+              ? stats.base.critrate
+              : stats.specialized === "FIGHT_PROP_CRITICAL_HURT"
+                ? stats.base.critdmg
+                : 0,
+          // [level cap, HP, ATK, DEF, ascension stat] added in each ascension phase.
+          promotion: stats.promotion.map((p) => [p.maxlevel, p.hp, p.attack, p.defense, p.specialized]),
+        }
+      : null,
+    ...(c.name === "Aether" ? { talents: null, constellations: null } : gameText(c.name)),
+  };
+}
+const travelerElements = {};
+for (const element of Object.keys(JSON.parse(readFileSync("src/data/genshin/reactions.json", "utf8")).travelerReactions)) {
+  travelerElements[element] = gameText(`Traveler (${element})`);
+}
+const characterCurveNames = Object.keys(raw.curve.characters[1]);
+const characterCurves = {};
+for (const curve of characterCurveNames) {
+  characterCurves[curve] = Array.from({ length: 100 }, (_, i) => raw.curve.characters[i + 1][curve]);
+}
+writeFileSync(
+  "src/data/genshin/characterExtras.json",
+  JSON.stringify({ source: `genshin-db ${version}`, curves: characterCurves, characters: characterExtras, travelerElements }) + "\n"
+);
+console.log(`Wrote extras for ${Object.keys(characterExtras).length} characters.${noExtras.length ? ` No stats for: ${noExtras.join(", ")}` : ""}`);
 
 // Report sets and weapons in the sample exports that the data doesn't cover.
 const SAMPLE_EXPORTS = [

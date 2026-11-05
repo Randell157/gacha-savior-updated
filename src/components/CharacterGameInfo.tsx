@@ -55,8 +55,8 @@ export function Stars({ rarity }: { rarity: number }) {
 
 /**
  * What's true of a character for every player: title, element / weapon type /
- * rarity / region chips, description, playstyle and reactions. The Traveler's
- * element chip is a dropdown, since the export doesn't say which element.
+ * rarity / region chips, playstyle, reactions, then the lore and small facts.
+ * The Traveler's element chip is a dropdown, since the export doesn't say which element.
  */
 export default function CharacterGameInfo({
   characterKey,
@@ -70,6 +70,12 @@ export default function CharacterGameInfo({
   const details = getCharacterDetails(characterKey);
   const rarity = getCharacterRarity(characterKey);
   const roles = getCharacterRoles(characterKey);
+  const facts = [
+    details?.affiliation,
+    details?.version && `Version ${details.version}`,
+    details?.birthday && `Born ${details.birthday}`,
+    details?.constellation && `Constellation: ${details.constellation}`,
+  ].filter(Boolean);
   return (
     <>
       {details?.title && (
@@ -114,9 +120,6 @@ export default function CharacterGameInfo({
         )}
         {details?.region && <Pill className={GREY_PILL}>{details.region}</Pill>}
       </div>
-      {details?.description && (
-        <p className="max-w-2xl text-gray-700 dark:text-slate-300">{details.description}</p>
-      )}
       {roles.length > 0 && (
         <div className="flex flex-wrap items-center gap-1.5">
           <span className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-slate-400">
@@ -144,6 +147,16 @@ export default function CharacterGameInfo({
           key={`${characterKey}-${travelerElement}`}
           reactions={getCharacterReactions(characterKey, travelerElement)}
         />
+      )}
+      {(details?.description || facts.length > 0) && (
+        <div className="max-w-2xl">
+          {details?.description && (
+            <p className="text-sm italic text-gray-500 dark:text-slate-400">{details.description}</p>
+          )}
+          {facts.length > 0 && (
+            <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">{facts.join(" · ")}</p>
+          )}
+        </div>
       )}
     </>
   );
