@@ -124,12 +124,11 @@ function GenshinOverview() {
       </div>
       {genshinData ? (
         <>
-          <div className="mb-8">
+          <div className="mb-6">
             <UploadBar
               onFile={handleFile}
               disabled={isSaving}
               lastUploadedAt={lastUploadedAt}
-              summary={describeCounts(genshinData)}
             />
           </div>
           <Genshin

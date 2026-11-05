@@ -32,6 +32,9 @@ export function formatCharacterDisplayName(key: string): string {
   return formatKeyWithSpaces(key)
 }
 
+/** Words a title keeps in lowercase; export keys capitalize every word ("A Huge Bag Of Mora"). */
+const MINOR_WORDS = new Set(["a", "an", "and", "at", "for", "from", "in", "of", "on", "or", "the", "to", "with"])
+
 /** Replaces underscores with spaces and splits camelCase (e.g. "EmblemOfSeveredFate" → "Emblem Of Severed Fate") */
 export function formatKeyWithSpaces(key: string): string {
   if (!key || typeof key !== "string") return key
@@ -55,6 +58,9 @@ export function formatArtifactSetDisplayName(setKey: string): string {
 /** Display name for material keys */
 export function formatMaterialDisplayName(key: string): string {
   return formatKeyWithSpaces(key)
+    .split(" ")
+    .map((word, index) => (index > 0 && MINOR_WORDS.has(word.toLowerCase()) ? word.toLowerCase() : word))
+    .join(" ")
 }
 
 const CHARACTER_ICON_SPECIAL_NAMES: Record<string, string> = {

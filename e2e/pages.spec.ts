@@ -7,9 +7,9 @@ test.describe("signed out", () => {
     await page.getByRole("link", { name: "Try the sample account" }).click();
     await expect(page).toHaveURL(/#sample$/);
     const sample = page.locator("#sample");
-    await expect(sample.getByText("Character Showcase")).toBeVisible();
+    await expect(sample.getByRole("heading", { name: "Showcase" })).toBeVisible();
     // The count tiles open the real (signed-out) pages.
-    await sample.getByRole("link", { name: /Weapons[\s\S]*Open/ }).click();
+    await sample.getByRole("link", { name: /^Weapons/ }).click();
     await expect(page).toHaveURL(/\/genshin\/weapons$/);
   });
 

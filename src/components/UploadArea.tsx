@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { CheckCircle2, Upload } from "lucide-react";
+import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -103,31 +103,24 @@ export function UploadDropZone(props: UploadProps) {
 /** Shown once data exists: last upload, counts and a button to upload again. */
 export function UploadBar({
   lastUploadedAt,
-  summary,
   ...props
-}: UploadProps & { lastUploadedAt: Date | null; summary: string }) {
+}: UploadProps & { lastUploadedAt: Date | null }) {
   const { input, dragging, dropHandlers, open } = useFilePicker(props);
 
   return (
     <div
       {...dropHandlers}
       className={cn(
-        "flex flex-wrap items-center justify-between gap-3 rounded-lg border px-4 py-3 transition-colors",
-        dragging ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30" : "bg-white dark:bg-slate-900"
+        "-m-2 flex flex-wrap items-center justify-between gap-3 rounded-lg border p-2 transition-colors",
+        dragging ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30" : "border-transparent"
       )}
     >
       {input}
-      <div>
-        <p className="flex items-center gap-1.5 text-sm font-medium text-gray-900 dark:text-slate-100">
-          <CheckCircle2 className="h-4 w-4 text-green-600" />
-          Data uploaded
-        </p>
-        <p className="text-xs text-gray-500 dark:text-slate-400">
-          {lastUploadedAt && <>Last uploaded {lastUploadedAt.toLocaleString()} · </>}
-          {summary}
-        </p>
-      </div>
-      <Button size="sm" onClick={open} disabled={props.disabled}>
+      <p className="text-sm text-gray-500 dark:text-slate-400">
+        {lastUploadedAt &&
+          `Last uploaded ${lastUploadedAt.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}`}
+      </p>
+      <Button size="sm" variant="outline" onClick={open} disabled={props.disabled}>
         <Upload className="mr-1.5 h-4 w-4" />
         {props.disabled ? "Saving..." : "Upload new export"}
       </Button>

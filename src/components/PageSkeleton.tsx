@@ -25,17 +25,20 @@ export default function PageSkeleton({ kind = "cards" }: { kind?: SkeletonKind }
 function DashboardSkeleton() {
   return (
     <div className="space-y-6">
-      <Skeleton className="h-6 w-40" />
-      <Skeleton className="h-5 w-32" />
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <Skeleton className="h-9 w-full" />
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
         {Array.from({ length: 3 }, (_, i) => (
-          <Skeleton key={i} className="h-44" />
+          <Skeleton key={i} className="h-[4.5rem] sm:h-[5.5rem]" />
         ))}
       </div>
-      <Skeleton className="h-10 w-64" />
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
         {Array.from({ length: 5 }, (_, i) => (
           <Skeleton key={i} className="h-[280px] rounded-xl" />
+        ))}
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {Array.from({ length: 2 }, (_, i) => (
+          <Skeleton key={i} className="h-80" />
         ))}
       </div>
     </div>
