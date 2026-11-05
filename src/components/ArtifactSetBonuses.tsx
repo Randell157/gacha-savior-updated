@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { activeSets, artifactSetName } from "@/lib/genshin/artifactSets";
 import type { GoodArtifact } from "@/lib/genshin/types";
 import { cn } from "@/lib/utils";
@@ -56,14 +56,31 @@ function SetBonus({ pieces, name, text }: { pieces: 2 | 4; name: string; text: s
   );
 }
 
-/** Set bonus text cut to four lines, with More / Less when it's longer. */
+/**
+ * Set bonus text cut to four lines, with More / Less when it's actually cut.
+ * That depends on the column's width, so it's measured rather than guessed from
+ * the text's length, and measured again when the width changes.
+ */
 function SetBonusText({ text }: { text: string }) {
   const [expanded, setExpanded] = useState(false);
-  const long = text.length > 140;
+  const [isCut, setIsCut] = useState(false);
+  const textRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    const element = textRef.current;
+    // Expanded text is never cut, so measuring it would hide the Less button.
+    if (!element || expanded) return;
+    const observer = new ResizeObserver(() => setIsCut(element.scrollHeight > element.clientHeight));
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [expanded, text]);
+
   return (
     <div className="mt-1 leading-snug text-gray-600 dark:text-slate-400">
-      <p className={cn(long && !expanded && "line-clamp-4")}>{text}</p>
-      {long && (
+      <p ref={textRef} className={cn(!expanded && "line-clamp-4")}>
+        {text}
+      </p>
+      {(isCut || expanded) && (
         <button
           type="button"
           aria-expanded={expanded}
