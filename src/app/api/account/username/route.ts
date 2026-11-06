@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { adminAuth, adminDb } from "@/lib/firebaseAdmin";
+import { adminDb } from "@/lib/firebaseAdmin";
+import { adminAuth } from "@/lib/firebaseAdminAuth";
 
 // Changes the signed-in user's username. The rules don't let the browser delete
 // the old claim in usernames/, so this runs on the server. The account always

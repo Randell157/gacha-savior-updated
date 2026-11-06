@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { adminAuth, adminDb } from "@/lib/firebaseAdmin";
+import { adminDb } from "@/lib/firebaseAdmin";
+import { adminAuth } from "@/lib/firebaseAdminAuth";
 
 // Deletes the signed-in user's account: their data, their username and their
 // login. The username claim can't be deleted from the browser (see
