@@ -183,9 +183,10 @@ function ReactionsRow({ reactions }: { reactions: CharacterReaction[] }) {
               aria-pressed={index === selected}
               onClick={() => setSelected(index)}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ring-offset-1 ring-offset-white hover:ring-1 hover:ring-current dark:ring-offset-slate-900",
+                "inline-flex items-center gap-1.5 rounded-full border border-current px-2.5 py-0.5 text-xs font-semibold hover:ring-1 hover:ring-current focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                 ELEMENT_CHIP[elements[0]] ?? GREY_PILL,
-                index === selected && "ring-2 ring-current hover:ring-2"
+                // Outlined until chosen, so these read as controls beside the filled label chips above.
+                index !== selected && "!bg-transparent"
               )}
             >
               {elements.map((element) => (

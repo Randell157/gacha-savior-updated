@@ -67,10 +67,11 @@ export default function PageShell({
       {panel === "none" ? (
         children
       ) : (
-        <div className="max-w-7xl mx-auto py-12 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto py-4 sm:py-12 sm:px-6 lg:px-8">
           <div
             className={cn(
-              "bg-white dark:bg-slate-900 shadow overflow-hidden sm:rounded-lg",
+              // overflow-clip, not -hidden: it rounds the corners without breaking `sticky` inside the panel.
+              "bg-white dark:bg-slate-900 shadow overflow-clip sm:rounded-lg",
               panel === "padded" && "p-6 sm:p-8"
             )}
           >

@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { LayoutGrid, Rows3 } from "lucide-react";
 import { useGenshinData } from "@/hooks/useGenshinData";
 import { useRememberedState } from "@/hooks/useRememberedState";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -24,7 +25,7 @@ import GenshinShell from "@/components/GenshinShell";
 import RequireAuth from "@/components/RequireAuth";
 import Segmented from "@/components/Segmented";
 import SearchInput from "@/components/SearchInput";
-import { ClearFilters, FilterChip, RARITY_CHIP, WEAPON_TYPES } from "@/components/FilterChip";
+import { ClearFilters, FilterChip, NoMatches, RARITY_CHIP, WEAPON_TYPES } from "@/components/FilterChip";
 import CharacterAvatar from "@/components/CharacterAvatar";
 import WeaponIcon from "@/components/WeaponIcon";
 import SignedOutBanner, { EmptyList } from "@/components/SignedOutBanner";
@@ -59,6 +60,21 @@ const SORTERS: Record<SortKey, (a: WeaponRow, b: WeaponRow) => number> = {
     b.weapon.refinement - a.weapon.refinement || b.weapon.level - a.weapon.level,
 };
 
+/** Entries drawn at a time; "Show more" adds this many. */
+const PAGE_SIZE = 60;
+
+/**
+ * "Showing 60 of 162 entries (336 weapons)" when copies are grouped, so the
+ * number matches the account's total, and "Showing 60 of 336 weapons" when not.
+ */
+function countLine(rows: WeaponRow[], shown: number): string {
+  const weapons = rows.reduce((total, row) => total + row.copies, 0);
+  const weaponCount = `${weapons.toLocaleString()} ${weapons === 1 ? "weapon" : "weapons"}`;
+  const of = shown < rows.length ? `${shown.toLocaleString()} of ` : "";
+  if (weapons === rows.length) return `Showing ${of}${weaponCount}`;
+  return `Showing ${of}${rows.length.toLocaleString()} ${rows.length === 1 ? "entry" : "entries"} (${weaponCount})`;
+}
+
 export default function WeaponsPage() {
   return (
     <RequireAuth signedOut={<Weapons signedOut />}>
@@ -78,6 +94,15 @@ function Weapons({ signedOut = false }: { signedOut?: boolean }) {
   const [typeFilter, setTypeFilter] = useRememberedState<string | null>("weapons:type", null);
   const [rarityFilter, setRarityFilter] = useRememberedState<number | null>("weapons:rarity", null);
   const weapons = useMemo(() => genshinData?.weapons ?? [], [genshinData]);
+  const [limit, setLimit] = useState(PAGE_SIZE);
+
+  // A new search, filter or sort starts from the top of the list again.
+  const choices = [search, sort, show, groupCopies, typeFilter, rarityFilter].join("|");
+  const [limitChoices, setLimitChoices] = useState(choices);
+  if (choices !== limitChoices) {
+    setLimitChoices(choices);
+    setLimit(PAGE_SIZE);
+  }
 
   // Only the rarities this account has, highest first.
   const rarities = useMemo(
@@ -141,7 +166,7 @@ function Weapons({ signedOut = false }: { signedOut?: boolean }) {
                 { value: "unequipped", label: "Unequipped" },
               ]}
             />
-            <label className="flex cursor-pointer items-center gap-2 text-sm">
+            <label className="-mx-2 flex min-h-11 cursor-pointer items-center gap-2 rounded-md px-2 text-sm hover:bg-gray-100 dark:hover:bg-slate-800">
               <input
                 type="checkbox"
                 checked={groupCopies}
@@ -226,15 +251,35 @@ function Weapons({ signedOut = false }: { signedOut?: boolean }) {
           {toolbar}
 
           <p className="mb-4 text-sm text-gray-500 dark:text-slate-400">
-            {rows.length === 0
-              ? "No weapons match these filters."
-              : `Showing ${rows.length.toLocaleString()} ${rows.length === 1 ? "entry" : "entries"}`}
+            {rows.length === 0 ? (
+              <NoMatches
+                message="No weapons match these filters."
+                filters={typeFilter !== null || rarityFilter !== null || show !== "all"}
+                search={search.trim() !== ""}
+                onClear={() => {
+                  setTypeFilter(null);
+                  setRarityFilter(null);
+                  setShow("all");
+                  setSearch("");
+                }}
+              />
+            ) : (
+              countLine(rows, Math.min(limit, rows.length))
+            )}
           </p>
 
           {view === "cards" ? (
-            <WeaponCards rows={rows} />
+            <WeaponCards rows={rows.slice(0, limit)} />
           ) : (
-            <WeaponTable rows={rows} sort={sort} onSort={setSort} />
+            <WeaponTable rows={rows.slice(0, limit)} sort={sort} onSort={setSort} />
+          )}
+
+          {limit < rows.length && (
+            <div className="mt-6 flex justify-center">
+              <Button variant="outline" onClick={() => setLimit((n) => n + PAGE_SIZE)}>
+                Show {Math.min(PAGE_SIZE, rows.length - limit)} more
+              </Button>
+            </div>
           )}
         </>
       )}
@@ -251,25 +296,48 @@ function CopiesBadge({ copies }: { copies: number }) {
   );
 }
 
+/** Cards from the `sm` breakpoint up, and slim two-line rows on phones, so about ten weapons fit on a screen. */
 function WeaponCards({ rows }: { rows: WeaponRow[] }) {
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {/* The card titles are h3s; this keeps the heading levels in order for screen readers. */}
-      <h2 className="sr-only">Weapons</h2>
+    <>
+    {/* The card titles are h3s; this keeps the heading levels in order for screen readers. */}
+    <h2 className="sr-only">Weapons</h2>
+    <ul className="divide-y divide-gray-200 dark:divide-slate-700 sm:hidden">
+      {rows.map(({ id, weapon, name, copies }) => {
+        const info = getWeapon(weapon.key);
+        return (
+          <li key={id} className="flex items-center gap-3 py-2">
+            <WeaponIcon weaponKey={weapon.key} size="sm" />
+            <div className="min-w-0 flex-1">
+              <p className="font-semibold leading-tight text-gray-900 dark:text-slate-100">{name}</p>
+              <p className="text-xs text-gray-500 dark:text-slate-400">
+                {info && `${info.type} · ${info.rarity}★ · `}Lv. {weapon.level} · R{weapon.refinement}
+              </p>
+            </div>
+            {weapon.location && (
+              <CharacterAvatar
+                characterKey={weapon.location}
+                label={`Equipped by ${formatCharacterDisplayName(weapon.location)}`}
+              />
+            )}
+            <CopiesBadge copies={copies} />
+          </li>
+        );
+      })}
+    </ul>
+    <div className="hidden grid-cols-1 gap-4 sm:grid md:grid-cols-2 lg:grid-cols-3">
       {rows.map(({ id, weapon, name, copies }) => (
         <Card key={id}>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-3 text-lg">
               <WeaponIcon weaponKey={weapon.key} />
-              <span className="flex min-w-0 flex-1 items-center gap-2">
-                <span className="min-w-0">{name}</span>
-                {weapon.location && (
-                  <CharacterAvatar
-                    characterKey={weapon.location}
-                    label={`Equipped by ${formatCharacterDisplayName(weapon.location)}`}
-                  />
-                )}
-              </span>
+              <span className="min-w-0 flex-1">{name}</span>
+              {weapon.location && (
+                <CharacterAvatar
+                  characterKey={weapon.location}
+                  label={`Equipped by ${formatCharacterDisplayName(weapon.location)}`}
+                />
+              )}
               <CopiesBadge copies={copies} />
             </CardTitle>
           </CardHeader>
@@ -287,6 +355,7 @@ function WeaponCards({ rows }: { rows: WeaponRow[] }) {
         </Card>
       ))}
     </div>
+    </>
   );
 }
 

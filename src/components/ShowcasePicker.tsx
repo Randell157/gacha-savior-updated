@@ -20,6 +20,7 @@ export default function ShowcasePicker({
   characterKeys,
   showcaseKeys,
   onChange,
+  startLabel,
 }: {
   /** 0-based position of this slot */
   slot: number;
@@ -28,6 +29,8 @@ export default function ShowcasePicker({
   characterKeys: string[];
   showcaseKeys: (string | null)[];
   onChange: (characterKey: string | null) => void;
+  /** The button's words when nothing is picked yet and the showcase is one line, such as "Choose characters" */
+  startLabel?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -64,10 +67,11 @@ export default function ShowcasePicker({
         <Button
           type="button"
           variant="outline"
-          aria-label={`${action} character for slot ${slot + 1}`}
-          className="mt-auto h-9 w-full text-xs"
+          aria-label={startLabel ? undefined : `${action} character for slot ${slot + 1}`}
+          data-showcase-start={startLabel ? "" : undefined}
+          className={startLabel ? "w-full sm:w-auto" : "mt-auto h-9 w-full text-xs"}
         >
-          {action} character
+          {startLabel ?? `${action} character`}
         </Button>
       </PopoverTrigger>
       <PopoverContent

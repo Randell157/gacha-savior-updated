@@ -39,6 +39,11 @@ export function isPercentStat(key: string): boolean {
   return key.endsWith("_");
 }
 
+/** True for CRIT Rate and CRIT DMG, the stats players look for first. */
+export function isCritStat(key: string): boolean {
+  return key === "critRate_" || key === "critDMG_";
+}
+
 /**
  * Stat name for display. HP, ATK and DEF exist both flat and as a percentage,
  * so their percentage forms get a "%" ("HP%"); other percentage stats are

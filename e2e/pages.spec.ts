@@ -197,6 +197,16 @@ test.describe("signed in with the sample upload", () => {
     await expect(page.locator('main button[title$="(not owned)"]').first()).toBeFocused();
   });
 
+  test("keyboard users can skip the roster's filters", async () => {
+    await page.goto("/genshin/characters");
+    await page.getByPlaceholder("Search characters").focus();
+    await page.keyboard.press("Tab");
+    const skip = page.getByRole("link", { name: "Skip to characters" });
+    await expect(skip).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(page.locator("#roster").locator("a, button").first()).toBeFocused();
+  });
+
   test("roster filters and sort come back after leaving the page", async () => {
     await page.goto("/genshin/characters");
     const hydro = page.getByRole("group", { name: "Filter by element" }).getByRole("button", { name: "Hydro", exact: true });
@@ -218,6 +228,21 @@ test.describe("signed in with the sample upload", () => {
     await expect(hydro).toHaveAttribute("aria-pressed", "true");
     await page.reload();
     await expect(hydro).toHaveAttribute("aria-pressed", "true");
+  });
+
+  test("a character page steps through what the roster is showing", async () => {
+    await page.goto("/genshin/characters");
+    await page.getByRole("group", { name: "Filter by element" }).getByRole("button", { name: "Hydro", exact: true }).click();
+    await page.locator('main a[href="/genshin/characters/Furina"]').click();
+    const others = page.getByRole("navigation", { name: "Other characters" });
+    await expect(others.getByText("5 of 12")).toBeVisible();
+    await others.getByRole("link", { name: "Next character: Mona" }).click();
+    await expect(page.getByRole("heading", { level: 1, name: "Mona" })).toBeVisible();
+    await expect(others.getByText("6 of 12")).toBeVisible();
+
+    // A character the filter leaves out steps through everyone owned.
+    await page.goto("/genshin/characters/Ganyu");
+    await expect(others.getByText(/ of 91$/)).toBeVisible();
   });
 
   test("a character page shows the profile, weapon, talents and artifacts", async () => {
@@ -285,25 +310,33 @@ test.describe("signed in with the sample upload", () => {
 
   test("the weapons page searches, filters and switches to a table", async () => {
     await page.goto("/genshin/weapons");
-    await expect(page.getByText("Showing 162 entries")).toBeVisible();
+    await expect(page.getByText("Showing 60 of 162 entries (336 weapons)")).toBeVisible();
+    await page.getByRole("button", { name: "Show 60 more" }).click();
+    await expect(page.getByText("Showing 120 of 162 entries (336 weapons)")).toBeVisible();
 
     await page.getByPlaceholder("Search weapons").fill("Amos");
-    await expect(page.getByText("Amos' Bow").first()).toBeVisible();
+    // Phones get slim rows in place of the cards, so the page holds both and shows one.
+    await expect(page.getByText("Amos' Bow").locator("visible=true").first()).toBeVisible();
     // Real icons, not the placeholder.
-    await expect(page.locator('main img[src*="weapon-icons%2Famosbow.webp"]').first()).toBeVisible();
+    await expect(page.locator('main img[src*="weapon-icons%2Famosbow.webp"]').locator("visible=true").first()).toBeVisible();
     await expect(page.getByText("Aquila Favonia")).toHaveCount(0);
-    await page.getByPlaceholder("Search weapons").fill("");
+
+    // An empty list offers the way out beside its message.
+    await page.getByPlaceholder("Search weapons").fill("no such weapon");
+    await expect(page.getByText("No weapons match these filters.")).toBeVisible();
+    await page.getByRole("button", { name: "Clear search" }).click();
+    await expect(page.getByPlaceholder("Search weapons")).toHaveValue("");
 
     const bow = page.getByRole("group", { name: "Filter by weapon type" }).getByRole("button", { name: "Bow" });
     await bow.click();
     await page.getByRole("group", { name: "Filter by rarity" }).getByRole("button", { name: "5★" }).click();
-    await expect(page.getByText("Skyward Harp")).toBeVisible();
+    await expect(page.getByText("Skyward Harp").locator("visible=true").first()).toBeVisible();
     await expect(page.getByText("Aquila Favonia")).toHaveCount(0);
     await page.getByRole("button", { name: "Clear filters (2)" }).click();
-    await expect(page.getByText("Showing 162 entries")).toBeVisible();
+    await expect(page.getByText("Showing 60 of 162 entries (336 weapons)")).toBeVisible();
 
     await page.getByRole("button", { name: "Group copies" }).or(page.getByLabel("Group copies")).click();
-    await expect(page.getByText("Showing 336 entries")).toBeVisible();
+    await expect(page.getByText("Showing 60 of 336 weapons")).toBeVisible();
 
     await page.getByRole("button", { name: "Table" }).click();
     await expect(page.getByRole("table")).toBeVisible();
@@ -322,11 +355,27 @@ test.describe("signed in with the sample upload", () => {
     await expect(show.getByRole("button", { name: "Equipped (378)" })).toHaveAttribute("aria-pressed", "true");
     await expect(page.getByRole("link", { name: "Aino" })).toBeVisible();
     await page.getByPlaceholder("Search by character").fill("Xiao");
-    await expect(page.getByText("Showing 1 of 81 characters")).toBeVisible();
+    await expect(page.getByText("Showing 1 of 91 characters")).toBeVisible();
     await expect(page.getByRole("link", { name: "Aino" })).toHaveCount(0);
     await page.getByPlaceholder("Search by character").fill("");
+
+    // Every owned character has a row, filtered by how many pieces they have on.
+    const pieces = page.getByRole("group", { name: "Filter by how many pieces are equipped" });
+    await pieces.getByRole("button", { name: "No artifacts (10)" }).click();
+    await expect(page.getByText("Showing 10 of 91 characters")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Aloy" })).toBeVisible();
+    await expect(page.getByText("0 of 5 equipped").locator("visible=true").first()).toBeVisible();
+    await pieces.getByRole("button", { name: "Missing pieces (12)" }).click();
+    await expect(page.getByText("Showing 12 of 91 characters")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Chongyun" })).toBeVisible();
+    await pieces.getByRole("button", { name: "Fully equipped (69)" }).click();
+    await expect(page.getByRole("link", { name: "Aino" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Chongyun" })).toHaveCount(0);
+    await page.getByRole("button", { name: "Clear filters (1)" }).click();
+    await expect(page.getByRole("link", { name: "Chongyun" })).toBeVisible();
+
     // Each piece shows its set's icon for its slot.
-    await expect(page.locator('main img[src*="artifact-icons%2Fsilkenmoonsserenade-flower.webp"]').first()).toBeVisible();
+    await expect(page.locator('main img[src*="artifact-icons%2Fsilkenmoonsserenade-flower.webp"]').locator("visible=true").first()).toBeVisible();
 
     await show.getByRole("button", { name: "All (1,717)" }).click();
     await expect(page.getByRole("button", { name: "Show 60 more" })).toBeVisible();
@@ -346,9 +395,22 @@ test.describe("signed in with the sample upload", () => {
     await expect(page.locator("#artifact-main-stat")).toHaveCount(0);
   });
 
+  test("on a phone, Equipped rows fold and open", async () => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto("/genshin/artifacts");
+    const row = page.getByRole("button", { name: /^Aino/ });
+    await expect(row).toHaveAttribute("aria-expanded", "false");
+    await expect(page.getByRole("link", { name: "Open Aino's page" })).toBeHidden();
+    await row.click();
+    await expect(row).toHaveAttribute("aria-expanded", "true");
+    await expect(page.getByRole("link", { name: "Open Aino's page" })).toBeVisible();
+    await expect(page.getByText("CRIT DMG 13.2%").locator("visible=true").first()).toBeVisible();
+    await page.setViewportSize({ width: 1280, height: 720 });
+  });
+
   test("the showcase picker takes a typed name, and Enter picks the first match", async () => {
     await page.goto("/genshin");
-    await page.getByRole("button", { name: "Choose character for slot 1" }).click();
+    await page.getByRole("button", { name: "Choose characters" }).click();
     const search = page.getByRole("textbox", { name: "Search characters" });
     await expect(search).toBeFocused();
     await page.keyboard.type("amb");
@@ -364,7 +426,7 @@ test.describe("signed in with the sample upload", () => {
 
     await page.getByRole("button", { name: "Change character for slot 1" }).click();
     await page.getByRole("button", { name: "Clear slot", exact: true }).click();
-    await expect(page.getByRole("button", { name: "Choose character for slot 1" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Choose characters" })).toBeFocused();
   });
 
   test("the profile shows the account and links back to the hub", async () => {

@@ -13,6 +13,7 @@ import ArtifactSetBonuses from "@/components/ArtifactSetBonuses";
 import ArtifactSlotCard from "@/components/ArtifactSlotCard";
 import { BaseStats, ChooseElementHint, ConstellationPicker, TalentKindLabel, TalentText } from "@/components/CharacterExtras";
 import CharacterGameInfo, { Stars } from "@/components/CharacterGameInfo";
+import CharacterStepper from "@/components/CharacterStepper";
 import NumberButtons from "@/components/NumberButtons";
 import RequireAuth from "@/components/RequireAuth";
 import { cn, formatCharacterDisplayName } from "@/lib/utils";
@@ -80,9 +81,13 @@ function CharacterDetail() {
   }
 
   return (
-    <GenshinShell title={displayName} panel="none">
+    <GenshinShell
+      title={displayName}
+      panel="none"
+      actions={<CharacterStepper data={genshinData} characterKey={characterKey} />}
+    >
       {/* Same width and margins as PageShell's own panel, split into several panels. */}
-      <div className="max-w-7xl mx-auto py-12 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto py-4 sm:py-12 sm:px-6 lg:px-8">
         <div className="space-y-6">
           <ProfileCard character={character} name={displayName} />
           <WeaponPanel weapon={weapon} />

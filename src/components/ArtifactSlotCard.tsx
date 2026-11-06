@@ -1,6 +1,7 @@
 import ArtifactIcon from "@/components/ArtifactIcon";
+import ArtifactSubstats from "@/components/ArtifactSubstats";
 import { artifactSetName } from "@/lib/genshin/artifactSets";
-import { formatSlotName, formatStat, formatStatName } from "@/lib/genshin/stats";
+import { formatSlotName, formatStatName } from "@/lib/genshin/stats";
 import type { GoodArtifact } from "@/lib/genshin/types";
 import { cn } from "@/lib/utils";
 
@@ -52,13 +53,7 @@ export default function ArtifactSlotCard({
           {formatStatName(artifact.mainStatKey)}
         </p>
       )}
-      {artifact.substats.length > 0 && (
-        <ul className="mt-2 space-y-0.5 text-gray-600 dark:text-slate-400">
-          {artifact.substats.map((substat, i) => (
-            <li key={i}>{formatStat(substat.key, substat.value)}</li>
-          ))}
-        </ul>
-      )}
+      <ArtifactSubstats substats={artifact.substats} />
     </div>
   );
 }

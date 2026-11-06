@@ -58,3 +58,40 @@ export function ClearFilters({ count, onClick }: { count: number; onClick: () =>
     </button>
   );
 }
+
+/**
+ * The message for an empty list, with a link that clears whatever is narrowing
+ * it. A remembered filter or search is easy to forget, so the way out sits right
+ * beside the message. Goes inside the page's own text, and shows no link when
+ * nothing can be cleared.
+ */
+export function NoMatches({
+  message,
+  filters,
+  search,
+  onClear,
+}: {
+  message: string;
+  filters: boolean;
+  search: boolean;
+  onClear: () => void;
+}) {
+  const action = filters && search ? "Clear filters and search" : filters ? "Clear filters" : search ? "Clear search" : null;
+  return (
+    <>
+      {message}
+      {action && (
+        <>
+          {" "}
+          <button
+            type="button"
+            onClick={onClear}
+            className="font-medium text-indigo-600 dark:text-indigo-400 hover:underline underline-offset-2"
+          >
+            {action}
+          </button>
+        </>
+      )}
+    </>
+  );
+}

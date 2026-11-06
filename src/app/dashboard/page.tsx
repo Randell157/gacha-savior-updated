@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Plus } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { GAMES } from "@/lib/games";
 import { useGenshinData } from "@/hooks/useGenshinData";
@@ -16,7 +16,7 @@ import {
   getCharacterRarity,
   rarityBackground,
 } from "@/lib/genshinCharacters";
-import { cn, formatCharacterDisplayName } from "@/lib/utils";
+import { cn, formatCharacterDisplayName, formatUploadTime } from "@/lib/utils";
 
 /**
  * The games hub: where a signed-in user lands. Each game with a section gets
@@ -99,7 +99,7 @@ function GenshinCard() {
             <h2 className="text-2xl font-bold text-white">Genshin Impact</h2>
             <p className="text-sm text-indigo-200">
               {lastUploadedAt
-                ? `Last uploaded ${lastUploadedAt.toLocaleString()}`
+                ? `Last uploaded ${formatUploadTime(lastUploadedAt)}`
                 : "No data uploaded yet"}
             </p>
           </div>
@@ -128,12 +128,8 @@ function GenshinCard() {
                       sizes="44px"
                     />
                   ) : (
-                    <div
-                      key={i}
-                      className="flex h-11 w-11 items-center justify-center rounded-lg border border-dashed border-gray-300 dark:border-slate-600 text-gray-400 dark:text-slate-500"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </div>
+                    // Faint and plain: the whole card is one link, so nothing here should look pressable.
+                    <div key={i} className="h-11 w-11 rounded-lg bg-gray-100 dark:bg-slate-800" />
                   )
                 )}
               </div>

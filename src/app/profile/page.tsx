@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import PageShell from "@/components/PageShell";
 import RequireAuth from "@/components/RequireAuth";
 import { DetailRow, DetailRows } from "@/components/DetailRows";
+import { formatUploadTime } from "@/lib/utils";
 
 export default function ProfilePage() {
   return (
@@ -30,7 +31,7 @@ function Profile() {
           {joined && !Number.isNaN(joined.getTime()) ? joined.toLocaleDateString() : "—"}
         </DetailRow>
         <DetailRow label="Last upload">
-          {lastUploadedAt ? lastUploadedAt.toLocaleString() : "Nothing uploaded yet"}
+          {lastUploadedAt ? formatUploadTime(lastUploadedAt) : "Nothing uploaded yet"}
         </DetailRow>
       </DetailRows>
       <div className="px-4 py-5 sm:px-6 border-t border-gray-200 dark:border-slate-700">

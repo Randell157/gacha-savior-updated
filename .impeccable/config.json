@@ -11,6 +11,24 @@
         ],
         "createdAt": "2026-11-05T04:19:41.871Z",
         "reason": "Claude's triage: text-indigo-900 with dark:text-indigo-200 is the documented dark-mode mapping in CLAUDE.md, used across the site"
+      },
+      {
+        "rule": "ai-color-palette",
+        "value": "*",
+        "files": [
+          ".mockups/character-prev-next.html"
+        ],
+        "createdAt": "2026-11-06T01:05:21.011Z",
+        "reason": "Claude's triage: this mockup reproduces the site's own indigo-to-purple page gradient, documented in CLAUDE.md, to show the real page frame"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          ".mockups/character-prev-next.html"
+        ],
+        "createdAt": "2026-11-06T01:12:50.501Z",
+        "reason": "Claude's triage: throwaway mockup whose option was already picked and built; the remaining outline is its change highlight, not site UI"
       }
     ]
   }

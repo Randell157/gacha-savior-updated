@@ -45,7 +45,8 @@ function GenshinTabs({ pathname }: { pathname: string }) {
             href={tab.href}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "whitespace-nowrap border-b-2 pb-3 transition-colors",
+              // Inset, because the scrolling nav would clip a ring drawn outside the tab.
+              "whitespace-nowrap border-b-2 pb-3 transition-colors focus-visible:ring-inset focus-visible:ring-offset-0",
               active
                 ? "border-indigo-600 text-indigo-700 dark:border-indigo-400 dark:text-indigo-300"
                 : "border-transparent text-gray-600 dark:text-slate-400 hover:text-indigo-700 dark:hover:text-indigo-300"

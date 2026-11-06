@@ -84,6 +84,17 @@ export function formatCharacterIconFilename(characterKey: string): string {
   return `${characterKey.replace(/\s+/g, "_")}_Icon.png`
 }
 
+/** An upload's date and time to the minute, such as "Nov 5, 2026, 3:42 PM". */
+export function formatUploadTime(date: Date): string {
+  return date.toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
 /** Compares game versions numerically, so "4.10" sorts after "4.6". */
 export function compareVersions(a: string, b: string): number {
   const [aMajor, aMinor = 0] = a.split(".").map(Number);

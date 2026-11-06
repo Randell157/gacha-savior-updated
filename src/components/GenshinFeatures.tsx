@@ -102,7 +102,7 @@ export default function Features() {
   const { user } = useAuth();
 
   return (
-    <div className="max-w-7xl mx-auto py-12 sm:px-6 lg:px-8">
+    <div className="max-w-7xl mx-auto py-4 sm:py-12 sm:px-6 lg:px-8">
       <div className="bg-white dark:bg-slate-900 shadow overflow-hidden sm:rounded-lg mb-8">
         <div className="px-4 py-5 sm:px-6">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100 mb-4">

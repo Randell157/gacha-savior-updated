@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { getCharacterDetails, getCharacterRoles } from "@/lib/genshin/characterDetails";
+import { activeFilterCount, NO_FILTERS, type CharacterFilterState } from "@/lib/genshin/roster";
 import { ClearFilters, FilterChip, RARITY_CHIP, WEAPON_TYPES } from "@/components/FilterChip";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,42 +30,8 @@ const ELEMENT_CHIP: Record<string, string> = {
   Cryo: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/40 dark:text-cyan-200 ring-cyan-500",
 };
 
-/** The chosen values in each group; an empty group means any. */
-export interface CharacterFilterState {
-  element: string[];
-  weapon: string[];
-  rarity: string[];
-  role: string[];
-  region: string[];
-}
-
-export const NO_FILTERS: CharacterFilterState = { element: [], weapon: [], rarity: [], role: [], region: [] };
-
 /** Groups where choosing a chip replaces the current one, since a character only has one of each. */
 const SINGLE_CHOICE: (keyof CharacterFilterState)[] = ["element", "weapon", "rarity"];
-
-export function activeFilterCount(filters: CharacterFilterState): number {
-  return Object.values(filters).reduce((n, values) => n + values.length, 0);
-}
-
-/**
- * Whether a roster character matches: any chosen value within a group
- * (Support or Healer), and every group with a choice (Pyro and Sword).
- */
-export function matchesCharacterFilters(
-  character: { key: string; rarity: number },
-  filters: CharacterFilterState
-): boolean {
-  const details = getCharacterDetails(character.key);
-  const checks: [string[], string[]][] = [
-    [filters.element, details?.element ? [details.element] : []],
-    [filters.weapon, details?.weaponType ? [details.weaponType] : []],
-    [filters.rarity, [String(character.rarity)]],
-    [filters.role, getCharacterRoles(character.key)],
-    [filters.region, [details?.region ?? "Other"]],
-  ];
-  return checks.every(([chosen, values]) => chosen.length === 0 || chosen.some((v) => values.includes(v)));
-}
 
 type Group = keyof CharacterFilterState;
 

@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import Link from "next/link";
+import { ChevronDown } from "lucide-react";
 import { useGenshinData } from "@/hooks/useGenshinData";
 import { useRememberedState } from "@/hooks/useRememberedState";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,14 +11,15 @@ import GenshinShell from "@/components/GenshinShell";
 import RequireAuth from "@/components/RequireAuth";
 import Segmented from "@/components/Segmented";
 import SearchInput from "@/components/SearchInput";
-import { ClearFilters, FilterChip } from "@/components/FilterChip";
+import { ClearFilters, FilterChip, NoMatches } from "@/components/FilterChip";
 import CharacterAvatar from "@/components/CharacterAvatar";
 import ArtifactIcon from "@/components/ArtifactIcon";
 import ArtifactSetBonuses from "@/components/ArtifactSetBonuses";
 import ArtifactSlotCard from "@/components/ArtifactSlotCard";
+import ArtifactSubstats from "@/components/ArtifactSubstats";
 import SignedOutBanner, { EmptyList } from "@/components/SignedOutBanner";
-import { formatCharacterDisplayName } from "@/lib/utils";
-import { formatSlotName, formatStat, formatStatName } from "@/lib/genshin/stats";
+import { cn, formatCharacterDisplayName } from "@/lib/utils";
+import { formatSlotName, formatStatName } from "@/lib/genshin/stats";
 import type { GoodArtifact } from "@/lib/genshin/types";
 import {
   ALL_ARTIFACT_SETS,
@@ -43,6 +45,20 @@ const ANY_MAIN_STAT = "__any__";
 const SINGLE_MAIN_STAT = ["flower", "plume"];
 
 type ArtifactSort = "upload" | "level-desc" | "level-asc" | "set";
+
+/** How many of the five pieces a character has on: all of them, some of them, or none. */
+type Completeness = "full" | "missing" | "none";
+
+const COMPLETENESS: { value: Completeness; label: string }[] = [
+  { value: "full", label: "Fully equipped" },
+  { value: "missing", label: "Missing pieces" },
+  { value: "none", label: "No artifacts" },
+];
+
+function completenessOf(pieces: GoodArtifact[]): Completeness {
+  if (pieces.length === 0) return "none";
+  return pieces.length >= SLOT_ORDER.length ? "full" : "missing";
+}
 
 /** Cards drawn at a time in the All and Unequipped views; "Show more" adds this many. */
 const PAGE_SIZE = 60;
@@ -71,13 +87,16 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
   const [mainStatFilter, setMainStatFilter] = useRememberedState("artifacts:mainStat", ANY_MAIN_STAT);
   const [sort, setSort] = useRememberedState<ArtifactSort>("artifacts:sort", "upload");
   const [characterSearch, setCharacterSearch] = useRememberedState("artifacts:search", "");
+  const [completeness, setCompleteness] = useRememberedState<Completeness | null>("artifacts:completeness", null);
   const artifacts = useMemo(() => genshinData?.artifacts ?? [], [genshinData]);
 
   const equippedCount = useMemo(() => artifacts.filter((a) => a.location).length, [artifacts]);
 
   // Each character's equipped pieces, characters A–Z, pieces in slot order.
+  // Every owned character gets a row, including those with nothing equipped.
   const groups = useMemo(() => {
     const byCharacter = new Map<string, GoodArtifact[]>();
+    for (const character of genshinData?.characters ?? []) byCharacter.set(character.key, []);
     for (const artifact of artifacts) {
       if (!artifact.location) continue;
       const list = byCharacter.get(artifact.location) ?? [];
@@ -87,12 +106,22 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
     return [...byCharacter.entries()]
       .map(([key, pieces]) => ({ key, name: formatCharacterDisplayName(key), pieces: pieces.sort(bySlot) }))
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [artifacts]);
+  }, [artifacts, genshinData]);
+
+  const completenessCounts = useMemo(() => {
+    const counts: Record<Completeness, number> = { full: 0, missing: 0, none: 0 };
+    for (const group of groups) counts[completenessOf(group.pieces)] += 1;
+    return counts;
+  }, [groups]);
 
   const visibleGroups = useMemo(() => {
     const query = characterSearch.trim().toLowerCase();
-    return query ? groups.filter((group) => group.name.toLowerCase().includes(query)) : groups;
-  }, [groups, characterSearch]);
+    return groups.filter(
+      (group) =>
+        (!completeness || completenessOf(group.pieces) === completeness) &&
+        (!query || group.name.toLowerCase().includes(query))
+    );
+  }, [groups, characterSearch, completeness]);
 
   // The All or Unequipped list before the set filter, which the set counts describe.
   const viewList = useMemo(
@@ -268,6 +297,22 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
             </div>
           )}
         </div>
+        {show === "equipped" && (
+          <div className="flex flex-wrap items-center gap-3">
+            <div role="group" aria-label="Filter by how many pieces are equipped" className="flex flex-wrap gap-2">
+              {COMPLETENESS.map(({ value, label }) => (
+                <FilterChip
+                  key={value}
+                  pressed={completeness === value}
+                  onClick={() => setCompleteness(completeness === value ? null : value)}
+                >
+                  {label} ({completenessCounts[value].toLocaleString()})
+                </FilterChip>
+              ))}
+            </div>
+            <ClearFilters count={completeness ? 1 : 0} onClick={() => setCompleteness(null)} />
+          </div>
+        )}
         {show !== "equipped" && (
           <>
           <div role="group" aria-label="Filter by slot" className="flex flex-wrap gap-2">
@@ -348,18 +393,28 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
           <p className="text-gray-600 dark:text-slate-400">No artifacts are equipped.</p>
         ) : (
           <div className="space-y-3">
-            {/* Column headings, shown where the five slots sit side by side. */}
-            <div className="hidden lg:grid lg:grid-cols-[14rem_repeat(5,minmax(0,1fr))] gap-3 px-3 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-slate-400">
+            {/* Column headings, shown where the five slots sit side by side, and pinned while the rows scroll. */}
+            <div className="sticky top-0 z-10 hidden gap-3 border-b border-gray-200 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 lg:grid lg:grid-cols-[14rem_repeat(5,minmax(0,1fr))]">
               <span>Character</span>
               {SLOT_ORDER.map((slot) => (
                 <span key={slot}>{formatSlotName(slot)}</span>
               ))}
             </div>
-            {characterSearch.trim() && (
+            {(characterSearch.trim() || completeness) && (
               <p className="text-sm text-gray-500 dark:text-slate-400" aria-live="polite">
-                {visibleGroups.length === 0
-                  ? "No equipped characters match that name."
-                  : `Showing ${visibleGroups.length} of ${groups.length} characters`}
+                {visibleGroups.length === 0 ? (
+                  <NoMatches
+                    message="No characters match."
+                    filters={completeness !== null}
+                    search={characterSearch.trim() !== ""}
+                    onClear={() => {
+                      setCompleteness(null);
+                      setCharacterSearch("");
+                    }}
+                  />
+                ) : (
+                  `Showing ${visibleGroups.length} of ${groups.length} characters`
+                )}
               </p>
             )}
             {visibleGroups.map((group) => (
@@ -370,9 +425,16 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
       ) : (
         <>
           <p className="mb-4 text-sm text-gray-500 dark:text-slate-400" aria-live="polite">
-            {flatList.length === 0
-              ? "No artifacts match these filters."
-              : `Showing ${Math.min(limit, flatList.length).toLocaleString()} of ${flatList.length.toLocaleString()}`}
+            {flatList.length === 0 ? (
+              <NoMatches
+                message="No artifacts match these filters."
+                filters={filterCount > 0}
+                search={false}
+                onClear={clearFilters}
+              />
+            ) : (
+              `Showing ${Math.min(limit, flatList.length).toLocaleString()} of ${flatList.length.toLocaleString()}`
+            )}
           </p>
           <ArtifactGrid artifacts={flatList.slice(0, limit)} />
           {limit < flatList.length && (
@@ -390,8 +452,10 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
 
 /**
  * One character's equipped set: portrait and name, then a fixed column per
- * slot so the same slot lines up from row to row. On narrower screens the
- * slots scroll sideways inside the row.
+ * slot so the same slot lines up from row to row. Below `lg` the row folds to
+ * the name, the count and five small icons, because open rows made the page
+ * about 75,000 px long on a phone; pressing it opens the bonuses and the pieces
+ * in a wrapping grid, with each card naming its slot.
  */
 function EquippedRow({
   characterKey,
@@ -402,45 +466,86 @@ function EquippedRow({
   name: string;
   pieces: GoodArtifact[];
 }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const detailsId = useId();
+  const href = `/genshin/characters/${encodeURIComponent(characterKey)}`;
+  const count = (
+    <span className="text-xs text-gray-500 dark:text-slate-400">{pieces.length} of 5 equipped</span>
+  );
   return (
     <section className="rounded-xl border border-gray-200 dark:border-slate-700 p-3 lg:grid lg:grid-cols-[14rem_repeat(5,minmax(0,1fr))] lg:items-stretch gap-3">
-      <div className="mb-3 lg:mb-0">
-        <div className="flex items-center gap-3">
+      {/* The folded row, below lg. */}
+      <button
+        type="button"
+        aria-expanded={isOpen}
+        aria-controls={detailsId}
+        onClick={() => setIsOpen((open) => !open)}
+        className="flex min-h-11 w-full items-center gap-3 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 lg:hidden"
+      >
+        <CharacterAvatar characterKey={characterKey} size={48} />
+        <span className="min-w-0 flex-1">
+          <span className="block font-semibold leading-tight text-indigo-900 dark:text-indigo-200">{name}</span>
+          {count}
+        </span>
+        <ChevronDown
+          aria-hidden="true"
+          className={cn("h-4 w-4 shrink-0 text-gray-500 dark:text-slate-400", isOpen && "rotate-180")}
+        />
+      </button>
+      {!isOpen && (
+        <div aria-hidden="true" className="mt-2 flex gap-1 lg:hidden">
+          {SLOT_ORDER.map((slot) => {
+            const piece = pieces.find((p) => p.slotKey === slot);
+            return piece ? (
+              <ArtifactIcon key={slot} artifact={piece} size="xs" />
+            ) : (
+              <span key={slot} className="h-7 w-7 rounded border border-dashed border-gray-300 dark:border-slate-600" />
+            );
+          })}
+        </div>
+      )}
+      <div id={detailsId} className={cn(!isOpen && "hidden", "lg:contents")}>
+      <div className="mb-3 mt-2 lg:my-0">
+        <div className="hidden items-center gap-3 lg:flex">
           <CharacterAvatar characterKey={characterKey} size={48} />
           <div className="min-w-0">
             <Link
-              href={`/genshin/characters/${encodeURIComponent(characterKey)}`}
+              href={href}
               className="block font-semibold leading-tight text-indigo-900 dark:text-indigo-200 hover:underline underline-offset-2"
             >
               {name}
             </Link>
-            <span className="text-xs text-gray-500 dark:text-slate-400">
-              {pieces.length} of 5 equipped
-            </span>
+            {count}
           </div>
         </div>
+        <Link
+          href={href}
+          className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline underline-offset-2 lg:hidden"
+        >
+          Open {name}&apos;s page
+        </Link>
         <ArtifactSetBonuses pieces={pieces} className="mt-2 text-xs" />
       </div>
-      {/* Scrolls sideways below lg, so it takes focus for keyboard scrolling. */}
+      {/* Below lg the pieces wrap, so nothing scrolls sideways; from lg each is a column of the row. */}
       <div
-        tabIndex={0}
         role="group"
         aria-label={`${name}'s artifacts`}
-        className="flex gap-3 overflow-x-auto pb-1 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 lg:contents"
+        className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:contents"
       >
         {SLOT_ORDER.map((slot) => {
           const piece = pieces.find((p) => p.slotKey === slot);
           return piece ? (
-            <ArtifactSlotCard key={slot} artifact={piece} slotNameNarrowOnly className="w-44 shrink-0 lg:w-auto" />
+            <ArtifactSlotCard key={slot} artifact={piece} slotNameNarrowOnly />
           ) : (
             <div
               key={slot}
-              className="flex w-44 shrink-0 items-center justify-center rounded-lg border border-dashed border-gray-300 dark:border-slate-600 p-3 text-center text-xs text-gray-500 dark:text-slate-400 lg:w-auto"
+              className="flex items-center justify-center rounded-lg border border-dashed border-gray-300 dark:border-slate-600 p-3 text-center text-xs text-gray-500 dark:text-slate-400"
             >
               No {formatSlotName(slot).split(" ")[0].toLowerCase()}
             </div>
           );
         })}
+      </div>
       </div>
     </section>
   );
@@ -483,13 +588,7 @@ function ArtifactCard({ artifact }: { artifact: GoodArtifact }) {
             {formatStatName(artifact.mainStatKey)}
           </p>
         )}
-        {artifact.substats.length > 0 && (
-          <ul className="mt-2 space-y-0.5 text-gray-600 dark:text-slate-400">
-            {artifact.substats.map((substat, subIndex) => (
-              <li key={subIndex}>{formatStat(substat.key, substat.value)}</li>
-            ))}
-          </ul>
-        )}
+        <ArtifactSubstats substats={artifact.substats} />
       </CardContent>
     </Card>
   );

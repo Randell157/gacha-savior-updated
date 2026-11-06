@@ -51,6 +51,11 @@ export function useRememberedState<T>(
   return [value, setValue];
 }
 
+/** One saved choice for this browser tab, for a page that only reads another page's choices. */
+export function readRememberedTabState<T>(key: string, initial: T): T {
+  return read(key, initial, "tab");
+}
+
 /** Forgets this tab's choices, so the next person to log in here starts clean. */
 export function clearRememberedTabState() {
   try {

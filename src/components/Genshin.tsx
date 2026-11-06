@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Card,
   CardContent,
@@ -33,8 +33,9 @@ interface GenshinProps {
   onShowcaseChange: (showcase: Showcase) => void;
   /**
    * For the sample on the home page and /features: showcase portraits aren't
-   * links, since the sample characters have no pages behind them, and on phones
-   * only the first two slots show until "Show all" is pressed.
+   * links, since the sample characters have no pages behind them, all five slots
+   * show so visitors see the idea, and on phones only the first two show until
+   * "Show all" is pressed.
    */
   preview?: boolean;
   /** Show the "Genshin Impact" heading; off on /genshin, where it's already the page title */
@@ -48,8 +49,16 @@ export default function Genshin({
   preview = false,
   heading = true,
 }: GenshinProps) {
-  // On phones, slots stack, so the ones that wouldn't say anything wait for a press.
+  // On phones, the sample's slots stack, so most wait for a press.
   const [showAllSlots, setShowAllSlots] = useState(false);
+  const showcaseSection = useRef<HTMLElement>(null);
+  // The picker's button goes away when the showcase switches between one line and its slots.
+  const focusAfterSwitch = useRef<string | null>(null);
+  useEffect(() => {
+    if (!focusAfterSwitch.current) return;
+    showcaseSection.current?.querySelector<HTMLElement>(focusAfterSwitch.current)?.focus();
+    focusAfterSwitch.current = null;
+  });
   // Slots holding a character that isn't in the latest upload show as empty.
   const showcaseKeys = showcase.map((key) =>
     key && data.characters.some((c) => c.key === key) ? key : null
@@ -81,6 +90,13 @@ export default function Genshin({
   const setShowcaseSlot = (index: number, characterKey: string | null) => {
     const next = [...showcaseKeys];
     next[index] = characterKey;
+    const wasEmpty = showcaseKeys.every((key) => !key);
+    const isEmpty = next.every((key) => !key);
+    if (wasEmpty !== isEmpty) {
+      focusAfterSwitch.current = isEmpty
+        ? "[data-showcase-start]"
+        : `[aria-label="Change character for slot ${index + 1}"]`;
+    }
     onShowcaseChange(next);
   };
 
@@ -96,10 +112,11 @@ export default function Genshin({
   const topMaterials = Object.entries(data.materials)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 5);
-  const emptySlots = showcaseSlots.filter((slot) => !slot).length;
+  const firstEmptySlot = showcaseSlots.findIndex((slot) => !slot);
+  const nothingPicked = !preview && showcaseSlots.every((slot) => !slot);
 
   return (
-    <section>
+    <section ref={showcaseSection}>
       {/* Kept for screen readers when hidden, so the card titles (h3) don't skip a level. */}
       <h2 className={heading ? "text-lg font-semibold text-indigo-900 dark:text-indigo-200 mb-4" : "sr-only"}>
         Genshin Impact
@@ -123,6 +140,24 @@ export default function Genshin({
         ))}
       </div>
 
+      {nothingPicked ? (
+        <Card>
+          <CardHeader className="flex-row flex-wrap items-center justify-between gap-3 space-y-0">
+            <div>
+              <CardTitle className="text-lg">Showcase</CardTitle>
+              <CardDescription className="mt-1.5">Pick up to five characters to feature here.</CardDescription>
+            </div>
+            <ShowcasePicker
+              slot={0}
+              value={null}
+              characterKeys={characterKeys}
+              showcaseKeys={showcaseKeys}
+              onChange={(key) => setShowcaseSlot(0, key)}
+              startLabel="Choose characters"
+            />
+          </CardHeader>
+        </Card>
+      ) : (
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Showcase</CardTitle>
@@ -132,6 +167,8 @@ export default function Genshin({
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
             {Array.from({ length: SHOWCASE_SIZE }, (_, i) => {
               const char = showcaseSlots[i];
+              // The real showcase shows your picks and one place to add another.
+              if (!preview && !char && i !== firstEmptySlot) return null;
               const displayName = char
                 ? formatCharacterDisplayName(char.key)
                 : null;
@@ -168,7 +205,7 @@ export default function Genshin({
                   key={i}
                   className={cn(
                     "relative flex flex-col rounded-xl border p-3 min-h-[280px]",
-                    !showAllSlots && (preview ? i >= 2 : !char) && "hidden sm:flex",
+                    preview && !showAllSlots && i >= 2 && "hidden sm:flex",
                     char
                       ? "border-indigo-200 dark:border-indigo-800 bg-indigo-50/40 dark:bg-indigo-900/20"
                       : "border-dashed border-gray-300 dark:border-slate-600 bg-gray-50/70 dark:bg-slate-800/40"
@@ -247,20 +284,19 @@ export default function Genshin({
               );
             })}
           </div>
-          {!showAllSlots && (preview || emptySlots > 0) && (
+          {preview && !showAllSlots && (
             <Button
               type="button"
               variant="outline"
               className="mt-3 w-full sm:hidden"
               onClick={() => setShowAllSlots(true)}
             >
-              {preview
-                ? `Show all ${SHOWCASE_SIZE} slots`
-                : `${emptySlots} empty ${emptySlots === 1 ? "slot" : "slots"}: add a character`}
+              Show all {SHOWCASE_SIZE} slots
             </Button>
           )}
         </CardContent>
       </Card>
+      )}
 
       <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
         <Card>

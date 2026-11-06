@@ -52,7 +52,7 @@ body {
 
     --input: 214.3 31.8% 91.4%;
 
-    --ring: 222.2 84% 4.9%;
+    --ring: 238.7 83.5% 66.7%;
 
     --chart-1: 12 76% 61%;
 
@@ -104,7 +104,7 @@ body {
 
     --input: 217.2 32.6% 17.5%;
 
-    --ring: 212.7 26.8% 83.9%;
+    --ring: 238.7 83.5% 66.7%;
 
     --chart-1: 220 70% 50%;
 
@@ -124,5 +124,9 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+  }
+  /* The keyboard focus ring, for links that don't set their own: the same indigo as every control. */
+  a:focus-visible {
+    @apply rounded-sm outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 }

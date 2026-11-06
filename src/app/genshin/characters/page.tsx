@@ -8,11 +8,8 @@ import { useRememberedState } from "@/hooks/useRememberedState";
 import { useAuth } from "@/contexts/AuthContext";
 import SignedOutBanner from "@/components/SignedOutBanner";
 import CharacterQuickView from "@/components/CharacterQuickView";
-import CharacterFilters, {
-  activeFilterCount,
-  matchesCharacterFilters,
-  NO_FILTERS,
-} from "@/components/CharacterFilters";
+import CharacterFilters from "@/components/CharacterFilters";
+import { NoMatches } from "@/components/FilterChip";
 import GenshinShell from "@/components/GenshinShell";
 import PageSkeleton from "@/components/PageSkeleton";
 import SearchInput from "@/components/SearchInput";
@@ -24,22 +21,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn, compareVersions, formatCharacterDisplayName } from "@/lib/utils";
-import { getCharacterDetails } from "@/lib/genshin/characterDetails";
+import { cn, formatCharacterDisplayName } from "@/lib/utils";
+import {
+  activeFilterCount,
+  buildRoster,
+  DEFAULT_ROSTER_CHOICES,
+  hasObtainedOrder as uploadHasObtainedOrder,
+  obtainedPositions,
+  releaseVersion,
+  ROSTER_MEMORY_KEYS,
+  usableSortOrder,
+  type OwnedFilter,
+  type SortField,
+} from "@/lib/genshin/roster";
 import {
   GENSHIN_CHARACTERS,
   normalizeCharacterKey,
   rarityBackground,
 } from "@/lib/genshinCharacters";
 import type { GoodCharacter } from "@/lib/genshin/types";
-
-type BuildField = "level" | "constellation" | "auto" | "skill" | "burst";
-type SortField = "name" | "release" | "obtained" | BuildField;
-
-function sortValue(character: GoodCharacter, field: BuildField): number {
-  if (field === "level" || field === "constellation") return character[field];
-  return character.talent?.[field] ?? -1;
-}
 
 /**
  * The two lines under an owned character's name: level and constellation, then
@@ -88,96 +88,31 @@ function SortedValue({ text, spoken }: { text: string; spoken: string }) {
   );
 }
 
-function releaseVersion(key: string): string {
-  return getCharacterDetails(key)?.version ?? "0";
-}
-
 export default function CharactersPage() {
   const { data: genshinData, loading } = useGenshinData();
   const { user } = useAuth();
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
-  const [rememberedSort, setSortOrder] = useRememberedState("roster:sort", "name-asc");
-  const [ownedFilter, setOwnedFilter] = useRememberedState<"all" | "owned" | "unowned">("roster:show", "all");
-  const [search, setSearch] = useRememberedState("roster:search", "");
-  const [filters, setFilters] = useRememberedState("roster:filters", NO_FILTERS);
+  const [rememberedSort, setSortOrder] = useRememberedState(ROSTER_MEMORY_KEYS.sortOrder, DEFAULT_ROSTER_CHOICES.sortOrder);
+  const [ownedFilter, setOwnedFilter] = useRememberedState<OwnedFilter>(
+    ROSTER_MEMORY_KEYS.ownedFilter,
+    DEFAULT_ROSTER_CHOICES.ownedFilter
+  );
+  const [search, setSearch] = useRememberedState(ROSTER_MEMORY_KEYS.search, DEFAULT_ROSTER_CHOICES.search);
+  const [filters, setFilters] = useRememberedState(ROSTER_MEMORY_KEYS.filters, DEFAULT_ROSTER_CHOICES.filters);
   const [quickView, setQuickView] = useState<string | null>(null);
   // The tile that opened the quick view, which gets focus back when it closes.
   const quickViewTile = useRef<HTMLElement | null>(null);
+  const rosterGrid = useRef<HTMLDivElement>(null);
 
-  const ownedByNormalizedKey = useMemo(() => {
-    const map = new Map<string, GoodCharacter>();
-    for (const char of genshinData?.characters ?? []) {
-      const normalized = normalizeCharacterKey(char.key);
-      map.set(normalized, char);
-      if (normalized.startsWith("traveler")) {
-        map.set("traveler", char);
-      }
-    }
-    return map;
-  }, [genshinData]);
-
-  // Irminsul lists characters in the order the account got them, Traveler first.
-  // Inventory Kamera uses the in-game list's order, which says nothing about that.
-  const hasObtainedOrder = genshinData?.source === "Irminsul";
-  // A remembered Obtained sort can outlive the upload that allowed it.
-  const sortOrder = rememberedSort.startsWith("obtained") && !hasObtainedOrder ? "name-asc" : rememberedSort;
-  const obtainedPosition = useMemo(() => {
-    const map = new Map<string, number>();
-    genshinData?.characters.forEach((char, index) => {
-      const normalized = normalizeCharacterKey(char.key);
-      map.set(normalized.startsWith("traveler") ? "traveler" : normalized, index + 1);
-    });
-    return map;
-  }, [genshinData]);
+  const hasObtainedOrder = uploadHasObtainedOrder(genshinData);
+  const sortOrder = usableSortOrder(rememberedSort, genshinData);
+  const obtainedPosition = useMemo(() => obtainedPositions(genshinData), [genshinData]);
   const positionOf = (key: string) => obtainedPosition.get(normalizeCharacterKey(key));
 
-  const roster = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    const list = GENSHIN_CHARACTERS.map((entry) => {
-      const owned = ownedByNormalizedKey.get(normalizeCharacterKey(entry.key));
-      return {
-        ...entry,
-        owned: owned ?? null,
-        ownedKey: owned?.key ?? entry.key,
-      };
-    }).filter((character) => {
-      if (ownedFilter === "owned" && !character.owned) return false;
-      if (ownedFilter === "unowned" && character.owned) return false;
-      if (query && !formatCharacterDisplayName(character.key).toLowerCase().includes(query)) return false;
-      return matchesCharacterFilters(character, filters);
-    });
-
-    const byName = (a: { key: string }, b: { key: string }) =>
-      formatCharacterDisplayName(a.key).localeCompare(formatCharacterDisplayName(b.key));
-    const [field, direction] = sortOrder.split("-") as [SortField, "asc" | "desc"];
-    if (field === "name") {
-      return list.sort((a, b) => (direction === "asc" ? byName(a, b) : byName(b, a)));
-    }
-    if (field === "release") {
-      // A fact about the game, so owned and unowned characters mix.
-      return list.sort((a, b) => {
-        const difference = compareVersions(releaseVersion(a.key), releaseVersion(b.key));
-        return (direction === "asc" ? difference : -difference) || byName(a, b);
-      });
-    }
-    if (field === "obtained") {
-      return list.sort((a, b) => {
-        const first = obtainedPosition.get(normalizeCharacterKey(a.key));
-        const second = obtainedPosition.get(normalizeCharacterKey(b.key));
-        if (first === undefined || second === undefined) {
-          return Number(first === undefined) - Number(second === undefined) || byName(a, b);
-        }
-        return direction === "asc" ? first - second : second - first;
-      });
-    }
-    // Owned characters come first either way, so low-to-high starts on your
-    // least-built character rather than on everyone you don't own.
-    return list.sort((a, b) => {
-      if (!a.owned || !b.owned) return Number(!a.owned) - Number(!b.owned) || byName(a, b);
-      const difference = sortValue(a.owned, field) - sortValue(b.owned, field);
-      return (direction === "asc" ? difference : -difference) || byName(a, b);
-    });
-  }, [ownedByNormalizedKey, obtainedPosition, sortOrder, ownedFilter, filters, search]);
+  const roster = useMemo(
+    () => buildRoster(genshinData, { sortOrder, ownedFilter, search, filters }),
+    [genshinData, sortOrder, ownedFilter, search, filters]
+  );
 
   const sortField = sortOrder.split("-")[0];
 
@@ -195,6 +130,19 @@ export default function CharactersPage() {
       )}
       <div className="mb-3 flex flex-wrap items-center gap-3">
         <SearchInput value={search} onChange={setSearch} label="Search characters" />
+        {/* For keyboard users only: without it, the first character is 35 Tab stops down the page. */}
+        {roster.length > 0 && (
+          <a
+            href="#roster"
+            onClick={(event) => {
+              event.preventDefault();
+              rosterGrid.current?.querySelector<HTMLElement>("a, button")?.focus();
+            }}
+            className="sr-only rounded-md bg-indigo-600 text-sm font-medium text-white focus:not-sr-only focus:px-3 focus:py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
+          >
+            Skip to characters
+          </a>
+        )}
         <div className="flex items-center gap-2">
           <label htmlFor="sort-order" className="text-sm font-medium">
             Sort by:
@@ -257,10 +205,19 @@ export default function CharactersPage() {
       </p>
       {roster.length === 0 ? (
         <p className="text-sm text-gray-500 dark:text-slate-400 mb-6">
-          No characters match these filters.
+          <NoMatches
+            message="No characters match these filters."
+            filters={activeFilterCount(filters) > 0 || ownedFilter !== "all"}
+            search={search.trim() !== ""}
+            onClear={() => {
+              setFilters(DEFAULT_ROSTER_CHOICES.filters);
+              setOwnedFilter(DEFAULT_ROSTER_CHOICES.ownedFilter);
+              setSearch(DEFAULT_ROSTER_CHOICES.search);
+            }}
+          />
         </p>
       ) : (
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-4 justify-items-center">
+      <div ref={rosterGrid} id="roster" className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-4 justify-items-center">
         {roster.map((character) => {
           const displayName = formatCharacterDisplayName(character.key);
           const portrait = (
