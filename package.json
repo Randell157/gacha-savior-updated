@@ -14,6 +14,7 @@
     "data:genshin": "node scripts/build-game-data.mjs",
     "icons:weapons": "node scripts/fetch-weapon-icons.mjs",
     "icons:artifacts": "node scripts/fetch-artifact-icons.mjs",
+    "data:test-export": "node scripts/build-test-export.mjs",
     "test:e2e": "playwright test"
   },
   "dependencies": {
