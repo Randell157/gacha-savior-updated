@@ -210,6 +210,28 @@ writeFileSync(
 );
 console.log(`Wrote extras for ${Object.keys(characterExtras).length} characters.${noExtras.length ? ` No stats for: ${noExtras.join(", ")}` : ""}`);
 
+// Material names. Exports drop punctuation, and spacing out a key can't bring it
+// back, so this keeps every name with some. Anything else spaces out correctly.
+const MATERIAL_NAME_OVERRIDES = {
+  // Not in genshin-db.
+  childeandteucersmorapouch: "Childe and Teucer's Mora Pouch",
+};
+const materialNames = {};
+for (const lookup of [db.materials, db.foods]) {
+  for (const { name } of lookup("names", { matchCategories: true, verboseCategories: true })) {
+    if (!/[^A-Za-z0-9 ]/.test(name)) continue;
+    materialNames[normalize(name)] = name;
+    // Exports either drop an accent's letter or keep it plain ("Crepes", "Consomm").
+    materialNames[normalize(name.normalize("NFD"))] = name;
+  }
+}
+Object.assign(materialNames, MATERIAL_NAME_OVERRIDES);
+writeFileSync(
+  "src/data/genshin/materialNames.json",
+  JSON.stringify({ source: `genshin-db ${version}`, names: materialNames }, null, 2) + "\n"
+);
+console.log(`Wrote ${Object.keys(materialNames).length} material names.`);
+
 // Report sets and weapons in the sample exports that the data doesn't cover.
 const SAMPLE_EXPORTS = [
   "public/sample-data/inventory-kamera/genshin_export_2026-02-11_12-16.json",

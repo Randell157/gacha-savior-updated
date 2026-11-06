@@ -123,6 +123,16 @@ export async function saveGenshin(
   return { data, showcase, travelerElement, uploadedAt: new Date(), artifactChunkCount: chunks.length };
 }
 
+/** Deletes the saved upload, with its showcase and Traveler element. */
+export async function deleteGenshin(uid: string, chunkCount: number) {
+  const batch = writeBatch(db);
+  batch.delete(gameRef(uid));
+  for (let i = 0; i < chunkCount; i++) {
+    batch.delete(chunkRef(uid, i));
+  }
+  await batch.commit();
+}
+
 export async function saveShowcase(uid: string, showcase: Showcase) {
   await updateDoc(gameRef(uid), { showcase });
 }

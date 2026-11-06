@@ -11,17 +11,30 @@ service cloud.firestore {
 
     // Profile ({ username, email, createdAt }) and everything stored under
     // it, such as users/{uid}/games/genshin and its artifact chunks.
-    match /users/{userId} {
-      allow read, write: if isOwner(userId);
+    // avatarImage, the uploaded picture, is a small JPEG data URL; it lives here
+    // because Cloud Storage needs a paid plan. The browser crops it to 256 px.
+    function validPicture(data) {
+      return !('avatarImage' in data)
+             || data.avatarImage == null
+             || (data.avatarImage is string
+                 && data.avatarImage.size() <= 200000
+                 && data.avatarImage.matches('^data:image/jpeg;base64,[A-Za-z0-9+/=]+$'));
+    }
 
-      match /{document=**} {
+    match /users/{userId} {
+      allow read, delete: if isOwner(userId);
+      allow create, update: if isOwner(userId) && validPicture(request.resource.data);
+
+      // {collection} first: on its own, {document=**} also matches users/{userId}
+      // itself, which would let any profile write skip validPicture.
+      match /{collection}/{document=**} {
         allow read, write: if isOwner(userId);
       }
     }
 
-    // usernames/{lowercased name} -> { uid }. Claimed once at sign-up, never
-    // changed. Signed-out login lookups go through /api/auth/resolve-username,
-    // which uses the Admin SDK and isn't bound by these rules.
+    // usernames/{lowercased name} -> { uid }. Claimed at sign-up. Signed-out login
+    // lookups, changing a username and deleting an account go through API routes
+    // that use the Admin SDK and aren't bound by these rules.
     match /usernames/{username} {
       allow read: if request.auth != null;
       allow create: if request.auth != null

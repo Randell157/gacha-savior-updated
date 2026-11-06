@@ -112,6 +112,7 @@ export default function CreateAccountPage() {
         <h1 className="text-2xl font-bold text-indigo-900 dark:text-indigo-200 text-center mb-6">
           Create account
         </h1>
+        {/* The fields have no `name`, so a submit before the JavaScript loads can't put them in the address. */}
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-3">
             <div>
@@ -120,7 +121,6 @@ export default function CreateAccountPage() {
               </label>
               <Input
                 id="username"
-                name="username"
                 type="text"
                 autoComplete="username"
                 required
@@ -135,7 +135,6 @@ export default function CreateAccountPage() {
               </label>
               <Input
                 id="email"
-                name="email"
                 type="email"
                 autoComplete="email"
                 required
@@ -150,7 +149,6 @@ export default function CreateAccountPage() {
               </label>
               <Input
                 id="password"
-                name="password"
                 type="password"
                 autoComplete="new-password"
                 required
@@ -165,7 +163,6 @@ export default function CreateAccountPage() {
               </label>
               <Input
                 id="confirm-password"
-                name="confirm-password"
                 type="password"
                 autoComplete="new-password"
                 required

@@ -97,6 +97,7 @@ export default function LoginPage() {
         <h1 className="text-2xl font-bold text-indigo-900 dark:text-indigo-200 text-center mb-6">
           Log in
         </h1>
+        {/* The fields have no `name`, so a submit before the JavaScript loads can't put them in the address. */}
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-3">
             <div>
@@ -105,7 +106,6 @@ export default function LoginPage() {
               </label>
               <Input
                 id="identifier"
-                name="identifier"
                 type="text"
                 autoComplete="username"
                 required
@@ -120,7 +120,6 @@ export default function LoginPage() {
               </label>
               <Input
                 id="password"
-                name="password"
                 type="password"
                 autoComplete="current-password"
                 required
@@ -128,6 +127,14 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+              <div className="-mb-3 flex justify-end">
+                <Link
+                  href="/forgot-password"
+                  className="inline-flex min-h-11 items-center text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300"
+                >
+                  Forgot password?
+                </Link>
+              </div>
             </div>
           </div>
           {error && (

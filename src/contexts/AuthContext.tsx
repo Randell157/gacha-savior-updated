@@ -15,6 +15,10 @@ interface AuthContextType {
   username: string | null;
   /** When the account was created (users/{uid}.createdAt, an ISO string) */
   createdAt: string | null;
+  /** The character chosen as the profile picture (users/{uid}.avatar) */
+  avatar: string | null;
+  /** The uploaded profile picture, a JPEG data URL (users/{uid}.avatarImage) */
+  avatarImage: string | null;
   loading: boolean;
   error: string | null;
 }
@@ -23,6 +27,8 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   username: null,
   createdAt: null,
+  avatar: null,
+  avatarImage: null,
   loading: true,
   error: null,
 });
@@ -35,6 +41,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [user, setUser] = useState<User | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [createdAt, setCreatedAt] = useState<string | null>(null);
+  const [avatar, setAvatar] = useState<string | null>(null);
+  const [avatarImage, setAvatarImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,6 +59,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         if (!user) {
           setUsername(null);
           setCreatedAt(null);
+          setAvatar(null);
+          setAvatarImage(null);
           setLoading(false);
           return;
         }
@@ -63,6 +73,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             const profile = snapshot.exists() ? snapshot.data() : undefined;
             setUsername(profile?.username ?? null);
             setCreatedAt(typeof profile?.createdAt === "string" ? profile.createdAt : null);
+            setAvatar(typeof profile?.avatar === "string" ? profile.avatar : null);
+            setAvatarImage(
+              typeof profile?.avatarImage === "string" && profile.avatarImage.startsWith("data:image/jpeg;base64,")
+                ? profile.avatarImage
+                : null
+            );
             setLoading(false);
           },
           (err) => {
@@ -88,7 +104,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, username, createdAt, loading, error }}>
+    <AuthContext.Provider value={{ user, username, createdAt, avatar, avatarImage, loading, error }}>
       {children}
     </AuthContext.Provider>
   );

@@ -239,6 +239,8 @@ test.describe("signed in with the sample upload", () => {
     await others.getByRole("link", { name: "Next character: Mona" }).click();
     await expect(page.getByRole("heading", { level: 1, name: "Mona" })).toBeVisible();
     await expect(others.getByText("6 of 12")).toBeVisible();
+    // The same buttons wait at the bottom of the page.
+    await expect(page.getByRole("navigation", { name: "Previous and next character" }).getByText("6 of 12")).toBeVisible();
 
     // A character the filter leaves out steps through everyone owned.
     await page.goto("/genshin/characters/Ganyu");
@@ -349,6 +351,17 @@ test.describe("signed in with the sample upload", () => {
     await page.getByRole("button", { name: "Cards" }).click();
   });
 
+  test("on a phone the weapons page's filters open from a Filters button", async () => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto("/genshin/weapons");
+    const bow = page.getByRole("group", { name: "Filter by weapon type" }).getByRole("button", { name: "Bow" });
+    await expect(bow).toBeHidden();
+    await page.getByRole("button", { name: "Filters" }).click();
+    await bow.click();
+    await expect(page.getByRole("button", { name: "Filters (1)", exact: true })).toBeVisible();
+    await page.setViewportSize({ width: 1280, height: 720 });
+  });
+
   test("the artifacts page opens on Equipped and pages the full list", async () => {
     await page.goto("/genshin/artifacts");
     const show = page.getByRole("group", { name: "Show" });
@@ -405,7 +418,63 @@ test.describe("signed in with the sample upload", () => {
     await expect(row).toHaveAttribute("aria-expanded", "true");
     await expect(page.getByRole("link", { name: "Open Aino's page" })).toBeVisible();
     await expect(page.getByText("CRIT DMG 13.2%").locator("visible=true").first()).toBeVisible();
+    // One opens at a time, and the pressed row stays in view.
+    const other = page.getByRole("button", { name: /^Candace/ });
+    await other.click();
+    await expect(other).toHaveAttribute("aria-expanded", "true");
+    await expect(row).toHaveAttribute("aria-expanded", "false");
+    await expect(other).toBeInViewport();
+    // A character with nothing equipped has nothing to open; the row goes to their page.
+    await page.getByRole("link", { name: /^Aloy/ }).locator("visible=true").first().click();
+    await expect(page).toHaveURL(/\/genshin\/characters\/Aloy$/);
     await page.setViewportSize({ width: 1280, height: 720 });
+  });
+
+  test("Profile picks a character as the picture, shown in the header too", async () => {
+    await page.goto("/profile");
+    const headerPortrait = page.getByRole("banner").locator('img[src*="Aino_Icon"]');
+    await expect(headerPortrait).toHaveCount(0);
+    await page.getByRole("button", { name: "Choose character" }).click();
+    await page.getByLabel("Search characters").fill("Aino");
+    await page.getByLabel("Search characters").press("Enter");
+    await expect(headerPortrait).toBeVisible();
+
+    await page.reload();
+    await expect(headerPortrait).toBeVisible();
+
+    await page.getByRole("button", { name: "Remove picture" }).click();
+    await expect(headerPortrait).toHaveCount(0);
+  });
+
+  test("Profile crops an uploaded image, and refuses what it can't use", async () => {
+    await page.goto("/profile");
+    const input = page.getByLabel("Upload a profile picture");
+
+    await input.setInputFiles({ name: "notes.txt", mimeType: "text/plain", buffer: Buffer.from("hello") });
+    await expect(page.getByRole("alert").filter({ hasText: "JPG, PNG or WebP" })).toBeVisible();
+
+    // A 1 × 1 PNG.
+    const tiny = Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M/wHwAEBgIApD5fRAAAAABJRU5ErkJggg==",
+      "base64"
+    );
+    await input.setInputFiles({ name: "tiny.png", mimeType: "image/png", buffer: tiny });
+    await expect(page.getByRole("alert").filter({ hasText: "too small" })).toBeVisible();
+
+    await input.setInputFiles("public/genshinappicon.png");
+    const dialog = page.getByRole("dialog");
+    await expect(dialog.getByText("Uses 256 × 256 px of your 256 × 256 px image (100%).")).toBeVisible();
+    await dialog.getByLabel("Zoom").fill("2");
+    await expect(dialog.getByText("Uses 128 × 128 px of your 256 × 256 px image (25%).")).toBeVisible();
+    await dialog.getByRole("button", { name: "Save picture" }).click();
+    await expect(dialog).toBeHidden();
+    const headerPicture = page.getByRole("banner").locator('img[src^="data:image/jpeg"]');
+    await expect(headerPicture).toBeVisible();
+
+    await page.reload();
+    await expect(headerPicture).toBeVisible();
+    await page.getByRole("button", { name: "Remove picture" }).click();
+    await expect(headerPicture).toHaveCount(0);
   });
 
   test("the showcase picker takes a typed name, and Enter picks the first match", async () => {

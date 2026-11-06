@@ -22,17 +22,28 @@ function rememberedRosterChoices(): RosterChoices {
 let focusAfterStep: "previous" | "next" | null = null;
 
 /**
- * Previous and next character buttons for the title bar, stepping through what
- * the roster is showing. Rendered only behind `RequireAuth`, so it can read the
- * remembered choices during its first render.
+ * Previous and next character buttons, stepping through what the roster is
+ * showing, in the title bar and again at the bottom of the page. Rendered only
+ * behind `RequireAuth`, so it can read the remembered choices during its first
+ * render.
  */
-export default function CharacterStepper({ data, characterKey }: { data: GenshinData | null; characterKey: string }) {
+export default function CharacterStepper({
+  data,
+  characterKey,
+  label = "Other characters",
+}: {
+  data: GenshinData | null;
+  characterKey: string;
+  /** Two on one page need different names for screen readers. */
+  label?: string;
+}) {
   const [choices] = useState(rememberedRosterChoices);
   const neighbours = useMemo(() => characterNeighbours(data, characterKey, choices), [data, characterKey, choices]);
   const previousLink = useRef<HTMLAnchorElement>(null);
   const nextLink = useRef<HTMLAnchorElement>(null);
 
   // Keeps a keyboard user on the button, so stepping again doesn't mean tabbing back from the top.
+  // Of the two on a page, the title bar's mounts first and takes the focus, where the new page starts.
   useEffect(() => {
     if (focusAfterStep === "previous") previousLink.current?.focus();
     if (focusAfterStep === "next") nextLink.current?.focus();
@@ -44,7 +55,7 @@ export default function CharacterStepper({ data, characterKey }: { data: Genshin
   const { previous, next, position, total } = neighbours;
   const href = (key: string) => `/genshin/characters/${encodeURIComponent(key)}`;
   return (
-    <nav aria-label="Other characters" className="flex flex-wrap items-center gap-2">
+    <nav aria-label={label} className="flex flex-wrap items-center gap-2">
       <Button asChild variant="outline" size="sm" className="h-11 sm:h-9">
         <Link
           ref={previousLink}
@@ -57,7 +68,7 @@ export default function CharacterStepper({ data, characterKey }: { data: Genshin
           {formatCharacterDisplayName(previous)}
         </Link>
       </Button>
-      <span className="px-1 text-xs tabular-nums text-gray-500 dark:text-slate-400">
+      <span className="px-1 text-xs tabular-nums text-gray-700 dark:text-slate-300">
         {position} of {total}
       </span>
       <Button asChild variant="outline" size="sm" className="h-11 sm:h-9">

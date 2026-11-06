@@ -37,6 +37,7 @@ export default async function globalSetup(config: FullConfig) {
     "/",
     "/login",
     "/create-account",
+    "/forgot-password",
     "/about",
     "/contact",
     "/features",

@@ -1,6 +1,7 @@
 import "server-only";
 
 import { cert, getApp, getApps, initializeApp } from "firebase-admin/app";
+import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
 
 // Server-side Firebase with full admin access. Security rules don't apply to
@@ -29,3 +30,4 @@ function createApp() {
 const adminApp = getApps().length ? getApp() : createApp();
 
 export const adminDb = getFirestore(adminApp);
+export const adminAuth = getAuth(adminApp);

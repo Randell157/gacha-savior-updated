@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { LayoutGrid, Rows3 } from "lucide-react";
+import { ChevronDown, LayoutGrid, Rows3 } from "lucide-react";
 import { useGenshinData } from "@/hooks/useGenshinData";
 import { useRememberedState } from "@/hooks/useRememberedState";
 import { Button } from "@/components/ui/button";
@@ -95,6 +95,8 @@ function Weapons({ signedOut = false }: { signedOut?: boolean }) {
   const [rarityFilter, setRarityFilter] = useRememberedState<number | null>("weapons:rarity", null);
   const weapons = useMemo(() => genshinData?.weapons ?? [], [genshinData]);
   const [limit, setLimit] = useState(PAGE_SIZE);
+  // On phones, the filters wait behind a button so the weapons start higher up.
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   // A new search, filter or sort starts from the top of the list again.
   const choices = [search, sort, show, groupCopies, typeFilter, rarityFilter].join("|");
@@ -135,6 +137,13 @@ function Weapons({ signedOut = false }: { signedOut?: boolean }) {
     return [...byId.values()].sort(SORTERS[sort]);
   }, [weapons, search, show, groupCopies, sort, typeFilter, rarityFilter]);
 
+  const filterCount = Number(typeFilter !== null) + Number(rarityFilter !== null) + Number(show !== "all");
+  const clearFilters = () => {
+    setTypeFilter(null);
+    setRarityFilter(null);
+    setShow("all");
+  };
+
   const toolbar = (
         <div className="mb-6 space-y-3">
           <div className="flex flex-wrap items-center gap-3">
@@ -156,6 +165,17 @@ function Weapons({ signedOut = false }: { signedOut?: boolean }) {
                 </SelectContent>
               </Select>
             </div>
+            <Button
+              variant="outline"
+              aria-expanded={filtersOpen}
+              onClick={() => setFiltersOpen((open) => !open)}
+              className={cn("sm:hidden", filterCount > 0 && "border-indigo-500 text-indigo-700 dark:text-indigo-300")}
+            >
+              Filters{filterCount > 0 && ` (${filterCount})`}
+              <ChevronDown className={cn("ml-2 h-4 w-4 transition-transform", filtersOpen && "rotate-180")} aria-hidden />
+            </Button>
+            {/* Below the button on phones, and part of this row from sm up. */}
+            <div className={cn(!filtersOpen && "hidden", "order-last w-full space-y-1 sm:contents")}>
             <Segmented
               label="Show"
               value={show}
@@ -175,6 +195,7 @@ function Weapons({ signedOut = false }: { signedOut?: boolean }) {
               />
               Group copies
             </label>
+            </div>
             <div className="ml-auto">
               <Segmented
                 label="View"
@@ -187,7 +208,7 @@ function Weapons({ signedOut = false }: { signedOut?: boolean }) {
               />
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <div className={cn(filtersOpen ? "flex" : "hidden", "flex-wrap items-center gap-x-3 gap-y-2 sm:flex")}>
             <div role="group" aria-label="Filter by weapon type" className="flex flex-wrap gap-2">
               {WEAPON_TYPES.map((type) => (
                 <FilterChip
@@ -216,13 +237,7 @@ function Weapons({ signedOut = false }: { signedOut?: boolean }) {
                 </div>
               </>
             )}
-            <ClearFilters
-              count={Number(typeFilter !== null) + Number(rarityFilter !== null)}
-              onClick={() => {
-                setTypeFilter(null);
-                setRarityFilter(null);
-              }}
-            />
+            <ClearFilters count={filterCount} onClick={clearFilters} />
           </div>
         </div>
   );
@@ -313,13 +328,17 @@ function WeaponCards({ rows }: { rows: WeaponRow[] }) {
               <p className="text-xs text-gray-500 dark:text-slate-400">
                 {info && `${info.type} · ${info.rarity}★ · `}Lv. {weapon.level} · R{weapon.refinement}
               </p>
+              {/* A phone has no hover to show whose face it is, so the name is written out. */}
+              {weapon.location && (
+                <p className="mt-0.5 flex items-center gap-1.5 text-xs text-gray-500 dark:text-slate-400">
+                  <CharacterAvatar characterKey={weapon.location} size={18} className="ring-0" />
+                  <span>
+                    <span className="sr-only">Equipped by </span>
+                    {formatCharacterDisplayName(weapon.location)}
+                  </span>
+                </p>
+              )}
             </div>
-            {weapon.location && (
-              <CharacterAvatar
-                characterKey={weapon.location}
-                label={`Equipped by ${formatCharacterDisplayName(weapon.location)}`}
-              />
-            )}
             <CopiesBadge copies={copies} />
           </li>
         );

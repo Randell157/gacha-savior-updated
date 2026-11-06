@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, formatUploadTime } from "@/lib/utils";
 
 interface UploadProps {
   onFile: (file: File) => void;
@@ -118,7 +118,7 @@ export function UploadBar({
       {input}
       <p className="text-sm text-gray-500 dark:text-slate-400">
         {lastUploadedAt &&
-          `Last uploaded ${lastUploadedAt.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}`}
+          `Last uploaded ${formatUploadTime(lastUploadedAt)}`}
       </p>
       <Button size="sm" variant="outline" onClick={open} disabled={props.disabled}>
         <Upload className="mr-1.5 h-4 w-4" />

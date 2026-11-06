@@ -4,6 +4,7 @@ import React, { createContext, useCallback, useEffect, useState } from "react";
 import { FirebaseError } from "firebase/app";
 import { useAuth } from "@/contexts/AuthContext";
 import {
+  deleteGenshin,
   emptyShowcase,
   loadGenshin,
   saveGenshin,
@@ -31,6 +32,8 @@ export interface GenshinDataContextValue {
   migratedFromLocal: boolean;
   /** Replaces the saved upload (keeps the current showcase and Traveler element) */
   save: (data: GenshinData) => Promise<void>;
+  /** Deletes the saved upload; rejects with a message for the player if it can't */
+  deleteUpload: () => Promise<void>;
   setShowcase: (showcase: Showcase) => Promise<void>;
   setTravelerElement: (element: string) => Promise<void>;
 }
@@ -139,6 +142,18 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
     [uid, current?.stored]
   );
 
+  const deleteUpload = useCallback(async () => {
+    const stored = current?.stored;
+    if (!uid) throw new Error("Not signed in");
+    try {
+      await deleteGenshin(uid, stored?.artifactChunkCount ?? 0);
+      setState({ uid, stored: null, error: null, migratedFromLocal: false });
+    } catch (error) {
+      console.error("Deleting Genshin data failed:", error);
+      throw new Error(describeError(error));
+    }
+  }, [uid, current?.stored]);
+
   const setShowcase = useCallback(
     async (showcase: Showcase) => {
       const stored = current?.stored;
@@ -184,6 +199,7 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
     lastUploadedAt: current?.stored?.uploadedAt ?? null,
     migratedFromLocal: current?.migratedFromLocal ?? false,
     save,
+    deleteUpload,
     setShowcase,
     setTravelerElement,
   };

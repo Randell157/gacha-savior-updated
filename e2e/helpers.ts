@@ -18,6 +18,13 @@ export function uniqueName(prefix = "tester") {
   return `${prefix}${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 }
 
+/** How many password reset emails the emulator has "sent" to this address. */
+export async function resetEmailsSentTo(email: string): Promise<number> {
+  const res = await fetch(`${AUTH}/emulator/v1/projects/${EMULATOR_PROJECT}/oobCodes`);
+  const { oobCodes } = (await res.json()) as { oobCodes: { email: string; requestType: string }[] };
+  return oobCodes.filter((code) => code.email === email && code.requestType === "PASSWORD_RESET").length;
+}
+
 /**
  * Creates an account the way sign-up does (auth user, `usernames` claim and
  * profile), but straight through the emulators, so tests that only need a

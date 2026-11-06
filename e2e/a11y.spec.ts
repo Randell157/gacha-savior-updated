@@ -39,7 +39,7 @@ for (const colorScheme of ["light", "dark"] as const) {
     test.use({ colorScheme });
 
     test("signed-out pages", async ({ page }) => {
-      for (const route of ["/", "/login", "/create-account", "/about", "/contact", "/features", "/genshin/characters", "/genshin/weapons", "/genshin/artifacts"]) {
+      for (const route of ["/", "/login", "/create-account", "/forgot-password", "/about", "/contact", "/features", "/genshin/characters", "/genshin/weapons", "/genshin/artifacts"]) {
         await page.goto(route);
         await settle(page);
         await expectNoViolations(page, route);

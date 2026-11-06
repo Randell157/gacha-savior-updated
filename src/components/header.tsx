@@ -6,6 +6,7 @@ import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
 import { clearRememberedTabState } from "@/hooks/useRememberedState";
+import ProfilePicture from "@/components/ProfilePicture";
 import { GAMES, gameForPath } from "@/lib/games";
 import GameIcon from "@/components/GameIcon";
 import { Button } from "@/components/ui/button";
@@ -171,9 +172,10 @@ export default function Header() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="text-sm font-medium gap-1.5 px-2"
+                  className="text-sm font-medium gap-2 px-2"
                 >
-                  {username || user.email || "Account"}
+                  <ProfilePicture size={28} />
+                  <span className="max-w-28 truncate max-[359px]:sr-only sm:max-w-none">{username || user.email || "Account"}</span>
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>

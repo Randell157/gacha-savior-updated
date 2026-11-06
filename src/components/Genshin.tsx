@@ -15,10 +15,10 @@ import { ArrowRight, UserPlus, X } from "lucide-react";
 import {
   cn,
   formatCharacterDisplayName,
-  formatMaterialDisplayName,
 } from "@/lib/utils";
 import type { GenshinData } from "@/lib/genshin/types";
 import { getWeapon, weaponName } from "@/lib/genshin/weapons";
+import { materialName } from "@/lib/genshin/materials";
 import CharacterAvatar from "@/components/CharacterAvatar";
 import ShowcasePicker from "@/components/ShowcasePicker";
 import WeaponIcon from "@/components/WeaponIcon";
@@ -211,7 +211,7 @@ export default function Genshin({
                       : "border-dashed border-gray-300 dark:border-slate-600 bg-gray-50/70 dark:bg-slate-800/40"
                   )}
                 >
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex min-h-6 items-center justify-between mb-3">
                     <span className="text-xs font-semibold uppercase tracking-wide text-indigo-700 dark:text-indigo-300">
                       Slot {i + 1}
                     </span>
@@ -351,7 +351,7 @@ export default function Genshin({
               <ul className="divide-y divide-gray-100 dark:divide-slate-800">
                 {topMaterials.map(([material, count]) => (
                   <li key={material} className="flex items-baseline justify-between gap-3 py-3 text-sm">
-                    <span className="min-w-0">{formatMaterialDisplayName(material)}</span>
+                    <span className="min-w-0">{materialName(material)}</span>
                     <span className="font-semibold tabular-nums">{count.toLocaleString()}</span>
                   </li>
                 ))}

@@ -1,8 +1,8 @@
 "use client";
 
-import { useId, useMemo, useState } from "react";
+import { useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronDown } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import { useGenshinData } from "@/hooks/useGenshinData";
 import { useRememberedState } from "@/hooks/useRememberedState";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -82,6 +82,8 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
   // quickly, where drawing every artifact at once was slow.
   const [show, setShow] = useRememberedState<Show>("artifacts:show", "equipped");
   const [limit, setLimit] = useState(PAGE_SIZE);
+  // The one Equipped row opened on a smaller screen.
+  const [openRow, setOpenRow] = useState<string | null>(null);
   const [setFilter, setSetFilter] = useRememberedState("artifacts:set", ALL_SETS);
   const [slotFilter, setSlotFilter] = useRememberedState<string | null>("artifacts:slot", null);
   const [mainStatFilter, setMainStatFilter] = useRememberedState("artifacts:mainStat", ANY_MAIN_STAT);
@@ -418,7 +420,14 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
               </p>
             )}
             {visibleGroups.map((group) => (
-              <EquippedRow key={group.key} characterKey={group.key} name={group.name} pieces={group.pieces} />
+              <EquippedRow
+                key={group.key}
+                characterKey={group.key}
+                name={group.name}
+                pieces={group.pieces}
+                isOpen={openRow === group.key}
+                onToggle={() => setOpenRow((open) => (open === group.key ? null : group.key))}
+              />
             ))}
           </div>
         )
@@ -455,31 +464,82 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
  * slot so the same slot lines up from row to row. Below `lg` the row folds to
  * the name, the count and five small icons, because open rows made the page
  * about 75,000 px long on a phone; pressing it opens the bonuses and the pieces
- * in a wrapping grid, with each card naming its slot.
+ * in a wrapping grid, with each card naming its slot. One opens at a time, and
+ * since closing a row higher up moves everything, the pressed row scrolls to the
+ * top of the screen.
  */
 function EquippedRow({
   characterKey,
   name,
   pieces,
+  isOpen,
+  onToggle,
 }: {
   characterKey: string;
   name: string;
   pieces: GoodArtifact[];
+  isOpen: boolean;
+  onToggle: () => void;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
   const detailsId = useId();
+  const row = useRef<HTMLElement>(null);
+  // Only a press scrolls, not a row that comes back open after a search or filter.
+  const pressed = useRef(false);
+  useLayoutEffect(() => {
+    if (pressed.current && isOpen) row.current?.scrollIntoView({ block: "start" });
+    pressed.current = false;
+  }, [isOpen]);
   const href = `/genshin/characters/${encodeURIComponent(characterKey)}`;
   const count = (
     <span className="text-xs text-gray-500 dark:text-slate-400">{pieces.length} of 5 equipped</span>
   );
+
+  // With nothing equipped there's nothing to open, so the row is a link on smaller
+  // screens and one line across the five columns on wide ones.
+  if (pieces.length === 0) {
+    return (
+      <section className="rounded-xl border border-gray-200 dark:border-slate-700 p-3 lg:grid lg:grid-cols-[14rem_repeat(5,minmax(0,1fr))] lg:items-stretch gap-3">
+        <Link
+          href={href}
+          className="flex min-h-11 w-full items-center gap-3 rounded-lg lg:hidden"
+        >
+          <CharacterAvatar characterKey={characterKey} size={48} />
+          <span className="min-w-0 flex-1">
+            <span className="block font-semibold leading-tight text-indigo-900 dark:text-indigo-200">{name}</span>
+            {count}
+          </span>
+          <ArrowRight aria-hidden="true" className="h-4 w-4 shrink-0 text-gray-500 dark:text-slate-400" />
+        </Link>
+        <div className="hidden items-center gap-3 lg:flex">
+          <CharacterAvatar characterKey={characterKey} size={48} />
+          <div className="min-w-0">
+            <Link
+              href={href}
+              className="block font-semibold leading-tight text-indigo-900 dark:text-indigo-200 hover:underline underline-offset-2"
+            >
+              {name}
+            </Link>
+            {count}
+          </div>
+        </div>
+        <div className="col-span-5 hidden items-center justify-center rounded-lg border border-dashed border-gray-300 dark:border-slate-600 p-3 text-center text-xs text-gray-500 dark:text-slate-400 lg:flex">
+          Nothing equipped
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section className="rounded-xl border border-gray-200 dark:border-slate-700 p-3 lg:grid lg:grid-cols-[14rem_repeat(5,minmax(0,1fr))] lg:items-stretch gap-3">
+    <section ref={row} className="scroll-mt-2 rounded-xl border border-gray-200 dark:border-slate-700 p-3 lg:grid lg:grid-cols-[14rem_repeat(5,minmax(0,1fr))] lg:items-stretch gap-3">
       {/* The folded row, below lg. */}
       <button
         type="button"
         aria-expanded={isOpen}
         aria-controls={detailsId}
-        onClick={() => setIsOpen((open) => !open)}
+        onClick={() => {
+          pressed.current = true;
+          onToggle();
+        }}
         className="flex min-h-11 w-full items-center gap-3 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 lg:hidden"
       >
         <CharacterAvatar characterKey={characterKey} size={48} />

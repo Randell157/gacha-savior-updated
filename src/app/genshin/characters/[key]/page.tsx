@@ -61,21 +61,17 @@ function CharacterDetail() {
   const artifacts = equipment?.artifacts ?? [];
 
   const displayName = formatCharacterDisplayName(characterKey);
-  const back = (
-    <div className="mt-8 flex flex-wrap gap-3">
-      <Button asChild>
-        <Link href="/genshin/characters">Back to Characters</Link>
-      </Button>
-    </div>
-  );
-
   if (!character) {
     return (
       <GenshinShell title={displayName}>
         <p className="text-gray-600 dark:text-slate-400">
           You don&apos;t have this character in your latest upload.
         </p>
-        {back}
+        <div className="mt-8">
+          <Button asChild>
+            <Link href="/genshin/characters">Back to Characters</Link>
+          </Button>
+        </div>
       </GenshinShell>
     );
   }
@@ -93,7 +89,10 @@ function CharacterDetail() {
           <WeaponPanel weapon={weapon} />
           <ArtifactsPanel artifacts={artifacts} />
         </div>
-        <div className="px-4 sm:px-0">{back}</div>
+        {/* Where you finish reading, so the next character is one press away. */}
+        <div className="mt-8 px-4 empty:hidden sm:px-0">
+          <CharacterStepper data={genshinData} characterKey={characterKey} label="Previous and next character" />
+        </div>
       </div>
     </GenshinShell>
   );
