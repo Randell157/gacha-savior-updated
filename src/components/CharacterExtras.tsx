@@ -64,12 +64,27 @@ export function BaseStats({
   );
 }
 
+/** Game text, whose newer entries mark terms as **bold**. */
+function MarkedText({ text }: { text: string }) {
+  return text.split(/\*\*(.+?)\*\*/g).map((part, i) =>
+    i % 2 === 1 ? (
+      <strong key={i} className="font-semibold text-gray-900 dark:text-slate-100">
+        {part}
+      </strong>
+    ) : (
+      part
+    )
+  );
+}
+
 /** The description of the talent that's open. */
 export function TalentText({ talent, id }: { talent: GameText; id: string }) {
   return (
     <div id={id} className="mt-2 rounded-lg border border-gray-200 dark:border-slate-700 p-3">
       <p className="font-semibold text-gray-900 dark:text-slate-100">{talent.name}</p>
-      <p className="mt-1 whitespace-pre-line text-sm text-gray-600 dark:text-slate-400">{talent.text}</p>
+      <p className="mt-1 whitespace-pre-line text-sm text-gray-600 dark:text-slate-400">
+        <MarkedText text={talent.text} />
+      </p>
     </div>
   );
 }
@@ -179,7 +194,9 @@ export function ConstellationPicker({
             </span>
           )}
         </p>
-        <p className="mt-1 max-w-4xl whitespace-pre-line text-sm text-gray-600 dark:text-slate-400">{current.text}</p>
+        <p className="mt-1 max-w-4xl whitespace-pre-line text-sm text-gray-600 dark:text-slate-400">
+          <MarkedText text={current.text} />
+        </p>
       </div>
     </div>
   );

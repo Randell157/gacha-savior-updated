@@ -1,5 +1,5 @@
 {
-  "source": "genshin-db 5.2.14",
+  "source": "genshin-db 5.2.15",
   "names": {
     "adventurersexperience": "Adventurer's Experience",
     "agentssacrificialknife": "Agent's Sacrificial Knife",
@@ -162,6 +162,8 @@
     "dizzinessbegonenojutsuversion20": "Dizziness-Be-Gone no Jutsu Version 2.0",
     "drybraisedsaltedfish": "Dry-Braised Salted Fish",
     "eighttreasureduck": "Eight-Treasure Duck",
+    "emergencybarricade": "\"Emergency Barricade\"",
+    "energyreplenishingmeal": "\"Energy-Replenishing Meal\"",
     "exclusivescoopgourmetcolumn": "Exclusive Scoop: Gourmet Column",
     "fashionshow": "\"Fashion Show\"",
     "feastos": "Feast-O's",

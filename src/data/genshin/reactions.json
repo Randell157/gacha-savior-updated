@@ -374,6 +374,9 @@
     "mika": [
       { "reaction": "Superconduct", "note": "His Cryo and an Electro teammate lower Physical resistance." }
     ],
+    "mitya": [
+      { "reaction": "Stellar-Conduct", "note": "Superconduct from his party becomes Stellar-Conduct, boosted by his Elemental Mastery." }
+    ],
     "mona": [
       { "reaction": "Vaporize", "note": "Her Burst and Hydro help Vaporize teams." },
       { "reaction": "Electro-Charged", "note": "Her Hydro reacts with Electro teammates." },
@@ -517,6 +520,9 @@
       { "reaction": "Spread", "note": "His charged shots Spread on enemies an Electro teammate keeps Quickened." }
     ],
     "traveler": [],
+    "valeriy": [
+      { "reaction": "Stellar-Conduct", "note": "He doesn't trigger it himself, but a Polestar Field strengthens the DMG bonus he gives Stellar-Conduct teams." }
+    ],
     "varesa": [
       { "reaction": "Overloaded", "note": "Her best fit: Pyro and Electro teams with Chevreuse, or Durin and Nicole." },
       { "reaction": "Lunar-Charged", "note": "Fits Columbina and Ineffa teams." },

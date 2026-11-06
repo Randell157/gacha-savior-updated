@@ -1,5 +1,5 @@
 {
-  "source": "genshin-db 5.2.14",
+  "source": "genshin-db 5.2.15",
   "characters": {
     "traveler": {
       "name": "Traveler",
@@ -1200,6 +1200,23 @@
         "burst": "Skyfeather Song"
       }
     },
+    "mitya": {
+      "name": "Mitya",
+      "title": "Rules Set at Naught",
+      "description": "An exceptionally ingenious energy specialist and a master of the fine art of \"schedule-dodging.\"",
+      "element": "Electro",
+      "weaponType": "Catalyst",
+      "region": "Snezhnaya",
+      "affiliation": "Royal Energy Commission of Snezhnaya",
+      "constellation": "Nodus Gordianus",
+      "version": "7.2",
+      "birthday": "February 8",
+      "talents": {
+        "auto": "Chain Reaction",
+        "skill": "Principle: Variable Detection",
+        "burst": "Analysis: Gradient Theory"
+      }
+    },
     "mona": {
       "name": "Mona",
       "title": "Astral Reflection",
@@ -1691,6 +1708,23 @@
         "auto": "Khanda Barrier-Buster",
         "skill": "Vijnana-Phala Mine",
         "burst": "Fashioner's Tanglevine Shaft"
+      }
+    },
+    "valeriy": {
+      "name": "Valeriy",
+      "title": "Fort Fulguration",
+      "description": "Commander of the Special Assignments Battalion. A soldier skilled at protecting key personnel and keeping operations on track.",
+      "element": "Electro",
+      "weaponType": "Sword",
+      "region": "Snezhnaya",
+      "affiliation": "Fatui Grenadier Guards First Regiment",
+      "constellation": "Ursus Magnus",
+      "version": "7.2",
+      "birthday": "March 24",
+      "talents": {
+        "auto": "Guard Tactics: Sword and Shield",
+        "skill": "Active Defense: Bastion Charge",
+        "burst": "Focused Fire: Lightning Salvo"
       }
     },
     "varesa": {

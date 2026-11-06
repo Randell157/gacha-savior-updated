@@ -90,6 +90,14 @@ test.describe("signed out", () => {
     });
   }
 
+  test("marked game text shows in bold, without its asterisks", async ({ page }) => {
+    await page.goto("/genshin/characters");
+    await page.getByRole("button", { name: /^Valeriy/ }).click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog.locator("strong").first()).toBeVisible();
+    await expect(dialog).not.toContainText("**");
+  });
+
   test("old addresses redirect to the Genshin section", async ({ page }) => {
     for (const [from, to] of [
       ["/characters", "/genshin/characters"],

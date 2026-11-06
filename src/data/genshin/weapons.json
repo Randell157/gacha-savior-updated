@@ -1,5 +1,5 @@
 {
-  "source": "genshin-db 5.2.14",
+  "source": "genshin-db 5.2.15",
   "weapons": {
     "absolution": {
       "name": "Absolution",
@@ -1230,6 +1230,12 @@
       "rarity": 5,
       "type": "Catalyst",
       "version": "5.3"
+    },
+    "starsealededict": {
+      "name": "Starsealed Edict",
+      "rarity": 5,
+      "type": "Catalyst",
+      "version": "7.2"
     },
     "sturdybone": {
       "name": "Sturdy Bone",
