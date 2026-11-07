@@ -152,7 +152,7 @@ export default function CharacterFilters({
             className={cn(count > 0 && "border-indigo-500 text-indigo-700 dark:text-indigo-300")}
           >
             Filters{count > 0 && ` (${count})`}
-            <ChevronDown className={cn("ml-2 h-4 w-4 transition-transform", phoneOpen && "rotate-180")} aria-hidden />
+            <ChevronDown className={cn("ml-2 h-4 w-4 transition-transform duration-150 ease-out-strong motion-reduce:transition-none", phoneOpen && "rotate-180")} aria-hidden />
           </Button>
           <ClearFilters count={count} onClick={clear} />
         </div>

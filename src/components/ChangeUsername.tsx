@@ -76,7 +76,7 @@ export default function ChangeUsername() {
         </button>
       </span>
       {changed && (
-        <p role="status" className="mt-2 text-green-700 dark:text-green-300">
+        <p role="status" className="fade-up mt-2 text-green-700 dark:text-green-300">
           Your username was changed.
         </p>
       )}

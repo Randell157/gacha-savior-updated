@@ -12,6 +12,7 @@ import CharacterFilters from "@/components/CharacterFilters";
 import { NoMatches } from "@/components/FilterChip";
 import GenshinShell from "@/components/GenshinShell";
 import PageSkeleton from "@/components/PageSkeleton";
+import { useFadeAfterLoading } from "@/hooks/useFadeAfterLoading";
 import SearchInput from "@/components/SearchInput";
 import Segmented from "@/components/Segmented";
 import {
@@ -90,6 +91,7 @@ function SortedValue({ text, spoken }: { text: string; spoken: string }) {
 
 export default function CharactersPage() {
   const { data: genshinData, loading } = useGenshinData();
+  useFadeAfterLoading(loading);
   const { user } = useAuth();
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [rememberedSort, setSortOrder] = useRememberedState(ROSTER_MEMORY_KEYS.sortOrder, DEFAULT_ROSTER_CHOICES.sortOrder);
@@ -281,7 +283,7 @@ export default function CharactersPage() {
                   quickViewTile.current = event.currentTarget;
                   setQuickView(character.key);
                 }}
-                className="group flex flex-col items-center w-full max-w-[7.5rem] rounded-lg p-2 transition-colors hover:bg-indigo-50 dark:hover:bg-indigo-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                className="press group flex flex-col items-center w-full max-w-[7.5rem] rounded-lg p-2 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
               >
                 {portrait}
               </button>
@@ -293,7 +295,7 @@ export default function CharactersPage() {
               key={character.key}
               href={`/genshin/characters/${encodeURIComponent(character.ownedKey)}`}
               title={displayName}
-              className="group flex flex-col items-center w-full max-w-[7.5rem] rounded-lg p-2 transition-colors hover:bg-indigo-50 dark:hover:bg-indigo-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+              className="press group flex flex-col items-center w-full max-w-[7.5rem] rounded-lg p-2 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
             >
               {portrait}
             </Link>

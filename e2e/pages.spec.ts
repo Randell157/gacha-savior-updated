@@ -90,6 +90,14 @@ test.describe("signed out", () => {
     });
   }
 
+  test("with reduce motion on, dialogs only fade", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/genshin/characters");
+    await page.getByRole("button", { name: /^Valeriy/ }).click();
+    const name = await page.getByRole("dialog").evaluate((dialog) => getComputedStyle(dialog).animationName);
+    expect(name).toBe("gs-fade");
+  });
+
   test("marked game text shows in bold, without its asterisks", async ({ page }) => {
     await page.goto("/genshin/characters");
     await page.getByRole("button", { name: /^Valeriy/ }).click();

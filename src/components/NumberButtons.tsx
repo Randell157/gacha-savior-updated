@@ -46,7 +46,7 @@ export default function NumberButtons({
             title={marked ? markTitle : undefined}
             onClick={() => onSelect(n)}
             className={cn(
-              "inline-flex items-center gap-1 rounded px-2.5 py-1 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
+              "press inline-flex items-center gap-1 rounded px-2.5 py-1 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
               pressed
                 ? "bg-indigo-600 text-white"
                 : cn(

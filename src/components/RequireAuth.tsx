@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGenshinData } from "@/hooks/useGenshinData";
 import PageSkeleton, { type SkeletonKind } from "@/components/PageSkeleton";
+import { useFadeAfterLoading } from "@/hooks/useFadeAfterLoading";
 
 /**
  * Wraps pages that need a signed-in user. Shows a loading skeleton shaped like
@@ -28,6 +29,7 @@ export default function RequireAuth({
   const { loading: dataLoading } = useGenshinData();
   const router = useRouter();
   const redirect = !authLoading && !user && !signedOut;
+  useFadeAfterLoading(authLoading || dataLoading);
 
   useEffect(() => {
     if (redirect) {

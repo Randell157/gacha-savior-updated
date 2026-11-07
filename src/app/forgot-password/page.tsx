@@ -99,7 +99,7 @@ export default function ForgotPasswordPage() {
             ref={sentMessage}
             tabIndex={-1}
             role="status"
-            className="rounded-md border border-green-300 bg-green-50 p-3 text-sm text-green-800 outline-none dark:border-green-800 dark:bg-green-900/30 dark:text-green-300"
+            className="fade-up rounded-md border border-green-300 bg-green-50 p-3 text-sm text-green-800 outline-none dark:border-green-800 dark:bg-green-900/30 dark:text-green-300"
           >
             If that account exists, a link is on its way. Check your spam folder if you don&apos;t see it in
             a few minutes.

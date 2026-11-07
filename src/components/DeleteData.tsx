@@ -69,7 +69,7 @@ export default function DeleteData() {
           ref={message}
           tabIndex={-1}
           role="status"
-          className="mx-4 mt-3 rounded-md border border-green-300 bg-green-50 p-3 text-sm text-green-800 outline-none dark:border-green-800 dark:bg-green-900/30 dark:text-green-300 sm:mx-6"
+          className="fade-up mx-4 mt-3 rounded-md border border-green-300 bg-green-50 p-3 text-sm text-green-800 outline-none dark:border-green-800 dark:bg-green-900/30 dark:text-green-300 sm:mx-6"
         >
           Your upload was deleted.
         </p>

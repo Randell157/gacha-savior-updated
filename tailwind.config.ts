@@ -3,6 +3,8 @@ import animate from "tailwindcss-animate";
 
 const config: Config = {
     darkMode: ["class"],
+    // Hover styles only where a device can really hover, so a tap doesn't leave them stuck on.
+    future: { hoverOnlyWhenSupported: true },
     content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -52,6 +54,10 @@ const config: Config = {
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
   			}
+  		},
+  		transitionTimingFunction: {
+  			'out-strong': 'cubic-bezier(0.23, 1, 0.32, 1)',
+  			drawer: 'cubic-bezier(0.32, 0.72, 0, 1)'
   		},
   		borderRadius: {
   			lg: 'var(--radius)',

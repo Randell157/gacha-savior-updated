@@ -86,7 +86,7 @@ export default function PictureCropper({
   });
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
-  const lastPointer = useRef<{ x: number; y: number } | null>(null);
+  const lastPointer = useRef<{ id: number; x: number; y: number } | null>(null);
 
   const scale = (FRAME / shortSide) * view.zoom;
   const cropSize = FRAME / scale;
@@ -144,21 +144,24 @@ export default function PictureCropper({
           role="application"
           aria-label="Crop area. The arrow keys move the image."
           style={{ width: FRAME, height: FRAME }}
-          className="relative mx-auto cursor-move touch-none select-none overflow-hidden rounded-md bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:bg-slate-950"
+          className="relative mx-auto cursor-grab touch-none active:cursor-grabbing select-none overflow-hidden rounded-md bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:bg-slate-950"
           onPointerDown={(e) => {
+            // A second finger is ignored, or the picture would jump to it.
+            if (lastPointer.current) return;
             e.currentTarget.setPointerCapture(e.pointerId);
-            lastPointer.current = { x: e.clientX, y: e.clientY };
+            lastPointer.current = { id: e.pointerId, x: e.clientX, y: e.clientY };
           }}
           onPointerMove={(e) => {
-            if (!lastPointer.current) return;
-            move(e.clientX - lastPointer.current.x, e.clientY - lastPointer.current.y);
-            lastPointer.current = { x: e.clientX, y: e.clientY };
+            const last = lastPointer.current;
+            if (!last || e.pointerId !== last.id) return;
+            move(e.clientX - last.x, e.clientY - last.y);
+            lastPointer.current = { id: last.id, x: e.clientX, y: e.clientY };
           }}
-          onPointerUp={() => {
-            lastPointer.current = null;
+          onPointerUp={(e) => {
+            if (e.pointerId === lastPointer.current?.id) lastPointer.current = null;
           }}
-          onPointerCancel={() => {
-            lastPointer.current = null;
+          onPointerCancel={(e) => {
+            if (e.pointerId === lastPointer.current?.id) lastPointer.current = null;
           }}
           onKeyDown={(e) => {
             const step = {

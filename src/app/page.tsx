@@ -53,11 +53,12 @@ export default function Home() {
           aria-hidden
           className="absolute inset-x-0 top-0 grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2 p-3"
         >
-          {WALL.map((c) => (
+          {WALL.map((c, i) => (
             <div
               key={c.key}
+              style={{ animationDelay: `${(i % 12) * 40}ms` }}
               className={cn(
-                "relative aspect-square overflow-hidden rounded-lg",
+                "wall-in relative aspect-square overflow-hidden rounded-lg",
                 rarityBackground(c.rarity),
                 !c.owned && "grayscale opacity-40"
               )}

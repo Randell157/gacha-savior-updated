@@ -65,9 +65,9 @@ export default function PageShell({
         </div>
       </div>
       {panel === "none" ? (
-        children
+        <div data-page-content="">{children}</div>
       ) : (
-        <div className="max-w-7xl mx-auto py-4 sm:py-12 sm:px-6 lg:px-8">
+        <div data-page-content="" className="max-w-7xl mx-auto py-4 sm:py-12 sm:px-6 lg:px-8">
           <div
             className={cn(
               // overflow-clip, not -hidden: it rounds the corners without breaking `sticky` inside the panel.

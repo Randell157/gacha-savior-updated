@@ -172,7 +172,7 @@ function Weapons({ signedOut = false }: { signedOut?: boolean }) {
               className={cn("sm:hidden", filterCount > 0 && "border-indigo-500 text-indigo-700 dark:text-indigo-300")}
             >
               Filters{filterCount > 0 && ` (${filterCount})`}
-              <ChevronDown className={cn("ml-2 h-4 w-4 transition-transform", filtersOpen && "rotate-180")} aria-hidden />
+              <ChevronDown className={cn("ml-2 h-4 w-4 transition-transform duration-150 ease-out-strong motion-reduce:transition-none", filtersOpen && "rotate-180")} aria-hidden />
             </Button>
             {/* Below the button on phones, and part of this row from sm up. */}
             <div className={cn(!filtersOpen && "hidden", "order-last w-full space-y-1 sm:contents")}>

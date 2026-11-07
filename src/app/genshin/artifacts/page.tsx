@@ -549,7 +549,7 @@ function EquippedRow({
         </span>
         <ChevronDown
           aria-hidden="true"
-          className={cn("h-4 w-4 shrink-0 text-gray-500 dark:text-slate-400", isOpen && "rotate-180")}
+          className={cn("h-4 w-4 shrink-0 text-gray-500 transition-transform duration-150 ease-out-strong motion-reduce:transition-none dark:text-slate-400", isOpen && "rotate-180")}
         />
       </button>
       {!isOpen && (
@@ -564,7 +564,7 @@ function EquippedRow({
           })}
         </div>
       )}
-      <div id={detailsId} className={cn(!isOpen && "hidden", "lg:contents")}>
+      <div id={detailsId} className={cn(isOpen ? "fade-in" : "hidden", "lg:contents")}>
       <div className="mb-3 mt-2 lg:my-0">
         <div className="hidden items-center gap-3 lg:flex">
           <CharacterAvatar characterKey={characterKey} size={48} />

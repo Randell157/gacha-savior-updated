@@ -183,7 +183,7 @@ function ReactionsRow({ reactions }: { reactions: CharacterReaction[] }) {
               aria-pressed={index === selected}
               onClick={() => setSelected(index)}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-full border border-current px-2.5 py-0.5 text-xs font-semibold hover:ring-1 hover:ring-current focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                "press inline-flex items-center gap-1.5 rounded-full border border-current px-2.5 py-0.5 text-xs font-semibold hover:ring-1 hover:ring-current focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                 ELEMENT_CHIP[elements[0]] ?? GREY_PILL,
                 // Outlined until chosen, so these read as controls beside the filled label chips above.
                 index !== selected && "!bg-transparent"
@@ -201,13 +201,15 @@ function ReactionsRow({ reactions }: { reactions: CharacterReaction[] }) {
           );
         })}
       </div>
-      <p aria-live="polite" className="max-w-2xl text-sm text-gray-600 dark:text-slate-400">
-        <span className="font-semibold text-gray-800 dark:text-slate-200">
-          {current.reaction}
-          {currentElements.length > 0 && ` (${currentElements.join(" + ")})`}:
-        </span>{" "}
-        {current.note}
-      </p>
+      <div aria-live="polite">
+        <p key={current.reaction} className="fade-up max-w-2xl text-sm text-gray-600 dark:text-slate-400">
+          <span className="font-semibold text-gray-800 dark:text-slate-200">
+            {current.reaction}
+            {currentElements.length > 0 && ` (${currentElements.join(" + ")})`}:
+          </span>{" "}
+          {current.note}
+        </p>
+      </div>
     </div>
   );
 }

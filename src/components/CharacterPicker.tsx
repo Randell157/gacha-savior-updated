@@ -106,7 +106,7 @@ export default function CharacterPicker({
                     title={taken ? `${name} is ${note}` : name}
                     onClick={() => choose(key)}
                     className={cn(
-                      "flex min-w-0 flex-col items-center rounded-lg p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500",
+                      "press flex min-w-0 flex-col items-center rounded-lg p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500",
                       taken ? "cursor-not-allowed" : "hover:bg-indigo-50 dark:hover:bg-indigo-900/40",
                       (key === value || key === firstPick?.key) &&
                         "bg-indigo-50 ring-2 ring-inset ring-indigo-500 dark:bg-indigo-900/40"

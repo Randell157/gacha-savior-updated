@@ -81,8 +81,8 @@ function MarkedText({ text }: { text: string }) {
 export function TalentText({ talent, id }: { talent: GameText; id: string }) {
   return (
     <div id={id} className="mt-2 rounded-lg border border-gray-200 dark:border-slate-700 p-3">
-      <p className="font-semibold text-gray-900 dark:text-slate-100">{talent.name}</p>
-      <p className="mt-1 whitespace-pre-line text-sm text-gray-600 dark:text-slate-400">
+      <p key={talent.name} className="fade-up font-semibold text-gray-900 dark:text-slate-100">{talent.name}</p>
+      <p key={`${talent.name}-text`} className="fade-up mt-1 whitespace-pre-line text-sm text-gray-600 dark:text-slate-400">
         <MarkedText text={talent.text} />
       </p>
     </div>
@@ -109,7 +109,7 @@ export function TalentKindLabel({
       )}
     >
       {kind}
-      {arrow && <ChevronDown aria-hidden="true" className={cn("h-3 w-3 shrink-0", open && "rotate-180")} />}
+      {arrow && <ChevronDown aria-hidden="true" className={cn("h-3 w-3 shrink-0 transition-transform duration-150 ease-out-strong motion-reduce:transition-none", open && "rotate-180")} />}
     </span>
   );
 }
@@ -194,7 +194,7 @@ export function ConstellationPicker({
             </span>
           )}
         </p>
-        <p className="mt-1 max-w-4xl whitespace-pre-line text-sm text-gray-600 dark:text-slate-400">
+        <p key={current.name} className="fade-up mt-1 max-w-4xl whitespace-pre-line text-sm text-gray-600 dark:text-slate-400">
           <MarkedText text={current.text} />
         </p>
       </div>

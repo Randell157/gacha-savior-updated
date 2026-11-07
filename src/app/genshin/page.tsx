@@ -95,7 +95,7 @@ function GenshinOverview() {
           </Alert>
         )}
         {savedSummary && (
-          <Alert className="border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950/40 text-green-800 dark:text-green-200 [&>svg]:text-green-600">
+          <Alert className="fade-up border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950/40 text-green-800 dark:text-green-200 [&>svg]:text-green-600">
             <CheckCircle2 className="h-4 w-4" />
             <AlertTitle>Saved</AlertTitle>
             <AlertDescription>{savedSummary}.</AlertDescription>
