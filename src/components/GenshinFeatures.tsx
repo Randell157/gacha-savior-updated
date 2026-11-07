@@ -29,7 +29,7 @@ const FEATURES = [
   {
     icon: Swords,
     title: "Weapons",
-    text: "Cards or a table, with search, type and rarity filters, and duplicate copies grouped together.",
+    text: "Cards or a table, with search, type and rarity filters, and a page for each weapon showing every copy you own.",
   },
   {
     icon: Flower2,

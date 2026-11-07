@@ -14,18 +14,12 @@ import ArtifactSlotCard from "@/components/ArtifactSlotCard";
 import { BaseStats, ChooseElementHint, ConstellationPicker, TalentKindLabel, TalentText } from "@/components/CharacterExtras";
 import CharacterGameInfo, { Stars } from "@/components/CharacterGameInfo";
 import CharacterStepper from "@/components/CharacterStepper";
-import NumberButtons from "@/components/NumberButtons";
 import RequireAuth from "@/components/RequireAuth";
+import WeaponPassive from "@/components/WeaponPassive";
 import { cn, formatCharacterDisplayName } from "@/lib/utils";
 import { buildEquipmentIndex } from "@/lib/genshin/equipment";
-import { weaponName } from "@/lib/genshin/weapons";
-import {
-  canRefine,
-  getWeaponDescription,
-  getWeaponPassive,
-  getWeaponRarity,
-  getWeaponStats,
-} from "@/lib/genshin/weaponDetails";
+import { weaponHref, weaponName } from "@/lib/genshin/weapons";
+import { getWeaponRarity, getWeaponStats } from "@/lib/genshin/weaponDetails";
 import { getCharacterDetails, isTraveler } from "@/lib/genshin/characterDetails";
 import { TALENT_KINDS, type GameText } from "@/lib/genshin/characterExtras";
 import { getCharacterPortrait, getCharacterRarity, rarityBackground } from "@/lib/genshinCharacters";
@@ -282,7 +276,6 @@ function BuildStrip({ character, talents }: { character: GoodCharacter; talents:
  * preview other refinements; the weapon's own refinement has a star.
  */
 function WeaponPanel({ weapon }: { weapon: GoodWeapon | null }) {
-  const [shown, setShown] = useState<number | null>(null);
   if (!weapon) {
     return (
       <section className={PANEL}>
@@ -293,9 +286,6 @@ function WeaponPanel({ weapon }: { weapon: GoodWeapon | null }) {
   }
   const rarity = getWeaponRarity(weapon.key);
   const stats = getWeaponStats(weapon.key, weapon.level, weapon.ascension ?? 0);
-  const refinement = shown ?? weapon.refinement;
-  const passive = getWeaponPassive(weapon.key, refinement);
-  const description = getWeaponDescription(weapon.key);
   return (
     <section className={PANEL}>
       <PanelHeading>Weapon</PanelHeading>
@@ -304,7 +294,12 @@ function WeaponPanel({ weapon }: { weapon: GoodWeapon | null }) {
           <div className="flex items-center gap-4">
             <WeaponIcon weaponKey={weapon.key} size="lg" />
             <div>
-              <p className="font-semibold text-gray-900 dark:text-slate-100">{weaponName(weapon.key)}</p>
+              <Link
+                href={weaponHref(weapon.key)}
+                className="font-semibold text-indigo-700 hover:underline dark:text-indigo-300"
+              >
+                {weaponName(weapon.key)}
+              </Link>
               <div className="mt-1.5 flex flex-wrap gap-1.5">
                 <Chip>Lv. {weapon.level}</Chip>
                 <Chip>R{weapon.refinement}</Chip>
@@ -327,46 +322,7 @@ function WeaponPanel({ weapon }: { weapon: GoodWeapon | null }) {
             </div>
           )}
         </div>
-        {(passive || description) && (
-          <div className="space-y-3">
-            {passive && canRefine(weapon.key) && (
-              <NumberButtons
-                label="Refinement"
-                prefix="R"
-                count={5}
-                selected={refinement}
-                onSelect={setShown}
-                isMarked={(r) => r === weapon.refinement}
-                markLabel="yours"
-                markTitle="Your refinement"
-              />
-            )}
-            {passive && (
-              <div>
-                <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">
-                  {passive.name}{" "}
-                  <span className="ml-1 rounded bg-indigo-100 dark:bg-indigo-900/50 px-1.5 py-0.5 text-xs text-indigo-700 dark:text-indigo-300">
-                    R{refinement}
-                  </span>
-                </p>
-                <p className="mt-1 text-sm text-gray-600 dark:text-slate-400" aria-live="polite">
-                  {passive.parts.map((part, i) =>
-                    part.value ? (
-                      <strong key={i} className="font-semibold text-indigo-700 dark:text-indigo-300">
-                        {part.text}
-                      </strong>
-                    ) : (
-                      <span key={i}>{part.text}</span>
-                    )
-                  )}
-                </p>
-              </div>
-            )}
-            {description && (
-              <p className="text-sm italic text-gray-500 dark:text-slate-400">{description}</p>
-            )}
-          </div>
-        )}
+        <WeaponPassive weaponKey={weapon.key} owned={[weapon.refinement]} />
       </div>
     </section>
   );

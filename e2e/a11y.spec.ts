@@ -84,6 +84,7 @@ for (const colorScheme of ["light", "dark"] as const) {
         "/genshin/characters/Aino",
         "/genshin/characters/Traveler",
         "/genshin/weapons",
+        "/genshin/weapons/FavoniusWarbow",
         "/genshin/artifacts",
         "/profile",
       ]) {

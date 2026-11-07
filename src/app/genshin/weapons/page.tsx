@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { ChevronDown, LayoutGrid, Rows3 } from "lucide-react";
 import { useGenshinData } from "@/hooks/useGenshinData";
 import { useRememberedState } from "@/hooks/useRememberedState";
@@ -30,7 +31,7 @@ import CharacterAvatar from "@/components/CharacterAvatar";
 import WeaponIcon from "@/components/WeaponIcon";
 import SignedOutBanner, { EmptyList } from "@/components/SignedOutBanner";
 import { cn, formatCharacterDisplayName } from "@/lib/utils";
-import { getWeapon, weaponName } from "@/lib/genshin/weapons";
+import { getWeapon, weaponHref, weaponName } from "@/lib/genshin/weapons";
 import type { GoodWeapon } from "@/lib/genshin/types";
 
 type SortKey = "level-desc" | "level-asc" | "name-asc" | "rarity-desc" | "refinement-desc";
@@ -94,7 +95,8 @@ function Weapons({ signedOut = false }: { signedOut?: boolean }) {
   const [typeFilter, setTypeFilter] = useRememberedState<string | null>("weapons:type", null);
   const [rarityFilter, setRarityFilter] = useRememberedState<number | null>("weapons:rarity", null);
   const weapons = useMemo(() => genshinData?.weapons ?? [], [genshinData]);
-  const [limit, setLimit] = useState(PAGE_SIZE);
+  // Remembered too, so coming back from a weapon's page finds the same entries drawn.
+  const [limit, setLimit] = useRememberedState("weapons:limit", PAGE_SIZE);
   // On phones, the filters wait behind a button so the weapons start higher up.
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -302,6 +304,25 @@ function Weapons({ signedOut = false }: { signedOut?: boolean }) {
   );
 }
 
+/**
+ * The weapon's name as a link whose pressable area stretches over the nearest
+ * `relative` parent, so the whole card or row opens the weapon's page. It covers
+ * the holder's face, so the tooltip that names the holder goes here.
+ */
+function WeaponLink({ weapon, name }: { weapon: GoodWeapon; name: string }) {
+  return (
+    <Link
+      href={weaponHref(weapon.key)}
+      title={weapon.location ? `Equipped by ${formatCharacterDisplayName(weapon.location)}` : undefined}
+      className="after:absolute after:inset-0"
+    >
+      {name}
+    </Link>
+  );
+}
+
+const ROW_HOVER = "relative hover:bg-indigo-50 dark:hover:bg-indigo-900/20";
+
 function CopiesBadge({ copies }: { copies: number }) {
   if (copies < 2) return null;
   return (
@@ -321,10 +342,12 @@ function WeaponCards({ rows }: { rows: WeaponRow[] }) {
       {rows.map(({ id, weapon, name, copies }) => {
         const info = getWeapon(weapon.key);
         return (
-          <li key={id} className="flex items-center gap-3 py-2">
+          <li key={id} className={cn("flex items-center gap-3 py-2", ROW_HOVER)}>
             <WeaponIcon weaponKey={weapon.key} size="sm" />
             <div className="min-w-0 flex-1">
-              <p className="font-semibold leading-tight text-gray-900 dark:text-slate-100">{name}</p>
+              <p className="font-semibold leading-tight text-gray-900 dark:text-slate-100">
+                <WeaponLink weapon={weapon} name={name} />
+              </p>
               <p className="text-xs text-gray-500 dark:text-slate-400">
                 {info && `${info.type} · ${info.rarity}★ · `}Lv. {weapon.level} · R{weapon.refinement}
               </p>
@@ -346,11 +369,13 @@ function WeaponCards({ rows }: { rows: WeaponRow[] }) {
     </ul>
     <div className="hidden grid-cols-1 gap-4 sm:grid md:grid-cols-2 lg:grid-cols-3">
       {rows.map(({ id, weapon, name, copies }) => (
-        <Card key={id}>
+        <Card key={id} className={ROW_HOVER}>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-3 text-lg">
               <WeaponIcon weaponKey={weapon.key} />
-              <span className="min-w-0 flex-1">{name}</span>
+              <span className="min-w-0 flex-1">
+                <WeaponLink weapon={weapon} name={name} />
+              </span>
               {weapon.location && (
                 <CharacterAvatar
                   characterKey={weapon.location}
@@ -416,11 +441,11 @@ function WeaponTable({
         </TableHeader>
         <TableBody>
           {rows.map(({ id, weapon, name, copies }) => (
-            <TableRow key={id}>
+            <TableRow key={id} className={ROW_HOVER}>
               <TableCell className="font-medium">
                 <div className="flex items-center gap-3">
                   <WeaponIcon weaponKey={weapon.key} size="sm" />
-                  {name}
+                  <WeaponLink weapon={weapon} name={name} />
                 </div>
               </TableCell>
               <TableCell>{weapon.level}</TableCell>

@@ -34,6 +34,11 @@ export function weaponName(key: string): string {
   return getWeapon(key)?.name ?? formatWeaponDisplayName(key);
 }
 
+/** The address of a weapon's page. */
+export function weaponHref(key: string): string {
+  return `/genshin/weapons/${encodeURIComponent(key)}`;
+}
+
 /** The weapon's icon from `npm run icons:weapons`, or null for a weapon newer than the data. */
 export function weaponIcon(key: string): string | null {
   return getWeapon(key) ? `/weapon-icons/${weaponId(key)}.webp` : null;

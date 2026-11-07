@@ -53,7 +53,7 @@ Each phase builds on the one before it. Phase 2 comes first so later phases buil
 | 1 | Firestore storage and one shared data hook | 0 | **Done** (2026-11-02) |
 | 2 | UI review and consistency pass | 1 | **Done** (2026-11-02); still open for a few more UI changes the user is considering |
 | 3 | Artifact analysis | 1 | **Done** (2026-11-06) |
-| 4 | Character and weapon detail pages | 1 | Planned |
+| 4 | Character and weapon detail pages | 1 | **Done** (2026-11-06) |
 | 5 | Wish history tracker | 1 | Planned |
 
 ---
@@ -370,7 +370,7 @@ The tiers live in `src/lib/genshin/artifactScore.ts` so they're easy to adjust. 
 
 ### Character page (`/genshin/characters/[key]`)
 
-**Started early (2026-11-04):** the talents with descriptions, all six constellations and base stats are built, and the signed-out quick view shows them too. [CLAUDE.md](../CLAUDE.md) describes them. The CV on artifacts and the weapon page are still to come.
+**Started early (2026-11-04):** the talents with descriptions, all six constellations and base stats are built, and the signed-out quick view shows them too. [ARCHITECTURE.md](ARCHITECTURE.md) describes them.
 
 - Header: portrait, name, element and weapon icons, rarity, level, ascension and constellation.
 - **Talents**: the user's Normal Attack, Skill and Burst levels from the GOOD `talent` field, with names and descriptions from the game data.
@@ -383,6 +383,8 @@ The tiers live in `src/lib/genshin/artifactScore.ts` so they're easy to adjust. 
 A new route. It shows base ATK and the substat at its level, the passive at the user's refinement, and who has it equipped. It also lists other copies the user owns, since `/weapons` can show duplicates.
 
 **Done when** every owned character and weapon has a full page, and the build script runs without unmatched keys apart from known ones.
+
+**As built** (picks B and 1 from `.mockups/weapon-page.html`): the weapon page keeps the weapon on top and lists every copy in a table with its own numbers, so there's no chosen copy. The passive opens on the highest refinement owned, with a star on each one owned. The whole card or row in the Weapons list links to the page, and so does the weapon's name on the character page. How it works is in [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ---
 

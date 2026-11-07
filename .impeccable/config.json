@@ -38,6 +38,15 @@
         ],
         "createdAt": "2026-11-07T05:35:45.461Z",
         "reason": "Claude triage: line 38 is text-indigo-900 dark:text-indigo-200, the site's documented heading colour mapping in CLAUDE.md, with no gradient"
+      },
+      {
+        "rule": "ai-color-palette",
+        "value": "*",
+        "files": [
+          "src/app/genshin/weapons/[key]/page.tsx"
+        ],
+        "createdAt": "2026-11-07T06:07:42.482Z",
+        "reason": "Claude's triage: flat text-indigo-900 dark:text-indigo-200 panel heading, the same class the character page uses under the site's documented palette; no gradient"
       }
     ]
   }

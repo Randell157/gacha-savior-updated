@@ -94,7 +94,7 @@ test.describe("log in", () => {
 
 test("protected pages send signed-out visitors to the login page", async ({ page }) => {
   // Weapons, Artifacts and Characters stay open signed out, with a log-in banner (pages.spec).
-  for (const route of ["/dashboard", "/profile", "/genshin", "/genshin/characters/Aino"]) {
+  for (const route of ["/dashboard", "/profile", "/genshin", "/genshin/characters/Aino", "/genshin/weapons/AmosBow"]) {
     await page.goto(route);
     await expect(page, `${route} should redirect`).toHaveURL(/\/login$/);
   }

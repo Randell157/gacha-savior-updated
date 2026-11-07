@@ -367,6 +367,63 @@ test.describe("signed in with the sample upload", () => {
     await page.getByRole("button", { name: "Cards" }).click();
   });
 
+  test("a weapon's page shows its passive and every copy, and is reached from the list and the character page", async () => {
+    // The whole card opens the page.
+    await page.goto("/genshin/weapons");
+    await page.getByPlaceholder("Search weapons").fill("Favonius Warbow");
+    await page.locator('main a[href="/genshin/weapons/FavoniusWarbow"]').locator("visible=true").first().click();
+    await expect(page.getByRole("heading", { level: 1, name: "Favonius Warbow" })).toBeVisible();
+
+    // Identical copies merge, strongest first, each with its own numbers.
+    await expect(page.getByRole("heading", { name: "Your 10 copies" })).toBeVisible();
+    const rows = page.locator("main tbody tr");
+    await expect(rows).toHaveCount(3);
+    await expect(rows.nth(0)).toContainText("Yelan");
+    await expect(rows.nth(0)).toContainText("454");
+    await expect(rows.nth(0)).toContainText("61.3%");
+    await expect(rows.nth(1)).toContainText("Kujou Sara");
+    await expect(rows.nth(2)).toContainText("Not equipped");
+    await expect(rows.nth(2)).toContainText("×8");
+
+    // The passive opens on the highest refinement owned, with a star on each one owned.
+    const refinement = page.getByRole("group", { name: "Refinement" });
+    await expect(refinement.getByRole("button", { name: "R5 (yours)" })).toHaveAttribute("aria-pressed", "true");
+    await expect(refinement.getByRole("button", { name: "R4", exact: true })).toBeVisible();
+    await expect(page.getByText("100%", { exact: true })).toBeVisible();
+    await refinement.getByRole("button", { name: "R3 (yours)" }).click();
+    await expect(page.getByText("80%", { exact: true })).toBeVisible();
+
+    // A holder's row leads to them, and their Weapon panel leads back.
+    await rows.nth(1).getByRole("link", { name: "Kujou Sara" }).click();
+    await expect(page.getByRole("heading", { level: 1, name: "Kujou Sara" })).toBeVisible();
+    await page.locator("section", { has: page.getByRole("heading", { name: "Weapon" }) })
+      .getByRole("link", { name: "Favonius Warbow" }).click();
+    await expect(page.getByRole("heading", { level: 1, name: "Favonius Warbow" })).toBeVisible();
+
+    await page.goto("/genshin/weapons/AmosBow");
+    await expect(page.getByRole("heading", { name: "Your copy" })).toBeVisible();
+
+    // Leave the list as the next test expects it.
+    await page.goto("/genshin/weapons");
+    await page.getByPlaceholder("Search weapons").fill("");
+  });
+
+  test("the weapons list keeps what it had drawn after visiting a weapon", async () => {
+    await page.goto("/genshin/weapons");
+    await page.getByRole("button", { name: "Show 60 more" }).click();
+    await expect(page.getByText("Showing 120 of 162 entries (336 weapons)")).toBeVisible();
+    await page.locator('main a[href="/genshin/weapons/AmosBow"]').locator("visible=true").first().click();
+    await expect(page.getByRole("heading", { level: 1, name: "Amos' Bow" })).toBeVisible();
+    await page.goBack();
+    await expect(page.getByText("Showing 120 of 162 entries (336 weapons)")).toBeVisible();
+  });
+
+  test("a weapon that isn't in the upload says so", async () => {
+    await page.goto("/genshin/weapons/NotARealWeapon");
+    await expect(page.getByText("You don't have this weapon in your latest upload.")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Back to Weapons" })).toBeVisible();
+  });
+
   test("on a phone the weapons page's filters open from a Filters button", async () => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto("/genshin/weapons");
