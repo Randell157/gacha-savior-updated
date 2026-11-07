@@ -51,7 +51,7 @@ Each phase builds on the one before it. Phase 2 comes first so later phases buil
 |---|---|---|---|
 | 0 | Groundwork: lint, shared types and parsing, env config, sign-up fix | — | **Done** (2026-11-01) |
 | 1 | Firestore storage and one shared data hook | 0 | **Done** (2026-11-02) |
-| 2 | UI review and consistency pass | 1 | **Done** (2026-11-02); still open for a few more UI changes the user is considering. Don't start Phase 3 until the user says so |
+| 2 | UI review and consistency pass | 1 | **Done** (2026-11-02); still open for a few more UI changes the user is considering |
 | 3 | Artifact analysis | 1 | **Done** (2026-11-06) |
 | 4 | Character and weapon detail pages | 1 | Planned |
 | 5 | Wish history tracker | 1 | Planned |
