@@ -339,7 +339,7 @@ The main stat is left out of the score; that's the common convention, and otherw
 | Good | 20 to 29.9 |
 | Low | under 20 |
 
-The tiers live in `src/lib/genshin/artifactScore.ts` so they're easy to adjust. Pieces below level 20 show their CV with a "still levelling" badge, because they're still gaining substats.
+The tiers live in `src/lib/genshin/artifactScore.ts` so they're easy to adjust. Pieces below level 20 show their CV with a "still leveling" badge, because they're still gaining substats.
 
 ### Page features
 
