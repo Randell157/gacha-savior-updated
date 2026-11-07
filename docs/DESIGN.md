@@ -52,7 +52,7 @@ Each phase builds on the one before it. Phase 2 comes first so later phases buil
 | 0 | Groundwork: lint, shared types and parsing, env config, sign-up fix | — | **Done** (2026-11-01) |
 | 1 | Firestore storage and one shared data hook | 0 | **Done** (2026-11-02) |
 | 2 | UI review and consistency pass | 1 | **Done** (2026-11-02); still open for a few more UI changes the user is considering. Don't start Phase 3 until the user says so |
-| 3 | Artifact analysis | 1 | Planned |
+| 3 | Artifact analysis | 1 | **Done** (2026-11-06) |
 | 4 | Character and weapon detail pages | 1 | Planned |
 | 5 | Wish history tracker | 1 | Planned |
 
@@ -351,6 +351,8 @@ The tiers live in `src/lib/genshin/artifactScore.ts` so they're easy to adjust. 
 - Large inventories (1,700+ pieces): start with pagination at 60 per page. Add a virtualized list only if the page actually feels slow. **Already in place (2026-11-02):** the page opens on equipped pieces grouped by character, and All / Unequipped load 60 at a time. Phase 3's filters and sorting should build on that toggle rather than replace it.
 
 **Done when** the user can find their weakest unequipped pieces and best pieces in a few clicks, and every character's equipped artifacts show a CV.
+
+**As built** (picks 1B, 2A, 3C, 4B from `.mockups/artifact-score.html`): circlets with a CRIT main stat show their CV but no tier, and stay out of Low and the fodder count, because they can't roll that stat as a substat (in the Irminsul sample the best of 88 reached 27.2). Lower rarities show a CV as "Not rated". The summary tiles sit under the Show row rather than above it, so that row doesn't jump when switching to Equipped.
 
 ---
 

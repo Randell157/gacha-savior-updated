@@ -34,7 +34,7 @@ const FEATURES = [
   {
     icon: Flower2,
     title: "Artifacts",
-    text: "Who's wearing what, their active set bonuses, and filters for set, slot and main stat.",
+    text: "Who's wearing what, their active set bonuses, a Crit Value score on every piece, and filters to find your best and worst.",
   },
   {
     icon: LayoutGrid,

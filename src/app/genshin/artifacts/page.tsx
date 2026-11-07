@@ -11,15 +11,24 @@ import GenshinShell from "@/components/GenshinShell";
 import RequireAuth from "@/components/RequireAuth";
 import Segmented from "@/components/Segmented";
 import SearchInput from "@/components/SearchInput";
-import { ClearFilters, FilterChip, NoMatches } from "@/components/FilterChip";
+import { ClearFilters, FilterChip, NoMatches, RARITY_CHIP } from "@/components/FilterChip";
 import CharacterAvatar from "@/components/CharacterAvatar";
 import ArtifactIcon from "@/components/ArtifactIcon";
+import { CvBlock } from "@/components/ArtifactScore";
 import ArtifactSetBonuses from "@/components/ArtifactSetBonuses";
 import ArtifactSlotCard from "@/components/ArtifactSlotCard";
 import ArtifactSubstats from "@/components/ArtifactSubstats";
 import SignedOutBanner, { EmptyList } from "@/components/SignedOutBanner";
 import { cn, formatCharacterDisplayName } from "@/lib/utils";
 import { formatSlotName, formatStatName } from "@/lib/genshin/stats";
+import {
+  SCORE_TIERS,
+  critValue,
+  isLikelyFodder,
+  roundCv,
+  scoreTier,
+  type ScoreTier,
+} from "@/lib/genshin/artifactScore";
 import type { GoodArtifact } from "@/lib/genshin/types";
 import {
   ALL_ARTIFACT_SETS,
@@ -44,7 +53,9 @@ const ANY_MAIN_STAT = "__any__";
 /** Flowers and plumes only ever have one main stat, so filtering them by it does nothing. */
 const SINGLE_MAIN_STAT = ["flower", "plume"];
 
-type ArtifactSort = "upload" | "level-desc" | "level-asc" | "set";
+type ArtifactSort = "upload" | "cv-desc" | "cv-asc" | "level-desc" | "level-asc" | "set";
+type EquippedSort = "name" | "cv-desc" | "cv-asc";
+type LockFilter = "locked" | "unlocked";
 
 /** How many of the five pieces a character has on: all of them, some of them, or none. */
 type Completeness = "full" | "missing" | "none";
@@ -90,6 +101,13 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
   const [sort, setSort] = useRememberedState<ArtifactSort>("artifacts:sort", "upload");
   const [characterSearch, setCharacterSearch] = useRememberedState("artifacts:search", "");
   const [completeness, setCompleteness] = useRememberedState<Completeness | null>("artifacts:completeness", null);
+  const [equippedSort, setEquippedSort] = useRememberedState<EquippedSort>("artifacts:equippedSort", "name");
+  const [scoreFilter, setScoreFilter] = useRememberedState<ScoreTier | null>("artifacts:score", null);
+  const [lockFilter, setLockFilter] = useRememberedState<LockFilter | null>("artifacts:lock", null);
+  const [rarityFilter, setRarityFilter] = useRememberedState<number | null>("artifacts:rarity", null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  // The Show toggle takes focus from the summary tile that leads away from it.
+  const showRow = useRef<HTMLDivElement>(null);
   const artifacts = useMemo(() => genshinData?.artifacts ?? [], [genshinData]);
 
   const equippedCount = useMemo(() => artifacts.filter((a) => a.location).length, [artifacts]);
@@ -106,7 +124,12 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
       byCharacter.set(artifact.location, list);
     }
     return [...byCharacter.entries()]
-      .map(([key, pieces]) => ({ key, name: formatCharacterDisplayName(key), pieces: pieces.sort(bySlot) }))
+      .map(([key, pieces]) => ({
+        key,
+        name: formatCharacterDisplayName(key),
+        pieces: pieces.sort(bySlot),
+        totalCv: roundCv(pieces.reduce((sum, piece) => sum + critValue(piece), 0)),
+      }))
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [artifacts, genshinData]);
 
@@ -118,12 +141,42 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
 
   const visibleGroups = useMemo(() => {
     const query = characterSearch.trim().toLowerCase();
-    return groups.filter(
+    const visible = groups.filter(
       (group) =>
         (!completeness || completenessOf(group.pieces) === completeness) &&
         (!query || group.name.toLowerCase().includes(query))
     );
-  }, [groups, characterSearch, completeness]);
+    // Characters with nothing on have no total to compare, so they stay last both ways.
+    if (equippedSort !== "name") {
+      const direction = equippedSort === "cv-desc" ? -1 : 1;
+      visible.sort(
+        (a, b) =>
+          Number(a.pieces.length === 0) - Number(b.pieces.length === 0) ||
+          direction * (a.totalCv - b.totalCv)
+      );
+    }
+    return visible;
+  }, [groups, characterSearch, completeness, equippedSort]);
+
+  // The numbers in the summary tiles, always across the whole upload.
+  const summary = useMemo(() => {
+    const finished = artifacts.filter((a) => a.location && a.level === 20 && a.rarity === 5);
+    const fodder = artifacts.filter(isLikelyFodder);
+    return {
+      equippedCount: finished.length,
+      equippedAverage: finished.length
+        ? roundCv(finished.reduce((sum, a) => sum + critValue(a), 0) / finished.length)
+        : null,
+      bestInBag: artifacts.filter((a) => !a.location && scoreTier(a) === "excellent").length,
+      fodder: fodder.length,
+      fodderUnlocked: fodder.filter((a) => !a.lock).length,
+    };
+  }, [artifacts]);
+
+  const rarities = useMemo(
+    () => [...new Set(artifacts.map((a) => a.rarity))].sort((a, b) => b - a),
+    [artifacts]
+  );
 
   // The All or Unequipped list before the set filter, which the set counts describe.
   const viewList = useMemo(
@@ -164,15 +217,24 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
     return groups;
   }, [viewList]);
 
+  // Only the tiers this view has, plus the chosen one so it can always be turned off.
+  const tiers = useMemo(() => {
+    const present = new Set(viewList.map(scoreTier));
+    return SCORE_TIERS.filter(({ value }) => present.has(value) || value === scoreFilter);
+  }, [viewList, scoreFilter]);
+
   // The list the main stat dropdown describes: every filter except main stat.
   const beforeMainStat = useMemo(
     () =>
       viewList.filter(
         (a) =>
           (setFilter === ALL_SETS || artifactSetId(a.setKey) === setFilter) &&
-          (!slotFilter || a.slotKey === slotFilter)
+          (!slotFilter || a.slotKey === slotFilter) &&
+          (!scoreFilter || scoreTier(a) === scoreFilter) &&
+          (!lockFilter || Boolean(a.lock) === (lockFilter === "locked")) &&
+          (!rarityFilter || a.rarity === rarityFilter)
       ),
-    [viewList, setFilter, slotFilter]
+    [viewList, setFilter, slotFilter, scoreFilter, lockFilter, rarityFilter]
   );
 
   const mainStats = useMemo(() => {
@@ -190,6 +252,8 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
       mainStatFilter === ANY_MAIN_STAT
         ? [...beforeMainStat]
         : beforeMainStat.filter((a) => a.mainStatKey === mainStatFilter);
+    if (sort === "cv-desc") list.sort((a, b) => critValue(b) - critValue(a));
+    if (sort === "cv-asc") list.sort((a, b) => critValue(a) - critValue(b));
     if (sort === "level-desc") list.sort((a, b) => b.level - a.level);
     if (sort === "level-asc") list.sort((a, b) => a.level - b.level);
     if (sort === "set") list.sort((a, b) => artifactSetName(a.setKey).localeCompare(artifactSetName(b.setKey)));
@@ -197,7 +261,12 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
   }, [beforeMainStat, mainStatFilter, sort]);
 
   const filterCount =
-    Number(setFilter !== ALL_SETS) + Number(slotFilter !== null) + Number(mainStatFilter !== ANY_MAIN_STAT);
+    Number(setFilter !== ALL_SETS) +
+    Number(slotFilter !== null) +
+    Number(mainStatFilter !== ANY_MAIN_STAT) +
+    Number(scoreFilter !== null) +
+    Number(lockFilter !== null) +
+    Number(rarityFilter !== null);
 
   const changeShow = (next: Show) => {
     setShow(next);
@@ -220,7 +289,25 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
     setSetFilter(ALL_SETS);
     setSlotFilter(null);
     setMainStatFilter(ANY_MAIN_STAT);
+    setScoreFilter(null);
+    setLockFilter(null);
+    setRarityFilter(null);
     setLimit(PAGE_SIZE);
+  };
+
+  /** A filter chip's press: choose it, or turn it off if it's already chosen. Main stat counts change with it. */
+  const changeFilter = <T,>(current: T | null, next: T, apply: (value: T | null) => void) => {
+    apply(current === next ? null : next);
+    setMainStatFilter(ANY_MAIN_STAT);
+    setLimit(PAGE_SIZE);
+  };
+
+  /** A summary tile's press: this tier in the bag, in the given order, and nothing else narrowing it. */
+  const showBagTier = (tier: ScoreTier, order: ArtifactSort) => {
+    clearFilters();
+    setShow("unequipped");
+    setScoreFilter(tier);
+    setSort(order);
   };
 
   if (signedOut) {
@@ -258,7 +345,7 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
   return (
     <GenshinShell title="Artifacts">
       <div className="mb-6 space-y-3">
-        <div className="flex flex-wrap items-center gap-3">
+        <div ref={showRow} tabIndex={-1} className="flex flex-wrap items-center gap-3 focus:outline-none">
         <Segmented
           label="Show"
           value={show}
@@ -273,7 +360,24 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
           ]}
         />
           {show === "equipped" ? (
-            <SearchInput value={characterSearch} onChange={setCharacterSearch} label="Search by character" />
+            <>
+              <SearchInput value={characterSearch} onChange={setCharacterSearch} label="Search by character" />
+              <div className="flex items-center gap-2">
+                <label htmlFor="equipped-sort" className="text-sm font-medium">
+                  Sort by:
+                </label>
+                <Select value={equippedSort} onValueChange={(next) => setEquippedSort(next as EquippedSort)}>
+                  <SelectTrigger id="equipped-sort" className="w-[13rem]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="name">Name (A-Z)</SelectItem>
+                    <SelectItem value="cv-desc">Total CV (High to Low)</SelectItem>
+                    <SelectItem value="cv-asc">Total CV (Low to High)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </>
           ) : (
             <div className="flex items-center gap-2">
               <label htmlFor="artifact-sort" className="text-sm font-medium">
@@ -286,11 +390,13 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
                   setLimit(PAGE_SIZE);
                 }}
               >
-                <SelectTrigger id="artifact-sort" className="w-[11.5rem]">
+                <SelectTrigger id="artifact-sort" className="w-[13rem]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="upload">Upload order</SelectItem>
+                  <SelectItem value="cv-desc">Crit Value (High to Low)</SelectItem>
+                  <SelectItem value="cv-asc">Crit Value (Low to High)</SelectItem>
                   <SelectItem value="level-desc">Level (High to Low)</SelectItem>
                   <SelectItem value="level-asc">Level (Low to High)</SelectItem>
                   <SelectItem value="set">Set (A-Z)</SelectItem>
@@ -298,7 +404,48 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
               </Select>
             </div>
           )}
+          {show !== "equipped" && (
+            <Button
+              variant="outline"
+              aria-expanded={filtersOpen}
+              onClick={() => setFiltersOpen((open) => !open)}
+              className={cn("sm:hidden", filterCount > 0 && "border-indigo-500 text-indigo-700 dark:text-indigo-300")}
+            >
+              Filters{filterCount > 0 && ` (${filterCount})`}
+              <ChevronDown className={cn("ml-2 h-4 w-4 transition-transform duration-150 ease-out-strong motion-reduce:transition-none", filtersOpen && "rotate-180")} aria-hidden />
+            </Button>
+          )}
         </div>
+        {show !== "equipped" && (
+          <div className="grid gap-3 pb-1 sm:grid-cols-3">
+            <SummaryTile
+              value={summary.equippedAverage === null ? "–" : String(summary.equippedAverage)}
+              label="Equipped average CV"
+              detail={
+                summary.equippedCount === 0
+                  ? "No level 20 pieces equipped yet"
+                  : `Across your ${summary.equippedCount.toLocaleString()} equipped level 20 ${summary.equippedCount === 1 ? "piece" : "pieces"}`
+              }
+              onClick={() => {
+                changeShow("equipped");
+                setEquippedSort("cv-desc");
+                showRow.current?.focus();
+              }}
+            />
+            <SummaryTile
+              value={summary.bestInBag.toLocaleString()}
+              label="Excellent, not equipped"
+              detail="Level 20 and 40+ CV, sitting in your bag"
+              onClick={() => showBagTier("excellent", "cv-desc")}
+            />
+            <SummaryTile
+              value={summary.fodder.toLocaleString()}
+              label="Likely fodder"
+              detail={`Unequipped, level 20, under 20 CV (${summary.fodderUnlocked.toLocaleString()} unlocked)`}
+              onClick={() => showBagTier("low", "cv-asc")}
+            />
+          </div>
+        )}
         {show === "equipped" && (
           <div className="flex flex-wrap items-center gap-3">
             <div role="group" aria-label="Filter by how many pieces are equipped" className="flex flex-wrap gap-2">
@@ -316,7 +463,7 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
           </div>
         )}
         {show !== "equipped" && (
-          <>
+          <div className={cn(!filtersOpen && "hidden", "space-y-3 sm:block")}>
           <div role="group" aria-label="Filter by slot" className="flex flex-wrap gap-2">
             {SLOT_ORDER.map((slot) => (
               <FilterChip
@@ -327,6 +474,54 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
                 {formatSlotName(slot).split(" ")[0]}
               </FilterChip>
             ))}
+          </div>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-medium" aria-hidden>Score:</span>
+              <div role="group" aria-label="Filter by score" className="flex flex-wrap gap-2">
+                {tiers.map(({ value, label }) => (
+                  <FilterChip
+                    key={value}
+                    pressed={scoreFilter === value}
+                    onClick={() => changeFilter(scoreFilter, value, setScoreFilter)}
+                  >
+                    {label}
+                  </FilterChip>
+                ))}
+              </div>
+            </div>
+            <span className="hidden h-5 w-px bg-gray-200 dark:bg-slate-700 sm:block" aria-hidden />
+            <div role="group" aria-label="Filter by lock" className="flex flex-wrap gap-2">
+              <FilterChip
+                pressed={lockFilter === "locked"}
+                onClick={() => changeFilter(lockFilter, "locked" as LockFilter, setLockFilter)}
+              >
+                Locked
+              </FilterChip>
+              <FilterChip
+                pressed={lockFilter === "unlocked"}
+                onClick={() => changeFilter(lockFilter, "unlocked" as LockFilter, setLockFilter)}
+              >
+                Unlocked
+              </FilterChip>
+            </div>
+            {rarities.length > 1 && (
+              <>
+                <span className="hidden h-5 w-px bg-gray-200 dark:bg-slate-700 sm:block" aria-hidden />
+                <div role="group" aria-label="Filter by rarity" className="flex flex-wrap gap-2">
+                  {rarities.map((rarity) => (
+                    <FilterChip
+                      key={rarity}
+                      pressed={rarityFilter === rarity}
+                      onClick={() => changeFilter(rarityFilter, rarity, setRarityFilter)}
+                      colors={RARITY_CHIP[String(rarity)]}
+                    >
+                      {rarity}★
+                    </FilterChip>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
           <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
@@ -386,7 +581,7 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
           )}
           <ClearFilters count={filterCount} onClick={clearFilters} />
           </div>
-          </>
+          </div>
         )}
       </div>
 
@@ -425,6 +620,7 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
                 characterKey={group.key}
                 name={group.name}
                 pieces={group.pieces}
+                totalCv={group.totalCv}
                 isOpen={openRow === group.key}
                 onToggle={() => setOpenRow((open) => (open === group.key ? null : group.key))}
               />
@@ -459,6 +655,31 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
   );
 }
 
+/** A number above the list; pressing it sets the view, filters and sort that show those pieces. */
+function SummaryTile({
+  value,
+  label,
+  detail,
+  onClick,
+}: {
+  value: string;
+  label: string;
+  detail: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="rounded-lg border bg-card p-3 text-left text-card-foreground shadow-sm transition-colors hover:border-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:hover:border-indigo-400 sm:p-4"
+    >
+      <span className="block text-2xl font-bold tabular-nums text-indigo-900 dark:text-indigo-200">{value}</span>
+      <span className="block text-sm font-semibold">{label}</span>
+      <span className="block text-xs text-gray-500 dark:text-slate-400">{detail}</span>
+    </button>
+  );
+}
+
 /**
  * One character's equipped set: portrait and name, then a fixed column per
  * slot so the same slot lines up from row to row. Below `lg` the row folds to
@@ -472,12 +693,14 @@ function EquippedRow({
   characterKey,
   name,
   pieces,
+  totalCv,
   isOpen,
   onToggle,
 }: {
   characterKey: string;
   name: string;
   pieces: GoodArtifact[];
+  totalCv: number;
   isOpen: boolean;
   onToggle: () => void;
 }) {
@@ -492,6 +715,10 @@ function EquippedRow({
   const href = `/genshin/characters/${encodeURIComponent(characterKey)}`;
   const count = (
     <span className="text-xs text-gray-500 dark:text-slate-400">{pieces.length} of 5 equipped</span>
+  );
+  // A total with no tier: a support's 0 fits their build, and says nothing bad about it.
+  const total = (
+    <span className="block text-xs font-semibold text-indigo-900 dark:text-indigo-200">Total CV {totalCv}</span>
   );
 
   // With nothing equipped there's nothing to open, so the row is a link on smaller
@@ -546,6 +773,7 @@ function EquippedRow({
         <span className="min-w-0 flex-1">
           <span className="block font-semibold leading-tight text-indigo-900 dark:text-indigo-200">{name}</span>
           {count}
+          {total}
         </span>
         <ChevronDown
           aria-hidden="true"
@@ -576,6 +804,7 @@ function EquippedRow({
               {name}
             </Link>
             {count}
+            {total}
           </div>
         </div>
         <Link
@@ -637,18 +866,21 @@ function ArtifactCard({ artifact }: { artifact: GoodArtifact }) {
           )}
         </CardTitle>
       </CardHeader>
-      {/* Main stat and substats styled like the Equipped slot cards. */}
-      <CardContent className="text-sm">
-        <p className="text-gray-500 dark:text-slate-400">
-          {formatSlotName(artifact.slotKey)} · {artifact.rarity}★ · Lv. {artifact.level}
-          {artifact.lock && " · Locked"}
-        </p>
-        {artifact.mainStatKey && (
-          <p className="mt-2 font-semibold text-indigo-900 dark:text-indigo-200">
-            {formatStatName(artifact.mainStatKey)}
+      {/* Main stat and substats styled like the Equipped slot cards, with the score in the same place on every card. */}
+      <CardContent className="flex items-start justify-between gap-3 text-sm">
+        <div className="min-w-0">
+          <p className="text-gray-500 dark:text-slate-400">
+            {formatSlotName(artifact.slotKey)} · {artifact.rarity}★ · Lv. {artifact.level}
+            {artifact.lock && " · Locked"}
           </p>
-        )}
-        <ArtifactSubstats substats={artifact.substats} />
+          {artifact.mainStatKey && (
+            <p className="mt-2 font-semibold text-indigo-900 dark:text-indigo-200">
+              {formatStatName(artifact.mainStatKey)}
+            </p>
+          )}
+          <ArtifactSubstats substats={artifact.substats} />
+        </div>
+        <CvBlock artifact={artifact} />
       </CardContent>
     </Card>
   );

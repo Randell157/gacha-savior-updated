@@ -424,6 +424,45 @@ test.describe("signed in with the sample upload", () => {
     await expect(page.locator("#artifact-main-stat")).toHaveCount(0);
   });
 
+  test("the artifacts page scores pieces and finds the best and worst", async () => {
+    await page.goto("/genshin/artifacts");
+    const show = page.getByRole("group", { name: "Show" });
+
+    // Equipped rows have a chip on each piece and a total, which can set the order.
+    await expect(page.getByText(/^Total CV /).locator("visible=true").first()).toBeVisible();
+    await expect(page.getByText(/^CV \d/).locator("visible=true").first()).toBeVisible();
+    await page.locator("#equipped-sort").click();
+    await page.getByRole("option", { name: "Total CV (High to Low)" }).click();
+    await expect(page.locator("section").filter({ hasText: "Total CV" }).first()).toContainText("Skirk");
+
+    // The summary's numbers come from the Irminsul sample.
+    await show.getByRole("button", { name: "All (1,717)" }).click();
+    await expect(page.getByRole("button", { name: /^21\.2 Equipped average CV/ })).toBeVisible();
+
+    // Each tile leads to its pieces: 4 Excellent in the bag, and 60 likely fodder, weakest first.
+    await page.getByRole("button", { name: /^4 Excellent, not equipped/ }).click();
+    await expect(show.getByRole("button", { name: /^Unequipped/ })).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByText("Showing 4 of 4")).toBeVisible();
+    await expect(page.locator("#artifact-sort")).toContainText("Crit Value (High to Low)");
+    await page.getByRole("button", { name: /^60 Likely fodder.*19 unlocked/ }).click();
+    await expect(page.getByText("Showing 60 of 60")).toBeVisible();
+    await expect(page.locator("#artifact-sort")).toContainText("Crit Value (Low to High)");
+
+    // The Lock filter narrows it to the pieces that are free to use up.
+    await page.getByRole("group", { name: "Filter by lock" }).getByRole("button", { name: "Unlocked" }).click();
+    await expect(page.getByText("Showing 19 of 19")).toBeVisible();
+    await page.getByRole("button", { name: "Clear filters (2)" }).click();
+
+    // A CRIT circlet keeps its CV but gets no tier, so it stays out of Low.
+    await page.getByRole("group", { name: "Filter by score" }).getByRole("button", { name: "CRIT circlet" }).click();
+    await expect(page.getByText("CRIT circlet", { exact: true }).nth(1)).toBeVisible();
+
+    // The average tile leads back to Equipped, by total.
+    await page.getByRole("button", { name: /Equipped average CV/ }).click();
+    await expect(show.getByRole("button", { name: "Equipped (378)" })).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator("#equipped-sort")).toContainText("Total CV (High to Low)");
+  });
+
   test("on a phone, Equipped rows fold and open", async () => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto("/genshin/artifacts");

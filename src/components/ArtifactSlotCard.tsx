@@ -1,4 +1,5 @@
 import ArtifactIcon from "@/components/ArtifactIcon";
+import { CvChip } from "@/components/ArtifactScore";
 import ArtifactSubstats from "@/components/ArtifactSubstats";
 import { artifactSetName } from "@/lib/genshin/artifactSets";
 import { formatSlotName, formatStatName } from "@/lib/genshin/stats";
@@ -6,7 +7,7 @@ import type { GoodArtifact } from "@/lib/genshin/types";
 import { cn } from "@/lib/utils";
 
 /**
- * A compact artifact: icon, slot, rarity and level, set name, then the main
+ * A compact artifact: icon, slot, rarity, level and CV, set name, then the main
  * stat (semibold indigo) and substats (grey). Used in the Artifacts page's
  * Equipped rows and on the character page. The slot name is hidden from the
  * `lg` breakpoint when `slotNameNarrowOnly` is set, where the Equipped rows have
@@ -43,6 +44,7 @@ export default function ArtifactSlotCard({
           <p>
             {artifact.rarity}★ · Lv. {artifact.level}
           </p>
+          <CvChip artifact={artifact} className="mt-0.5" />
         </div>
       </div>
       <p className="mt-2 line-clamp-2 text-sm font-medium leading-snug text-gray-900 dark:text-slate-100">

@@ -29,6 +29,15 @@
         ],
         "createdAt": "2026-11-06T01:12:50.501Z",
         "reason": "Claude's triage: throwaway mockup whose option was already picked and built; the remaining outline is its change highlight, not site UI"
+      },
+      {
+        "rule": "ai-color-palette",
+        "value": "*",
+        "files": [
+          "src/components/ArtifactScore.tsx"
+        ],
+        "createdAt": "2026-11-07T05:35:45.461Z",
+        "reason": "Claude triage: line 38 is text-indigo-900 dark:text-indigo-200, the site's documented heading colour mapping in CLAUDE.md, with no gradient"
       }
     ]
   }
