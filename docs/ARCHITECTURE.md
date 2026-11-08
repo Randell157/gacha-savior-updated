@@ -97,3 +97,17 @@ The user wants to keep the current look. New pages and features should match it 
 - Form fields read through React state have no `name` attribute. Without JavaScript loaded yet, a submit would otherwise put their values, passwords included, in the address and browser history.
 - Use the `@/*` import alias for `./src/*`.
 - ESLint settings: unused variables are allowed if prefixed with `_`, and `any` is allowed.
+
+### End-to-end tests
+
+Playwright tests live in `e2e/`, with the config in `playwright.config.ts`.
+
+- `npm run test:e2e` (`playwright test`) has Playwright start empty Auth and Firestore emulators (no import or export of `.emulator-data/`) and its own `dev:emu`-style dev server on port 3100, run Chrome headless (`channel: "chrome"`, so no browser download), and stop them all afterwards. Not `firebase emulators:exec`: on Windows it left the Firestore emulator (a `java.exe` on port 8080) running.
+- It never reuses a running server, so it can't reach the live project. Stop any dev server and the emulators first, since Next.js allows one `next dev` per folder and the emulator ports must be free.
+- A full run takes about 3½ minutes; `npx playwright test e2e/auth.spec.ts` runs one file. The console reporter is `line` (one updating line, with failures printed in full), to keep the output short.
+- The servers' own logs are hidden (`stderr: "ignore"`), because the dev server echoes the site's console (including errors the tests trigger on purpose). To see them while debugging, remove that line from the config.
+- `e2e/global-setup.ts` refuses to run without the emulators and warms up each route. `e2e/helpers.ts` creates accounts directly through the emulators (`createUser`), logs in (`logIn`, by email; username logins go through the 10-a-minute route) and uploads the Irminsul sample (`uploadSample`).
+- The specs: `auth` (sign-up, its errors, login by email and username, the single bad-credentials message, protected-page redirects, forgot and change password, changing a username, deleting an upload or account), `upload` (saved counts, a new upload keeping the Traveler's element, the three upload errors), `pages` (home sample, roster, old-address redirects, character, weapons, weapon, artifacts and profile pages with the sample, including the profile picture) and `a11y` (axe-core, WCAG 2.1 AA, in light and dark mode, including error states and the open quick view).
+- Every test makes its own uniquely named user, so they don't depend on each other.
+- Failures leave traces and screenshots in `test-results/` and an HTML report in `playwright-report/` (both gitignored; open the report with `npx playwright show-report`).
+- There are no unit tests. To check the parser by hand, Node 24 can import the `.ts` file directly: `node --input-type=module -e 'import { parseGoodText } from "./src/lib/genshin/parseGood.ts"; ...'`.
