@@ -2,7 +2,7 @@
 
 **Version 1.0** · [Live site](https://gacha-savior-updated.vercel.app/)
 
-This is my final CAPSTONE project for Computer Science!
+This is a personal project! Gacha Savior started as my Computer Science capstone, and I wanted to keep building on it, so I picked it back up and continued it with the help of Claude Code.
 
 This is a website that allows people to track and organize their information for various gacha games, starting with Genshin Impact! Will update to have more in the future!
 

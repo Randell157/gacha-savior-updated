@@ -12,7 +12,7 @@ Invested gacha players who already take their accounts seriously and are willing
 
 ## Product Purpose
 
-Gacha Savior is a website where players upload an export of their account, then browse and organize it. It started from the creator's own wish, as someone who plays many gacha games, for an easy way to organize and display account information such as characters, weapons, talent levels and artifacts. It is also the creator's Computer Science capstone project at CSUF.
+Gacha Savior is a website where players upload an export of their account, then browse and organize it. It started from the creator's own wish, as someone who plays many gacha games, for an easy way to organize and display account information such as characters, weapons, talent levels and artifacts. It began as the creator's Computer Science capstone project at CSUF and is now a personal project the creator continues with Claude Code.
 
 Success has no fixed deadline or user target. The project grows as time allows.
 

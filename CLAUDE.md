@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Gacha Savior is a CS capstone project: a website where players track and organize their gacha game accounts. Genshin Impact is the only supported game so far. Honkai: Star Rail and Zenless Zone Zero are planned and appear as "Coming soon" in the game picker. The site is deployed on Vercel at https://gacha-savior-updated.vercel.app/ (Vercel project `gacha-savior-updated`, deployed from this folder with `npx vercel --prod`; the folder's `.vercel/` link is gitignored). Its environment variables are set in the Vercel dashboard: the `NEXT_PUBLIC_FIREBASE_*` values as Config, `FIREBASE_SERVICE_ACCOUNT_KEY` as Secret. The old site at https://gachasavior.vercel.app/ is a separate Vercel project still running the pre-Phase 0 code, linked to the old GitHub repo.
+Gacha Savior is a personal project: a website where players track and organize their gacha game accounts. Genshin Impact is the only supported game so far. Honkai: Star Rail and Zenless Zone Zero are planned and appear as "Coming soon" in the game picker. The site is deployed on Vercel at https://gacha-savior-updated.vercel.app/ (Vercel project `gacha-savior-updated`, deployed from this folder with `npx vercel --prod`; the folder's `.vercel/` link is gitignored). Its environment variables are set in the Vercel dashboard: the `NEXT_PUBLIC_FIREBASE_*` values as Config, `FIREBASE_SERVICE_ACCOUNT_KEY` as Secret. The old site at https://gachasavior.vercel.app/ is a separate Vercel project still running the pre-Phase 0 code, linked to the old GitHub repo.
+
+It began as the user's CS capstone and is now continued as a personal project with Claude Code.
 
 Stack: Next.js 16 (App Router), React 19, TypeScript (strict), Tailwind CSS 3, shadcn/ui (Radix + lucide-react icons), and Firebase (Auth + Firestore). The Firebase project is on the Spark (free) plan.
 
