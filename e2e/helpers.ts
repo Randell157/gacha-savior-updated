@@ -11,6 +11,12 @@ export const SAMPLE_EXPORT = path.join(
   "../public/sample-data/inventory-kamera/genshin_export_2026-02-11_12-16.json"
 );
 
+/** The older Inventory Kamera sample (2024), for comparing two uploads. */
+export const OLDER_EXPORT = path.join(
+  __dirname,
+  "../public/sample-data/inventory-kamera/genshinData_GOOD_2024_10_28_01_22.json"
+);
+
 /** The made-up wish exports from `npm run data:test-wishes`. */
 export const WISH_FILE = (name: "wishes-older.json" | "wishes-newer.json" | "wishes-paimon.xlsx") =>
   path.join(__dirname, "../public/sample-data/test-account", name);

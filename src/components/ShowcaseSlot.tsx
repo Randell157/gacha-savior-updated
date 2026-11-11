@@ -69,7 +69,8 @@ function gapText(gap: BuildGap): string {
   }
 }
 
-function changeText(change: BuildChange): string {
+/** One change since the previous upload, as the showcase and the upload summary word it. */
+export function changeText(change: BuildChange): string {
   switch (change.kind) {
     case "new":
       return "New since your last upload";

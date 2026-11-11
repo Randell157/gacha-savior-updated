@@ -5,11 +5,13 @@ import Genshin from "@/components/Genshin";
 import GenshinShell from "@/components/GenshinShell";
 import RequireAuth from "@/components/RequireAuth";
 import { UploadBar, UploadDropZone } from "@/components/UploadArea";
+import UploadChanges from "@/components/UploadChanges";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { useGenshinData } from "@/hooks/useGenshinData";
 import { parseGoodText } from "@/lib/genshin/parseGood";
 import type { GenshinData } from "@/lib/genshin/types";
+import { noUploadChanges, uploadChanges, type UploadChanges as Changes } from "@/lib/genshin/uploadChanges";
 
 export default function GenshinOverviewPage() {
   return (
@@ -44,9 +46,12 @@ function GenshinOverview() {
   const [fileWarnings, setFileWarnings] = useState<string[]>([]);
   const [savedSummary, setSavedSummary] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  // What the last upload changed, shown once; null after a first upload or when closed.
+  const [changes, setChanges] = useState<{ changes: Changes; comparedWith: Date | null } | null>(null);
 
   const handleFile = async (file: File) => {
     setSavedSummary(null);
+    setChanges(null);
     const result = parseGoodText(await file.text());
     if (!result.ok) {
       setFileError(result.error);
@@ -54,11 +59,17 @@ function GenshinOverview() {
       return;
     }
     setIsSaving(true);
+    // Compared with the upload being replaced, before it's gone.
+    const replaced = genshinData ? { changes: uploadChanges(genshinData, result.data), comparedWith: lastUploadedAt } : null;
     try {
       await save(result.data);
       setFileError(null);
       setFileWarnings(result.warnings);
-      setSavedSummary(describeCounts(result.data));
+      setSavedSummary(
+        describeCounts(result.data) +
+          (replaced && noUploadChanges(replaced.changes) ? ". Nothing changed since your last upload" : "")
+      );
+      setChanges(replaced && !noUploadChanges(replaced.changes) ? replaced : null);
     } catch (error) {
       setFileError(
         `Your file was read, but it couldn't be saved. ${error instanceof Error ? error.message : error}`
@@ -104,6 +115,17 @@ function GenshinOverview() {
             <AlertTitle>Saved</AlertTitle>
             <AlertDescription>{savedSummary}.</AlertDescription>
           </Alert>
+        )}
+        {changes && (
+          <UploadChanges
+            changes={changes.changes}
+            comparedWith={changes.comparedWith}
+            onClose={() => {
+              setChanges(null);
+              // Keep keyboard focus on the page rather than losing it with the panel.
+              document.getElementById("main")?.focus();
+            }}
+          />
         )}
         {errorMessage && (
           <Alert variant="destructive">

@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { createUser, logIn, SAMPLE_EXPORT, uploadSample, uploadText } from "./helpers";
+import { createUser, logIn, OLDER_EXPORT, SAMPLE_EXPORT, uploadSample, uploadText } from "./helpers";
 
 test("an upload is saved to the account and shown on the overview and hub", async ({ page }) => {
   await logIn(page, await createUser());
@@ -44,6 +44,41 @@ test("a new upload keeps the Traveler's element", async ({ page }) => {
   await page.goto("/genshin/characters/Traveler");
   await expect(element).toHaveText("Hydro");
   await expect(page.getByText("Vaporize (Pyro + Hydro):")).toBeVisible();
+});
+
+test("a second upload lists what changed, once", async ({ page }) => {
+  await logIn(page, await createUser());
+  await page.goto("/genshin");
+  await page.getByLabel("Upload a GOOD export (.json)").setInputFiles(OLDER_EXPORT);
+  await expect(page.getByRole("alert").filter({ hasText: "Saved" })).toBeVisible();
+  // A first upload has nothing to compare.
+  await expect(page.getByRole("heading", { name: "Since your last upload" })).toHaveCount(0);
+
+  await page.getByLabel("Upload a GOOD export (.json)").setInputFiles(SAMPLE_EXPORT);
+  const changes = page.getByRole("region", { name: "Since your last upload" });
+  await expect(changes).toBeVisible();
+  for (const [count, label] of [
+    ["18", "new characters"],
+    ["58", "characters changed"],
+    ["110", "new weapons"],
+    ["1,312", "new artifacts"],
+  ]) {
+    await expect(changes.getByRole("definition").filter({ hasText: new RegExp(`^${count}$`) })).toBeVisible();
+    await expect(changes.getByText(label, { exact: true })).toBeVisible();
+  }
+  await expect(changes.getByText("Level 1 → 80")).toBeVisible(); // Chevreuse
+  await changes.getByRole("button", { name: "Show all 58" }).click();
+  await expect(changes.getByRole("button", { name: "Show fewer" })).toBeVisible();
+  await changes.getByRole("button", { name: "Close what changed" }).click();
+  await expect(changes).toHaveCount(0);
+  await expect(page.locator("#main")).toBeFocused();
+
+  // The same file again changes nothing.
+  await page.getByLabel("Upload a GOOD export (.json)").setInputFiles(SAMPLE_EXPORT);
+  await expect(page.getByRole("alert").filter({ hasText: "Saved" })).toContainText(
+    "Nothing changed since your last upload"
+  );
+  await expect(changes).toHaveCount(0);
 });
 
 test.describe("upload errors", () => {
