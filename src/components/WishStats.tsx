@@ -6,7 +6,7 @@ import { FilterChip } from "@/components/FilterChip";
 import WishesPerMonth from "@/components/WishesPerMonth";
 import { getCharacterPortrait, rarityBackground } from "@/lib/genshinCharacters";
 import { weaponIcon } from "@/lib/genshin/weapons";
-import { POOLS, poolOf, poolStats, type FiftyFifty, type Pull, type WishPool } from "@/lib/genshin/wishes";
+import { POOLS, pityBand, poolOf, poolStats, type FiftyFifty, type PityBand, type Pull, type WishPool } from "@/lib/genshin/wishes";
 import { cn } from "@/lib/utils";
 
 // The Wishes page's stats (picks 1A, 2A and 3A from .mockups/wishes.html):
@@ -23,8 +23,7 @@ export function wishDate(time: string): string {
   return `${MONTHS[Number(time.slice(5, 7)) - 1]} ${Number(time.slice(8, 10))}, ${time.slice(0, 4)}`;
 }
 
-type Band = "early" | "soft" | "late";
-const BANDS: Record<Band, { label: string; chip: string; bar: string }> = {
+const BANDS: Record<PityBand, { label: string; chip: string; bar: string }> = {
   early: {
     label: "Early",
     chip: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200",
@@ -35,20 +34,13 @@ const BANDS: Record<Band, { label: string; chip: string; bar: string }> = {
     chip: "bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-200",
     bar: "bg-sky-500",
   },
-  late: {
-    label: "Near hard pity",
+  hard: {
+    label: "Hard pity",
     chip: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200",
     bar: "bg-amber-500",
   },
 };
 
-/** Early before soft pity, Near hard pity in the last five pulls, Soft pity between. */
-function bandOf(pool: WishPool, pity: number): Band {
-  const { hardPity, softPity } = POOLS.find((p) => p.pool === pool)!;
-  if (hardPity && pity > hardPity - 5) return "late";
-  if (softPity && pity >= softPity) return "soft";
-  return "early";
-}
 
 const FIFTY_FIFTY: Record<FiftyFifty, { label: string; chip: string }> = {
   won: { label: "Won 50/50", chip: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200" },
@@ -152,7 +144,7 @@ export default function WishStats({ pulls }: { pulls: Pull[] }) {
         </h2>
         {history.length > 0 && (
           <div className="flex flex-wrap gap-1.5" aria-hidden="true">
-            {(Object.keys(BANDS) as Band[]).map((b) => (
+            {(Object.keys(BANDS) as PityBand[]).map((b) => (
               <span key={b} className={cn(chipClass, BANDS[b].chip)}>
                 {BANDS[b].label}
               </span>
@@ -167,7 +159,7 @@ export default function WishStats({ pulls }: { pulls: Pull[] }) {
         <>
           <ol ref={list} className="divide-y rounded-lg border dark:divide-slate-700 dark:border-slate-700">
             {shown.map(({ pull, pity, fiftyFifty }) => {
-              const band = bandOf(pool, pity);
+              const band = pityBand(pool, pity);
               const icon = itemIcon(pull);
               const on = !!picked && pull.time.startsWith(picked.month);
               return (

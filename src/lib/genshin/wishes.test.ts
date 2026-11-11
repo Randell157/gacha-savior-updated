@@ -9,6 +9,7 @@ import {
   monthlyCounts,
   nameLookup,
   parsePaimon,
+  pityBand,
   pullsFromChunks,
   wishDocuments,
   isStandardFiveStar,
@@ -369,4 +370,13 @@ test("chunkPulls splits into pieces of at most the given size", () => {
   const list = pulls("3".repeat(5));
   assert.deepEqual(chunkPulls(list, 2).map((c) => c.length), [2, 2, 1]);
   assert.deepEqual(chunkPulls([]), []);
+});
+
+test("pityBand: 1–69 Early, 70–79 Soft pity, 80–90 Hard pity, and 10 sooner on Weapon Event", () => {
+  const bands = (pool: Parameters<typeof pityBand>[0], pities: number[]) => pities.map((p) => pityBand(pool, p));
+  assert.deepEqual(bands("character", [1, 69, 70, 79, 80, 90]), ["early", "early", "soft", "soft", "hard", "hard"]);
+  assert.deepEqual(bands("standard", [69, 70, 80]), ["early", "soft", "hard"]);
+  assert.deepEqual(bands("chronicled", [69, 70, 80]), ["early", "soft", "hard"]);
+  assert.deepEqual(bands("weapon", [59, 60, 69, 70, 80]), ["early", "soft", "soft", "hard", "hard"]);
+  assert.equal(pityBand("beginner", 20), "early");
 });

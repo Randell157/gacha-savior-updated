@@ -41,13 +41,28 @@ export type ParseUigfResult =
   | { ok: true; accounts: WishAccount[]; warnings: string[] }
   | { ok: false; error: string };
 
-export const POOLS: { pool: WishPool; label: string; hardPity: number | null; softPity: number | null }[] = [
-  { pool: "character", label: "Character Event", hardPity: 90, softPity: 74 },
-  { pool: "weapon", label: "Weapon Event", hardPity: 80, softPity: 63 },
-  { pool: "standard", label: "Standard", hardPity: 90, softPity: 74 },
-  { pool: "chronicled", label: "Chronicled Wish", hardPity: 90, softPity: 74 },
-  { pool: "beginner", label: "Beginners' Wish", hardPity: null, softPity: null },
+export const POOLS: { pool: WishPool; label: string; hardPity: number | null }[] = [
+  { pool: "character", label: "Character Event", hardPity: 90 },
+  { pool: "weapon", label: "Weapon Event", hardPity: 80 },
+  { pool: "standard", label: "Standard", hardPity: 90 },
+  { pool: "chronicled", label: "Chronicled Wish", hardPity: 90 },
+  { pool: "beginner", label: "Beginners' Wish", hardPity: null },
 ];
+
+export type PityBand = "early" | "soft" | "hard";
+
+/**
+ * How the 5★ history colours a pity, counted back from hard pity (the user's
+ * ranges, 2026-11-11): on a 90 banner 1–69 Early, 70–79 Soft pity, 80–90 Hard
+ * pity; on Weapon Event (80) 1–59, 60–69 and 70–80. Beginners' Wish has none.
+ */
+export function pityBand(pool: WishPool, pity: number): PityBand {
+  const hard = POOLS.find((p) => p.pool === pool)?.hardPity;
+  if (!hard) return "early";
+  if (pity >= hard - 10) return "hard";
+  if (pity >= hard - 20) return "soft";
+  return "early";
+}
 
 const POOL_BY_GACHA_TYPE: Record<string, WishPool> = {
   "100": "beginner",
