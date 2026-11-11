@@ -10,7 +10,7 @@ Stack: Next.js 16 (App Router), React 19, TypeScript (strict), Tailwind CSS 3, s
 
 Planned work is in [docs/DESIGN.md](docs/DESIGN.md), organized into phases with a "Done when" check for each. Read the relevant phase before starting feature work. Who the site is for and what it's trying to be are in [PRODUCT.md](PRODUCT.md), written with the Impeccable design plugin (`/impeccable init`); keep it current when those facts change.
 
-The project is local-only for now: there is no git remote. Don't push. A new GitHub repo will be created later.
+The code is on GitHub (public) at https://github.com/Randell157/gacha-savior-updated, branch `main`, since version 1.0 (tag `v1.0.0`, 2026-11-11). Push only when the user asks. Commits use the GitHub no-reply email (`git config user.email` is set for this repo); keep personal emails out of commits and files.
 
 ## Keeping these docs current
 

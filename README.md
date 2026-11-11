@@ -1,4 +1,6 @@
-# Gacha Savior App
+# Gacha Savior Updated
+
+**Version 1.0** · [Live site](https://gacha-savior-updated.vercel.app/)
 
 This is my final CAPSTONE project for Computer Science!
 
