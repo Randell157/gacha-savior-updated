@@ -9,6 +9,7 @@ import {
 import { db } from "@/lib/firebase";
 import { parseGood } from "./parseGood";
 import type { GenshinData } from "./types";
+import type { BuildSnapshot } from "./showcaseBuild";
 
 // Firestore layout for a user's Genshin upload:
 //   users/{uid}/games/genshin                      everything except artifacts
@@ -21,11 +22,34 @@ const ARTIFACTS_PER_CHUNK = 400;
 
 export type Showcase = (string | null)[];
 
+/** One of the player's showcases: its title (shown on its tab) and its five slots. */
+export interface NamedShowcase {
+  title: string;
+  picks: Showcase;
+}
+export const MAX_SHOWCASES = 5;
+export const SHOWCASE_TITLE_MAX = 40;
+export const DEFAULT_SHOWCASE_TITLE = "Showcase";
+
+/** The showcase's two display settings, saved with the account. Both start off. */
+export interface ShowcaseOptions {
+  /** Tint each slot with its character's element */
+  elementColors: boolean;
+  /** Show each artifact's Crit Value under its icon */
+  pieceCv: boolean;
+}
+
+export const DEFAULT_SHOWCASE_OPTIONS: ShowcaseOptions = { elementColors: false, pieceCv: false };
+
 export interface StoredGenshin {
   data: GenshinData;
-  showcase: Showcase;
+  /** At least one showcase; the first is the one the Your games card shows */
+  showcases: NamedShowcase[];
+  /** The previous upload's builds, for "Since your last upload"; null after the first upload */
+  previousBuilds: BuildSnapshot | null;
   /** The element the player chose on the Traveler's page; the export doesn't say */
   travelerElement: string | null;
+  showcaseOptions: ShowcaseOptions;
   uploadedAt: Date | null;
   /** Number of artifact chunks currently stored, used to clean up on re-upload */
   artifactChunkCount: number;
@@ -36,10 +60,36 @@ const chunkRef = (uid: string, index: number) =>
   doc(db, "users", uid, "games", "genshin", "artifactChunks", String(index));
 
 export const emptyShowcase = (): Showcase => Array(SHOWCASE_SIZE).fill(null);
+export const defaultShowcases = (): NamedShowcase[] => [
+  { title: DEFAULT_SHOWCASE_TITLE, picks: emptyShowcase() },
+];
 
 function normalizeShowcase(value: unknown): Showcase {
   if (!Array.isArray(value) || value.length !== SHOWCASE_SIZE) return emptyShowcase();
   return value.map((key) => (typeof key === "string" ? key : null));
+}
+
+function normalizeShowcaseOptions(value: unknown): ShowcaseOptions {
+  const stored = (value ?? {}) as Partial<Record<keyof ShowcaseOptions, unknown>>;
+  return { elementColors: stored.elementColors === true, pieceCv: stored.pieceCv === true };
+}
+
+/**
+ * The saved showcases, or the single unnamed `showcase` that uploads saved
+ * before there could be several.
+ */
+function normalizeShowcases(value: unknown, legacy: unknown): NamedShowcase[] {
+  if (Array.isArray(value) && value.length > 0) {
+    return value.slice(0, MAX_SHOWCASES).map((entry) => {
+      const title = typeof entry?.title === "string" ? entry.title.trim().slice(0, SHOWCASE_TITLE_MAX) : "";
+      return { title: title || DEFAULT_SHOWCASE_TITLE, picks: normalizeShowcase(entry?.picks) };
+    });
+  }
+  return [{ title: DEFAULT_SHOWCASE_TITLE, picks: normalizeShowcase(legacy) }];
+}
+
+function normalizeSnapshot(value: unknown): BuildSnapshot | null {
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as BuildSnapshot) : null;
 }
 
 /** Loads the saved upload, or null if this user hasn't uploaded yet. */
@@ -72,8 +122,10 @@ export async function loadGenshin(uid: string): Promise<StoredGenshin | null> {
 
   return {
     data: parsed.data,
-    showcase: normalizeShowcase(stored.showcase),
+    showcases: normalizeShowcases(stored.showcases, stored.showcase),
+    previousBuilds: normalizeSnapshot(stored.previousBuilds),
     travelerElement: typeof stored.travelerElement === "string" ? stored.travelerElement : null,
+    showcaseOptions: normalizeShowcaseOptions(stored.showcaseOptions),
     uploadedAt: stored.uploadedAt instanceof Timestamp ? stored.uploadedAt.toDate() : null,
     artifactChunkCount: chunkCount,
   };
@@ -87,9 +139,11 @@ export async function loadGenshin(uid: string): Promise<StoredGenshin | null> {
 export async function saveGenshin(
   uid: string,
   data: GenshinData,
-  showcase: Showcase,
+  showcases: NamedShowcase[],
   previousChunkCount: number,
-  travelerElement: string | null = null
+  travelerElement: string | null = null,
+  showcaseOptions: ShowcaseOptions = DEFAULT_SHOWCASE_OPTIONS,
+  previousBuilds: BuildSnapshot | null = null
 ): Promise<StoredGenshin> {
   const chunks: GenshinData["artifacts"][] = [];
   for (let i = 0; i < data.artifacts.length; i += ARTIFACTS_PER_CHUNK) {
@@ -111,8 +165,10 @@ export async function saveGenshin(
     characters: data.characters,
     weapons: data.weapons,
     materials: data.materials,
-    showcase,
+    showcases,
     travelerElement,
+    showcaseOptions,
+    previousBuilds,
   });
   chunks.forEach((items, i) => batch.set(chunkRef(uid, i), { items }));
   for (let i = chunks.length; i < previousChunkCount; i++) {
@@ -120,10 +176,10 @@ export async function saveGenshin(
   }
   await batch.commit();
 
-  return { data, showcase, travelerElement, uploadedAt: new Date(), artifactChunkCount: chunks.length };
+  return { data, showcases, previousBuilds, travelerElement, showcaseOptions, uploadedAt: new Date(), artifactChunkCount: chunks.length };
 }
 
-/** Deletes the saved upload, with its showcase and Traveler element. */
+/** Deletes the saved upload, with its showcase, its settings and the Traveler element. */
 export async function deleteGenshin(uid: string, chunkCount: number) {
   const batch = writeBatch(db);
   batch.delete(gameRef(uid));
@@ -133,8 +189,12 @@ export async function deleteGenshin(uid: string, chunkCount: number) {
   await batch.commit();
 }
 
-export async function saveShowcase(uid: string, showcase: Showcase) {
-  await updateDoc(gameRef(uid), { showcase });
+export async function saveShowcases(uid: string, showcases: NamedShowcase[]) {
+  await updateDoc(gameRef(uid), { showcases });
+}
+
+export async function saveShowcaseOptions(uid: string, showcaseOptions: ShowcaseOptions) {
+  await updateDoc(gameRef(uid), { showcaseOptions });
 }
 
 export async function saveTravelerElement(uid: string, travelerElement: string) {

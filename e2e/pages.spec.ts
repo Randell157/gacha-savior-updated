@@ -598,6 +598,42 @@ test.describe("signed in with the sample upload", () => {
     await page.keyboard.press("Enter");
     await expect(page.getByRole("button", { name: "Change character for slot 1" })).toBeFocused();
     await expect(page.getByRole("link", { name: /Amber/ })).toBeVisible();
+    await expect(page.getByText("Total CV")).toBeVisible();
+
+    // The display settings start off and are saved with the account.
+    const pieceCv = page.getByRole("switch", { name: "CV on each piece" });
+    await expect(pieceCv).toHaveAttribute("aria-checked", "false");
+    await expect(page.getByRole("switch", { name: "Element colors" })).toHaveAttribute("aria-checked", "false");
+    await pieceCv.click();
+    await expect(pieceCv).toHaveAttribute("aria-checked", "true");
+    await page.reload();
+    await expect(page.getByRole("switch", { name: "CV on each piece" })).toHaveAttribute("aria-checked", "true");
+    await page.getByRole("switch", { name: "CV on each piece" }).click();
+    await expect(page.getByRole("switch", { name: "CV on each piece" })).toHaveAttribute("aria-checked", "false");
+
+    // Each slot shows the build: main stats, CRIT from artifacts and what's missing.
+    await expect(page.getByText(/^From artifacts: CRIT Rate/)).toBeVisible();
+    await expect(page.getByRole("list", { name: "Still missing" })).toBeVisible();
+
+    // Rename it, add a second showcase, fill it, move a slot, then delete it again.
+    await page.getByRole("button", { name: "Rename this showcase" }).click();
+    await page.getByRole("textbox", { name: "Showcase title" }).fill("Main team");
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("tab", { name: "Main team" })).toHaveAttribute("aria-selected", "true");
+    await page.getByRole("button", { name: "New showcase" }).click();
+    await expect(page.getByRole("tab", { name: "Showcase 2" })).toHaveAttribute("aria-selected", "true");
+    await page.getByRole("button", { name: "Fill empty slots" }).click();
+    await page.getByRole("menuitem", { name: "By highest level, then talents" }).click();
+    await expect(page.getByRole("status")).toContainText(/^Filled \d+ empty slots? by highest level/);
+    const moveRight = page.getByRole("button", { name: /^Move .+ right$/ }).first();
+    const moved = (await moveRight.getAttribute("aria-label"))!.slice("Move ".length, -" right".length);
+    await moveRight.click();
+    await expect(page.getByRole("status")).toHaveText(`${moved} moved to slot 2.`);
+    await expect(page.getByRole("button", { name: `Move ${moved} right` })).toBeFocused();
+    await page.getByRole("button", { name: "Delete", exact: true }).click();
+    await page.getByRole("button", { name: "Delete", exact: true }).click();
+    await expect(page.getByRole("tab", { name: "Main team" })).toBeFocused();
+    await expect(page.getByRole("tab")).toHaveCount(1);
 
     // Someone in another slot is greyed out and can't be picked twice.
     await page.getByRole("button", { name: "Choose character for slot 2" }).click();

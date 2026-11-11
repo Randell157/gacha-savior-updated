@@ -1,6 +1,6 @@
 # Gacha Savior: Roadmap and Design
 
-Status: draft · Last updated: 2026-11-01
+Status: draft · Last updated: 2026-11-11
 
 This document describes what comes next for Gacha Savior and how each piece will be built. For how the app works today, see [CLAUDE.md](../CLAUDE.md).
 
@@ -14,7 +14,6 @@ This document describes what comes next for Gacha Savior and how each piece will
 ### Not in scope (for now)
 
 - Honkai: Star Rail and Zenless Zone Zero. The game picker stays, but those games wait until the Genshin work below is done. Phase 1 keeps the data model game-aware so adding them later doesn't need a rewrite.
-- Automated tests. They were left out of this plan on purpose; they're listed under [Later](#later) as a candidate.
 - Pulling wish history straight from the game's URL, and per-character artifact scoring. Both were considered and set aside (see [Decisions](#decisions)).
 
 ## Decisions
@@ -23,7 +22,7 @@ This document describes what comes next for Gacha Savior and how each piece will
 |---|---|---|
 | Where uploaded data lives | Firestore, under the user's account | Works across devices and survives clearing the browser. |
 | Next focus | Deepen Genshin before adding games | Finish one game well first. |
-| Genshin features | Artifact analysis, detail pages, wish history tracker | Chosen. A material planner was considered and not included. |
+| Genshin features | Artifact analysis, detail pages, wish history tracker | Chosen. A material planner was considered and not included, then added to Phase 6 (2026-11-11). |
 | Wish history source | UIGF JSON file import, plus paimon.moe Excel exports | UIGF is the standard format of Snap Hutao and other tools; paimon.moe has no UIGF export, and its Excel file is often the only record older than the game's six months. Both work like the GOOD upload and need no server. |
 | Game data (stats, talents, images) | `genshin-db` npm package, extracted at build time | Works offline and is kept up to date (v5.2.14, updated Sept 2026). It's 187 MB unpacked, so it must never be shipped to the browser. |
 | Artifact score | Crit Value: CRIT Rate × 2 + CRIT DMG | Widely understood and easy to explain. |
@@ -55,6 +54,7 @@ Each phase builds on the one before it. Phase 2 comes first so later phases buil
 | 3 | Artifact analysis | 1 | **Done** (2026-11-06) |
 | 4 | Character and weapon detail pages | 1 | **Done** (2026-11-06) |
 | 5 | Wish history tracker | 1 | **Done** (2026-11-11) |
+| 6 | Version 1.1: showcase and build card, upload changes, material planner, wish additions | 3, 4, 5 | Planned |
 
 ---
 
@@ -486,6 +486,97 @@ A step is finished only when every box is checked. Each check is verified (run, 
    - [x] Test build served on localhost for the user to check (2026-11-11, twice: before and after the chart-click addition)
    - [x] Committed (`7e06a41`), then deployed (2026-11-11), and the live wishes page and API routes checked: `/`, `/genshin`, `/genshin/wishes`, `/profile` and the sample wish files return 200; the account and username routes answer an empty request with 401; signed out, the live page shows the sample (6 / 90) and pressing Feb 2024 highlights Jean, with no console errors
 
+## Phase 6: Version 1.1
+
+> **Planned (2026-11-11).** Version 1.0 shipped with Phase 5. Phase 6 is the 1.1 release: a better showcase, a material planner and smaller additions that use data the site already has. Nothing here needs a new Firestore collection or a paid Firebase plan. Public profiles wait for a later version, once it's decided what they show and how sharing is turned on.
+
+### Showcase slots that show the build
+
+Today a slot on the Genshin overview shows the portrait, name, "Lv. 90 · C2", the weapon as a line of text and "Artifacts: 5 equipped". Each slot should show the build at a glance, from components the site already has:
+
+- Total Crit Value with its tier colour, the same number as the Artifacts page's Equipped view (`critValue`).
+- The weapon's icon with Lv / R chips (`WeaponIcon`), instead of the text line.
+- Active set bonuses as small badges, such as "4-piece · Emblem of Severed Fate" (from `activeSets`).
+- Talents as "9 / 10 / 10", as on the roster tiles.
+- Five small artifact icons (`ArtifactIcon` size `xs`), with a dashed square for a missing piece.
+- Layout B from the mockup: the portrait on the left with the name, level, constellation and talents beside it, then the weapon, the pieces, Total CV and the set bonuses.
+- More, picked from `.mockups/showcase-ideas.html`: the sands, goblet and circlet main stats; CRIT Rate and CRIT DMG from artifacts; what's still missing (plain facts only); what changed since the last upload; Fill empty slots; reordering; a title per showcase; constellation dots; the weapon's passive on its name; and up to five showcases in tabs. Teams of four with elemental resonance, and Share, were left out for now.
+- Two display settings the player can turn on: **element colors** (a soft tint of the character's element on each card, with a dot by the name; element colours are one of the places the UI style allows new colour) and **CV on each piece** (a small CV under each artifact icon in its tier colour). Both start off, which keeps today's indigo cards and Total CV only. Where the switches sit and where the choice is saved are settled in a second mockup.
+
+The home page's sample showcase uses the same component, so it gets the same look.
+
+### Featured build card
+
+A larger card for showing off one character, the way a player would screenshot their build: a big portrait, level, constellation and talents, the weapon with its passive, all five artifacts with each piece's CV, the set bonuses and Total CV. Where it sits is a mockup choice: the top of the character page, a "Featured" spot above the five showcase slots, or both.
+
+- **Stats stay honest.** Full final stats are out of scope (see PRODUCT.md). The card may show totals from artifacts only, labeled that way ("+62.2% CRIT Rate from artifacts"), and never presents them as the in-game numbers.
+- **Save as image** is an option to decide in the mockup. It needs a library to turn the card into an image (credited in the README) and pairs well with public profiles later.
+- **Splash art** would need new images (credited to HoYoverse); the first version uses the existing portraits.
+
+### What changed since your last upload
+
+When an upload replaces an earlier one, show what changed: characters and weapons added, level, constellation and talent increases ("Furina: talents 9/9/9 → 10/10/10"), and how many artifacts were added or removed. It's worked out in the browser from the data already loaded before the new file is saved, so it needs no extra storage, and it shows once, after that upload. The first upload has nothing to compare and shows the usual message.
+
+Each showcase slot already shows its character's changes (built in step 1, from the `previousBuilds` snapshot saved with each upload), so this step adds the account-wide summary after an upload and can reuse `buildChanges`.
+
+### Material planner
+
+Pick a character, a target level and target talent levels, and see what's still needed, against the `materials` in the upload: each material with how many you have and how many you need, and what's missing first. A weapon gets the same with a target level.
+
+- Costs come from `genshin-db` at build time, like the other game data: characters' `costs.ascend1`–`ascend6`, talents' `costs.lvl2`–`lvl10`, and weapons' ascension costs, written to a new JSON file by `scripts/build-game-data.mjs`. EXP books, Mora and weapon ore for levels are a separate question to settle in the logic step.
+- Material keys in the export are matched to the game data's names with the existing `materialName` helpers.
+- It's a planner, not a calculator: it counts materials and doesn't estimate resin or days.
+- Where it lives (a section on the character and weapon pages, a new Planner tab, or both) is a mockup choice.
+
+### Wish history additions
+
+- Primogems spent: wishes × 160, shown as an estimate (some wishes were bought with Starglitter or bought outright).
+- Character Event 50/50 record: won, lost and the win rate, next to the chips already on each 5★.
+- Download your merged history as a UIGF v4 file, so it isn't kept only on the site.
+
+**Done when** the showcase and build card show the build with CV in light, dark and phone width, the planner's counts match the game's costs for a few hand-checked characters and weapons, a second upload lists exactly what changed, and the downloaded UIGF file imports back with 0 new wishes.
+
+### Steps, and what finished means for each
+
+A step is finished only when every box is checked. Each check is verified (run, opened or read back), not assumed, and the step's report lists the boxes with what showed each one. The steps don't depend on each other except tests, docs and release, so their order can change; the user picks which comes first.
+
+1. **Showcase slots**
+   - [x] Mockup (`.mockups/showcase-slots.html`) with option toggles at the top, Light/Dark, Desktop/Phone and Show/Hide changes, using a real export's numbers (2026-11-11: layouts Today / A stacked / B side by side / C CV first, Indigo or Element card color, Total only or each piece's CV; Built team, Missing gear and 3 picked from the Irminsul sample export, CV from the site's `critValue` and `scoreTier`; wide, tablet and phone widths; all 288 combinations checked with no overflow or console errors)
+   - [x] The user has picked an option for every choice: **1B** side by side; **2** element colors and **3** CV on each piece both become settings the player can turn on (2026-11-11)
+   - [x] Mockup of the two settings' switches and where they're saved, and the user's pick: **A**, two switches on the right of the showcase heading (`.mockups/showcase-settings.html`), saved with the account (2026-11-11)
+   - [x] Built in `src/components/Genshin.tsx` (the overview and the home page sample), with dark-mode partners, `aria-label`s and copy rules (2026-11-11: `ShowcaseSlot.tsx`, `ToggleSwitch.tsx`, `CvMini`; settings saved as `showcaseOptions` by `setShowcaseOptions`; lint, type check and 54 unit tests pass; the showcase e2e test now covers the switches and their saving, not run)
+   - [x] Checked on `dev:emu` in light, dark and phone width: CV matches the Artifacts page's Equipped view for the same characters, empty and partly equipped slots look right, no sideways scroll or console errors (2026-11-11 with `copytest`: Yoimiya 163.2, Yelan 132.2 and Lynette 38.8 with her two missing pieces as dashed squares; both switches turned on, kept after a reload and read back from Firestore as `showcaseOptions`; the home page sample's switches work unsaved; no sideways scroll at 375 px; no console errors from the page)
+   - [x] More ideas, all in one mockup (`.mockups/showcase-ideas.html`, 2026-11-11), each with its own toggle: main stats, build gaps, changes since the last upload, fill empty slots, CRIT from artifacts, reorder, your own title, constellation pips, weapon passive, several showcases, teams of four with elemental resonance (hand-written, since genshin-db has none), and Share; real data from the two sample exports; 1,512 combinations checked with no overflow or console errors. The user picked the first ten (2026-11-11); teams of four and Share are left out for now
+   - [x] Dropping a card on another swaps the two instead of shifting the ones between (the user's request after the test build, 2026-11-11; `swapSlots` with a unit test; the arrows still move one place)
+   - [x] Set bonus badges open their bonus text, like the weapon's passive (the user's request after trying it, 2026-11-11; checked on /features' sample: Blizzard Strayer's 2-piece and 4-piece text)
+   - [x] The ten built (2026-11-11): `Showcase.tsx` (tabs for up to five named showcases saved as `showcases`, rename, delete, Fill empty slots, moving slots by arrows or dragging), `ShowcaseSlot.tsx` (constellation dots, weapon passive popover loaded on demand, main stats, CRIT from artifacts, build gaps, changes since the last upload from the `previousBuilds` snapshot saved with each upload), logic in `showcaseBuild.ts` with 8 unit tests (62 in all pass); lint and type check pass; the showcase e2e test extended (not run)
+   - [x] Checked on `dev:emu` with `copytest` (2026-11-11): renamed to "Main team" (focus back on the pencil); a new showcase filled by Total CV with Skirk, Yoimiya, Mavuika, Ganyu and Razor (as the mockup); Skirk moved right twice by mouse and Enter with focus kept, and Razor dragged to slot 1; both showcases kept after a reload and read back from Firestore; deleting one asked first and put focus on the remaining tab; the weapon passive (Rust at R5, 80%) opened; after uploading the 2024 sample and then the 2026 one, Chevreuse showed Level 1 → 80, C1 → C6, Skill 1 → 8, a new weapon and Total CV +99.5; light and dark at phone width with no sideways scroll; /features' sample works without links; no console errors after a clean dev server start
+2. **Featured build card**
+   - [ ] Mockup (`.mockups/build-card.html`) covering where it sits, the "from artifacts" totals, and whether to offer Save as image
+   - [ ] The user has picked an option for every choice
+   - [ ] Built, with any new library credited in the README
+   - [ ] Checked on `dev:emu` in light, dark and phone width, with a fully built character, one with missing pieces and the Traveler
+3. **Upload changes**
+   - [ ] Logic in `src/lib/genshin/` with unit tests: added characters and weapons, level, constellation and talent changes, artifact counts; nothing listed when the same file is uploaded twice
+   - [ ] Mockup and the user's pick
+   - [ ] Built and checked on `dev:emu` by uploading the test export, then a changed copy
+4. **Material planner**
+   - [ ] `npm run data:genshin` writes the cost data; for a few characters and weapons the totals match genshin-db and the game
+   - [ ] Planner logic with unit tests (have, need and missing per material, for level and talent targets)
+   - [ ] Mockup and the user's pick
+   - [ ] Built and checked on `dev:emu` in light, dark and phone width; no raw material keys shown
+5. **Wish history additions**
+   - [ ] Primogem estimate and 50/50 record, with unit tests, matching the user's paimon.moe numbers
+   - [ ] UIGF v4 download, with unit tests; importing the downloaded file back adds 0 wishes
+   - [ ] Mockup and the user's pick, then built and checked on `dev:emu`
+6. **Tests and docs**
+   - [ ] `npm test`, lint, `npx tsc --noEmit` and `npm run build` pass
+   - [ ] E2E specs updated for the new pieces, run when the user asks
+   - [ ] `docs/ARCHITECTURE.md`, `CLAUDE.md`, the home page feature cards and the README credits describe what was built; this phase is marked done once step 7 ships
+7. **Release** (only when the user asks)
+   - [ ] Test build served on localhost for the user to check
+   - [ ] Committed, tagged `v1.1.0`, deployed, and the live pages checked
+
 ---
 
 ## Later
@@ -493,7 +584,6 @@ A step is finished only when every box is checked. Each check is verified (run, 
 Ideas that came up but aren't scheduled yet:
 
 - **More unit tests.** `parseGood`, CV scoring, the stat helpers and Phase 5's wish logic (UIGF and paimon.moe reading, merging, pity, storage chunks) are covered by `npm test`. Other pure helpers could follow. These are the parts where a silent bug gives users wrong numbers.
-- **Material planner**: what a character or weapon still needs to reach a target level, using the uploaded `materials`.
 - **Per-character artifact scoring**: weighting substats by what each character wants, shown next to CV.
 - **Honkai: Star Rail and Zenless Zone Zero**, using the `games/{gameId}` structure from Phase 1.
 - **Public profiles**: a shareable read-only page for a user's showcase.

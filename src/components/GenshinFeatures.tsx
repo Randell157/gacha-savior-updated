@@ -11,6 +11,7 @@ import {
 import Genshin from "@/components/Genshin";
 import { useAuth } from "@/contexts/AuthContext";
 import { SAMPLE_GENSHIN_DATA, SAMPLE_SHOWCASE } from "@/lib/genshin/sampleData";
+import { DEFAULT_SHOWCASE_OPTIONS } from "@/lib/genshin/firestoreStore";
 import GameIcon from "@/components/GameIcon";
 import { GAMES } from "@/lib/games";
 import { Flower2, IdCard, LayoutGrid, Swords, Users } from "lucide-react";
@@ -39,7 +40,7 @@ const FEATURES = [
   {
     icon: LayoutGrid,
     title: "Team showcase",
-    text: "Pin five characters to the top of your Genshin overview.",
+    text: "Pin up to five characters to your Genshin overview, in as many as five named showcases, with their gear, Crit Value, what's still missing and what changed since your last upload.",
   },
 ];
 
@@ -86,13 +87,17 @@ export function FeatureGrid() {
  * versions (with the log-in banner) otherwise.
  */
 export function SampleDashboard() {
-  const [showcase, setShowcase] = useState(SAMPLE_SHOWCASE);
+  const [showcases, setShowcases] = useState([{ title: "Showcase", picks: SAMPLE_SHOWCASE }]);
+  // The settings work in the sample too, but like its showcase they aren't saved.
+  const [showcaseOptions, setShowcaseOptions] = useState(DEFAULT_SHOWCASE_OPTIONS);
 
   return (
     <Genshin
       data={SAMPLE_GENSHIN_DATA}
-      showcase={showcase}
-      onShowcaseChange={setShowcase}
+      showcases={showcases}
+      onShowcasesChange={setShowcases}
+      showcaseOptions={showcaseOptions}
+      onShowcaseOptionsChange={setShowcaseOptions}
       preview
     />
   );

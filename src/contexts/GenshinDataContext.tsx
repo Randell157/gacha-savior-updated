@@ -8,21 +8,34 @@ import {
   emptyShowcase,
   loadGenshin,
   saveGenshin,
-  saveShowcase,
+  saveShowcases,
+  saveShowcaseOptions,
   saveTravelerElement,
   type Showcase,
+  type NamedShowcase,
+  DEFAULT_SHOWCASE_TITLE,
+  defaultShowcases,
+  type ShowcaseOptions,
+  DEFAULT_SHOWCASE_OPTIONS,
   type StoredGenshin,
 } from "@/lib/genshin/firestoreStore";
 import { parseGoodText } from "@/lib/genshin/parseGood";
 import type { GenshinData } from "@/lib/genshin/types";
+import { snapshotBuilds, type BuildSnapshot } from "@/lib/genshin/showcaseBuild";
 
 // Loads the signed-in user's Genshin upload from Firestore once per login and
 // shares it with every page. Read it through useGenshinData().
 
 export interface GenshinDataContextValue {
   data: GenshinData | null;
+  /** The first showcase's slots, for the Your games card */
   showcase: Showcase;
+  showcases: NamedShowcase[];
+  /** The previous upload's builds, for "Since your last upload" */
+  previousBuilds: BuildSnapshot | null;
   travelerElement: string | null;
+  /** The showcase's display settings (element colors, CV on each piece) */
+  showcaseOptions: ShowcaseOptions;
   /** True until auth has settled and the user's data has been fetched */
   loading: boolean;
   /** Set when saved data exists but couldn't be loaded */
@@ -34,8 +47,9 @@ export interface GenshinDataContextValue {
   save: (data: GenshinData) => Promise<void>;
   /** Deletes the saved upload; rejects with a message for the player if it can't */
   deleteUpload: () => Promise<void>;
-  setShowcase: (showcase: Showcase) => Promise<void>;
+  setShowcases: (showcases: NamedShowcase[]) => Promise<void>;
   setTravelerElement: (element: string) => Promise<void>;
+  setShowcaseOptions: (options: ShowcaseOptions) => Promise<void>;
 }
 
 export const GenshinDataContext = createContext<GenshinDataContextValue | null>(null);
@@ -100,7 +114,7 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
         if (!stored) {
           const legacy = readLegacyUpload(uid);
           if (legacy) {
-            stored = await saveGenshin(uid, legacy.data, legacy.showcase, 0);
+            stored = await saveGenshin(uid, legacy.data, [{ title: DEFAULT_SHOWCASE_TITLE, picks: legacy.showcase }], 0);
             clearLegacyUpload(uid);
             migratedFromLocal = true;
           }
@@ -129,9 +143,12 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
         const stored = await saveGenshin(
           uid,
           data,
-          previous?.showcase ?? emptyShowcase(),
+          previous?.showcases ?? defaultShowcases(),
           previous?.artifactChunkCount ?? 0,
-          previous?.travelerElement ?? null
+          previous?.travelerElement ?? null,
+          previous?.showcaseOptions ?? DEFAULT_SHOWCASE_OPTIONS,
+          // Kept so the showcase can say what changed since this upload.
+          previous ? snapshotBuilds(previous.data) : null
         );
         setState({ uid, stored, error: null, migratedFromLocal: false });
       } catch (error) {
@@ -154,18 +171,18 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
     }
   }, [uid, current?.stored]);
 
-  const setShowcase = useCallback(
-    async (showcase: Showcase) => {
+  const setShowcases = useCallback(
+    async (showcases: NamedShowcase[]) => {
       const stored = current?.stored;
       if (!uid || !stored) return;
       // Update the screen right away, and undo it if the write fails.
-      setState((s) => (s && s.stored ? { ...s, stored: { ...s.stored, showcase } } : s));
+      setState((s) => (s && s.stored ? { ...s, stored: { ...s.stored, showcases } } : s));
       try {
-        await saveShowcase(uid, showcase);
+        await saveShowcases(uid, showcases);
       } catch (error) {
-        console.error("Saving showcase failed:", error);
+        console.error("Saving showcases failed:", error);
         setState((s) =>
-          s && s.stored ? { ...s, stored: { ...s.stored, showcase: stored.showcase } } : s
+          s && s.stored ? { ...s, stored: { ...s.stored, showcases: stored.showcases } } : s
         );
       }
     },
@@ -190,18 +207,40 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
     [uid, current?.stored]
   );
 
+  const setShowcaseOptions = useCallback(
+    async (showcaseOptions: ShowcaseOptions) => {
+      const stored = current?.stored;
+      if (!uid || !stored) return;
+      // Update the screen right away, and undo it if the write fails.
+      setState((s) => (s && s.stored ? { ...s, stored: { ...s.stored, showcaseOptions } } : s));
+      try {
+        await saveShowcaseOptions(uid, showcaseOptions);
+      } catch (error) {
+        console.error("Saving showcase settings failed:", error);
+        setState((s) =>
+          s && s.stored ? { ...s, stored: { ...s.stored, showcaseOptions: stored.showcaseOptions } } : s
+        );
+      }
+    },
+    [uid, current?.stored]
+  );
+
   const value: GenshinDataContextValue = {
     data: current?.stored?.data ?? null,
-    showcase: current?.stored?.showcase ?? emptyShowcase(),
+    showcase: current?.stored?.showcases[0]?.picks ?? emptyShowcase(),
+    showcases: current?.stored?.showcases ?? defaultShowcases(),
+    previousBuilds: current?.stored?.previousBuilds ?? null,
     travelerElement: current?.stored?.travelerElement ?? null,
+    showcaseOptions: current?.stored?.showcaseOptions ?? DEFAULT_SHOWCASE_OPTIONS,
     loading: authLoading || (!!uid && !current),
     loadError: current?.error ?? null,
     lastUploadedAt: current?.stored?.uploadedAt ?? null,
     migratedFromLocal: current?.migratedFromLocal ?? false,
     save,
     deleteUpload,
-    setShowcase,
+    setShowcases,
     setTravelerElement,
+    setShowcaseOptions,
   };
 
   return <GenshinDataContext.Provider value={value}>{children}</GenshinDataContext.Provider>;

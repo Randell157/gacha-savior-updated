@@ -43,3 +43,25 @@ export function CvBlock({ artifact, className }: { artifact: GoodArtifact; class
     </div>
   );
 }
+
+/**
+ * The smallest score, under a piece's icon in a showcase slot: just the number
+ * in its tier's colour, with "CV" and the tier for screen readers and on hover.
+ */
+export function CvMini({ artifact }: { artifact: GoodArtifact }) {
+  const tier = scoreTier(artifact);
+  const cv = critValue(artifact);
+  return (
+    <span
+      className={cn(
+        "inline-block whitespace-nowrap rounded-full px-1 text-[11px] font-semibold leading-4 tabular-nums",
+        TIER_CHIP[tier]
+      )}
+      title={`CV ${cv}, ${tierLabel(tier)}`}
+    >
+      <span className="sr-only">CV </span>
+      {cv}
+      <span className="sr-only">, {tierLabel(tier)}</span>
+    </span>
+  );
+}

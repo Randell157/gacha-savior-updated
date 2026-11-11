@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import {
   Card,
   CardContent,
@@ -8,29 +7,34 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowRight, UserPlus, X } from "lucide-react";
-import {
-  cn,
-  formatCharacterDisplayName,
-} from "@/lib/utils";
+import { ArrowRight } from "lucide-react";
+import { formatCharacterDisplayName } from "@/lib/utils";
 import type { GenshinData } from "@/lib/genshin/types";
 import { getWeapon, weaponName } from "@/lib/genshin/weapons";
 import { materialName } from "@/lib/genshin/materials";
 import CharacterAvatar from "@/components/CharacterAvatar";
-import ShowcasePicker from "@/components/ShowcasePicker";
 import WeaponIcon from "@/components/WeaponIcon";
-import { buildEquipmentIndex } from "@/lib/genshin/equipment";
-import { getCharacterPortrait, getCharacterRarity, rarityBackground } from "@/lib/genshinCharacters";
-import { SHOWCASE_SIZE, type Showcase } from "@/lib/genshin/firestoreStore";
+import {
+  DEFAULT_SHOWCASE_OPTIONS,
+  type NamedShowcase,
+  type ShowcaseOptions,
+} from "@/lib/genshin/firestoreStore";
+import type { BuildSnapshot } from "@/lib/genshin/showcaseBuild";
+import Showcase from "@/components/Showcase";
 
 interface GenshinProps {
   data: GenshinData;
-  /** Saved showcase slots (character keys), synced to the account */
-  showcase: Showcase;
-  onShowcaseChange: (showcase: Showcase) => void;
+  /** The player's showcases (titles and slots), saved with the account */
+  showcases: NamedShowcase[];
+  onShowcasesChange: (showcases: NamedShowcase[]) => void;
+  /** The previous upload's builds, for "Since your last upload" */
+  previousBuilds?: BuildSnapshot | null;
+  /** The showcase's display settings: element colors and CV on each piece */
+  showcaseOptions?: ShowcaseOptions;
+  onShowcaseOptionsChange: (options: ShowcaseOptions) => void;
+  /** The Traveler's element, for their slot's element color */
+  travelerElement?: string | null;
   /**
    * For the sample on the home page and /features: showcase portraits aren't
    * links, since the sample characters have no pages behind them, all five slots
@@ -44,26 +48,15 @@ interface GenshinProps {
 
 export default function Genshin({
   data,
-  showcase,
-  onShowcaseChange,
+  showcases,
+  onShowcasesChange,
+  previousBuilds = null,
+  showcaseOptions = DEFAULT_SHOWCASE_OPTIONS,
+  onShowcaseOptionsChange,
+  travelerElement = null,
   preview = false,
   heading = true,
 }: GenshinProps) {
-  // On phones, the sample's slots stack, so most wait for a press.
-  const [showAllSlots, setShowAllSlots] = useState(false);
-  const showcaseSection = useRef<HTMLElement>(null);
-  // The picker's button goes away when the showcase switches between one line and its slots.
-  const focusAfterSwitch = useRef<string | null>(null);
-  useEffect(() => {
-    if (!focusAfterSwitch.current) return;
-    showcaseSection.current?.querySelector<HTMLElement>(focusAfterSwitch.current)?.focus();
-    focusAfterSwitch.current = null;
-  });
-  // Slots holding a character that isn't in the latest upload show as empty.
-  const showcaseKeys = showcase.map((key) =>
-    key && data.characters.some((c) => c.key === key) ? key : null
-  );
-
   const characterCount = data.characters.length;
   const weaponCount = data.weapons.length;
   const artifactCount = data.artifacts.length;
@@ -72,33 +65,6 @@ export default function Genshin({
     { title: "Weapons", count: weaponCount, href: "/genshin/weapons" },
     { title: "Artifacts", count: artifactCount, href: "/genshin/artifacts" },
   ];
-
-  const characterEquipment = buildEquipmentIndex(data);
-
-  const characterKeys = data.characters.map((c) => c.key);
-  const showcaseSlots = showcaseKeys.map((key) => {
-    if (!key) return null;
-    const char = data.characters.find((c) => c.key === key);
-    if (!char) return null;
-    return {
-      ...char,
-      weapon: characterEquipment.get(char.key)?.weapon,
-      artifacts: characterEquipment.get(char.key)?.artifacts,
-    };
-  });
-
-  const setShowcaseSlot = (index: number, characterKey: string | null) => {
-    const next = [...showcaseKeys];
-    next[index] = characterKey;
-    const wasEmpty = showcaseKeys.every((key) => !key);
-    const isEmpty = next.every((key) => !key);
-    if (wasEmpty !== isEmpty) {
-      focusAfterSwitch.current = isEmpty
-        ? "[data-showcase-start]"
-        : `[aria-label="Change character for slot ${index + 1}"]`;
-    }
-    onShowcaseChange(next);
-  };
 
   const topWeapons = [...data.weapons]
     .sort(
@@ -112,11 +78,9 @@ export default function Genshin({
   const topMaterials = Object.entries(data.materials)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 5);
-  const firstEmptySlot = showcaseSlots.findIndex((slot) => !slot);
-  const nothingPicked = !preview && showcaseSlots.every((slot) => !slot);
 
   return (
-    <section ref={showcaseSection}>
+    <section>
       {/* Kept for screen readers when hidden, so the card titles (h3) don't skip a level. */}
       <h2 className={heading ? "text-lg font-semibold text-indigo-900 dark:text-indigo-200 mb-4" : "sr-only"}>
         Genshin Impact
@@ -140,163 +104,16 @@ export default function Genshin({
         ))}
       </div>
 
-      {nothingPicked ? (
-        <Card>
-          <CardHeader className="flex-row flex-wrap items-center justify-between gap-3 space-y-0">
-            <div>
-              <CardTitle className="text-lg">Showcase</CardTitle>
-              <CardDescription className="mt-1.5">Pick up to five characters to feature here.</CardDescription>
-            </div>
-            <ShowcasePicker
-              slot={0}
-              value={null}
-              characterKeys={characterKeys}
-              showcaseKeys={showcaseKeys}
-              onChange={(key) => setShowcaseSlot(0, key)}
-              startLabel="Choose characters"
-            />
-          </CardHeader>
-        </Card>
-      ) : (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Showcase</CardTitle>
-          <CardDescription>Keep up to 5 favorite characters here.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
-            {Array.from({ length: SHOWCASE_SIZE }, (_, i) => {
-              const char = showcaseSlots[i];
-              // The real showcase shows your picks and one place to add another.
-              if (!preview && !char && i !== firstEmptySlot) return null;
-              const displayName = char
-                ? formatCharacterDisplayName(char.key)
-                : null;
-              const portrait = char && (
-                <>
-                  <div
-                    className={cn(
-                      "relative w-20 h-20 rounded-lg overflow-hidden ring-1 ring-indigo-200 dark:ring-indigo-800 mb-2 group-hover:ring-indigo-500",
-                      rarityBackground(getCharacterRarity(char.key))
-                    )}
-                  >
-                    <Image
-                      src={getCharacterPortrait(char.key)}
-                      alt={displayName ?? char.key}
-                      fill
-                      sizes="80px"
-                      className="object-cover"
-                      onError={(e) => {
-                        e.currentTarget.onerror = null;
-                        e.currentTarget.src = "/placeholder.svg";
-                      }}
-                    />
-                  </div>
-                  <p className="font-semibold text-sm text-gray-900 dark:text-slate-100 leading-tight">
-                    {displayName}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
-                    Lv. {char.level} · C{char.constellation}
-                  </p>
-                </>
-              );
-              return (
-                <div
-                  key={i}
-                  className={cn(
-                    "relative flex flex-col rounded-xl border p-3 min-h-[280px]",
-                    preview && !showAllSlots && i >= 2 && "hidden sm:flex",
-                    char
-                      ? "border-indigo-200 dark:border-indigo-800 bg-indigo-50/40 dark:bg-indigo-900/20"
-                      : "border-dashed border-gray-300 dark:border-slate-600 bg-gray-50/70 dark:bg-slate-800/40"
-                  )}
-                >
-                  <div className="flex min-h-6 items-center justify-between mb-3">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-indigo-700 dark:text-indigo-300">
-                      Slot {i + 1}
-                    </span>
-                    {char && (
-                      <button
-                        type="button"
-                        onClick={() => setShowcaseSlot(i, null)}
-                        className="rounded-full p-1 text-gray-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-red-600"
-                        aria-label={`Clear slot ${i + 1}`}
-                        title="Clear slot"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    )}
-                  </div>
-
-                  {char ? (
-                    preview ? (
-                      <div className="flex flex-col items-center text-center mb-3">
-                        {portrait}
-                      </div>
-                    ) : (
-                      <Link
-                        href={`/genshin/characters/${encodeURIComponent(char.key)}`}
-                        className="flex flex-col items-center text-center mb-3 group"
-                        title={`View ${displayName} details`}
-                      >
-                        {portrait}
-                      </Link>
-                    )
-                  ) : (
-                    <div className="flex flex-col items-center justify-center text-center mb-3 py-4">
-                      <div className="flex h-20 w-20 items-center justify-center rounded-lg border border-dashed border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-gray-400 dark:text-slate-500 mb-2">
-                        <UserPlus className="h-8 w-8" />
-                      </div>
-                      <p className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                        Empty slot
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
-                        Choose a character below
-                      </p>
-                    </div>
-                  )}
-
-                  {char && (
-                    <div className="text-xs text-gray-600 dark:text-slate-400 space-y-1 mb-3 px-1 flex-1">
-                      <p>
-                        <span className="font-medium">Weapon:</span>{" "}
-                        {char.weapon
-                          ? `${weaponName(char.weapon.key)} (Lv. ${char.weapon.level}, R${char.weapon.refinement})`
-                          : "None"}
-                      </p>
-                      <p>
-                        <span className="font-medium">Artifacts:</span>{" "}
-                        {char.artifacts && char.artifacts.length > 0
-                          ? `${char.artifacts.length} equipped`
-                          : "None"}
-                      </p>
-                    </div>
-                  )}
-
-                  <ShowcasePicker
-                    slot={i}
-                    value={showcaseKeys[i]}
-                    characterKeys={characterKeys}
-                    showcaseKeys={showcaseKeys}
-                    onChange={(key) => setShowcaseSlot(i, key)}
-                  />
-                </div>
-              );
-            })}
-          </div>
-          {preview && !showAllSlots && (
-            <Button
-              type="button"
-              variant="outline"
-              className="mt-3 w-full sm:hidden"
-              onClick={() => setShowAllSlots(true)}
-            >
-              Show all {SHOWCASE_SIZE} slots
-            </Button>
-          )}
-        </CardContent>
-      </Card>
-      )}
+      <Showcase
+        data={data}
+        showcases={showcases}
+        onShowcasesChange={onShowcasesChange}
+        options={showcaseOptions}
+        onOptionsChange={onShowcaseOptionsChange}
+        travelerElement={travelerElement}
+        previousBuilds={previousBuilds}
+        preview={preview}
+      />
 
       <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
         <Card>

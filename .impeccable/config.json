@@ -56,6 +56,15 @@
         ],
         "createdAt": "2026-11-11T00:17:48.823Z",
         "reason": "Claude's triage: lines 122 and 204 are flat text-indigo-900 dark:text-indigo-200, the site's documented heading/number colour mapping (same as ArtifactScore.tsx); no gradient"
+      },
+      {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          ".mockups/showcase-slots.html"
+        ],
+        "createdAt": "2026-11-11T04:47:20.160Z",
+        "reason": "Claude: throwaway mockup that copies the live site's existing type sizes (card title, slot text); the site's look is fixed by CLAUDE.md, so the mockup must match it"
       }
     ]
   }

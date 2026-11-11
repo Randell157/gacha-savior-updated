@@ -29,8 +29,12 @@ function GenshinOverview() {
   const { error: authError } = useAuth();
   const {
     data: genshinData,
-    showcase,
-    setShowcase,
+    showcases,
+    setShowcases,
+    previousBuilds,
+    showcaseOptions,
+    setShowcaseOptions,
+    travelerElement,
     loadError,
     lastUploadedAt,
     migratedFromLocal,
@@ -133,8 +137,12 @@ function GenshinOverview() {
           </div>
           <Genshin
             data={genshinData}
-            showcase={showcase}
-            onShowcaseChange={setShowcase}
+            showcases={showcases}
+            onShowcasesChange={setShowcases}
+            previousBuilds={previousBuilds}
+            showcaseOptions={showcaseOptions}
+            onShowcaseOptionsChange={setShowcaseOptions}
+            travelerElement={travelerElement}
             heading={false}
           />
         </>

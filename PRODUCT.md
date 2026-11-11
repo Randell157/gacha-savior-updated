@@ -31,7 +31,7 @@ One tidy home for your account: your roster, gear and builds organized and easy 
 
 **Today:** accounts with email or username login; upload and storage of GOOD exports; a "Your games" hub; and a Genshin section with an overview and team showcase, a filterable character roster, character pages, weapons and artifacts. Light, dark and system themes.
 
-**Planned, in `docs/DESIGN.md`:** artifact analysis with Crit Value scoring, fuller character and weapon detail pages, and a wish history tracker. Honkai: Star Rail and Zenless Zone Zero are planned and appear as "Coming soon". The Genshin work comes first.
+**Planned, in `docs/DESIGN.md`:** version 1.1 (Phase 6): showcase slots that show each build with Crit Value, a featured build card, a list of what changed since the last upload, a material planner, and wish history additions. Honkai: Star Rail and Zenless Zone Zero are planned and appear as "Coming soon". The Genshin work comes first.
 
 **Out of scope for now:** full final stats or damage calculation, pulling wish history straight from the game, and per-character artifact scoring.
 
