@@ -598,7 +598,10 @@ test.describe("signed in with the sample upload", () => {
     await page.keyboard.press("Enter");
     await expect(page.getByRole("button", { name: "Change character for slot 1" })).toBeFocused();
     await expect(page.getByRole("link", { name: /Amber/ })).toBeVisible();
-    await expect(page.getByText("Total CV")).toBeVisible();
+    await expect(page.getByText("Total CV").first()).toBeVisible();
+    // Slot 1 is featured as a build card above the showcase.
+    await expect(page.getByRole("heading", { name: "Featured" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Amber", level: 4 })).toBeVisible();
 
     // The display settings start off and are saved with the account.
     const pieceCv = page.getByRole("switch", { name: "CV on each piece" });
@@ -644,6 +647,17 @@ test.describe("signed in with the sample upload", () => {
     await page.getByRole("button", { name: "Change character for slot 1" }).click();
     await page.getByRole("button", { name: "Clear slot", exact: true }).click();
     await expect(page.getByRole("button", { name: "Choose characters" })).toBeFocused();
+  });
+
+  test("a character's page opens their build card", async () => {
+    await page.goto("/genshin/characters/Furina");
+    await page.getByRole("button", { name: "Build card" }).click();
+    const dialog = page.getByRole("dialog", { name: "Furina's build" });
+    await expect(dialog.getByText("Total CV")).toBeVisible();
+    await expect(dialog.getByRole("heading", { name: "From artifacts" })).toBeVisible();
+    await expect(dialog.getByRole("button", { name: "Save as image" })).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("button", { name: "Build card" })).toBeFocused();
   });
 
   test("the profile shows the account and links back to the hub", async () => {

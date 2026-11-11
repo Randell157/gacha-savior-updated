@@ -14,6 +14,9 @@ import ArtifactSlotCard from "@/components/ArtifactSlotCard";
 import { BaseStats, ChooseElementHint, ConstellationPicker, TalentKindLabel, TalentText } from "@/components/CharacterExtras";
 import CharacterGameInfo, { Stars } from "@/components/CharacterGameInfo";
 import CharacterStepper from "@/components/CharacterStepper";
+import BuildCard from "@/components/BuildCard";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { IdCard } from "lucide-react";
 import RequireAuth from "@/components/RequireAuth";
 import WeaponPassive from "@/components/WeaponPassive";
 import { cn, formatCharacterDisplayName } from "@/lib/utils";
@@ -41,7 +44,7 @@ function CharacterDetail() {
   const params = useParams();
   const rawKey = typeof params.key === "string" ? params.key : "";
   const characterKey = decodeURIComponent(rawKey);
-  const { data: genshinData } = useGenshinData();
+  const { data: genshinData, travelerElement } = useGenshinData();
 
   const character = useMemo(() => {
     return genshinData?.characters.find((c) => c.key === characterKey) ?? null;
@@ -74,7 +77,28 @@ function CharacterDetail() {
     <GenshinShell
       title={displayName}
       panel="none"
-      actions={<CharacterStepper data={genshinData} characterKey={characterKey} />}
+      actions={
+        <>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button type="button" variant="outline">
+                <IdCard className="mr-1.5 h-4 w-4" aria-hidden="true" />
+                Build card
+              </Button>
+            </DialogTrigger>
+            {/* Wide enough for the card's three columns; scrolls on short screens. */}
+            <DialogContent aria-describedby={undefined} className="max-h-[90vh] max-w-6xl overflow-y-auto p-4 sm:p-6">
+              <DialogTitle>{displayName}&apos;s build</DialogTitle>
+              <BuildCard
+                character={{ ...character, weapon: weapon ?? undefined, artifacts }}
+                label="Build card"
+                travelerElement={travelerElement}
+              />
+            </DialogContent>
+          </Dialog>
+          <CharacterStepper data={genshinData} characterKey={characterKey} />
+        </>
+      }
     >
       {/* Same width and margins as PageShell's own panel, split into several panels. */}
       <div className="max-w-7xl mx-auto py-4 sm:py-12 sm:px-6 lg:px-8">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { ChevronDown, Pencil, Plus, UserPlus } from "lucide-react";
 import ShowcasePicker from "@/components/ShowcasePicker";
 import ShowcaseSlot from "@/components/ShowcaseSlot";
@@ -26,6 +27,12 @@ import {
 import { fillOrder, fillSlots, moveSlot, swapSlots, type BuildSnapshot } from "@/lib/genshin/showcaseBuild";
 import type { GenshinData } from "@/lib/genshin/types";
 import { cn, formatCharacterDisplayName } from "@/lib/utils";
+
+// The card reads the large weapon data, so it loads only once there's something to feature.
+const BuildCard = dynamic(() => import("@/components/BuildCard"), {
+  ssr: false,
+  loading: () => <div className="h-96 animate-pulse rounded-xl bg-gray-100 motion-reduce:animate-none dark:bg-slate-800" />,
+});
 
 interface ShowcaseProps {
   data: GenshinData;
@@ -206,8 +213,27 @@ export default function Showcase({
     );
   }
 
+  const featured = picks[0] ? data.characters.find((c) => c.key === picks[0]) : undefined;
+
   return (
     <div ref={section}>
+      {featured && (
+        <section className="mb-6" aria-labelledby="featured-heading">
+          <h3 id="featured-heading" className="text-lg font-semibold text-gray-900 dark:text-slate-100">
+            Featured
+          </h3>
+          <p className="mb-3 text-sm text-gray-500 dark:text-slate-400">
+            Slot 1 of &ldquo;{current.title}&rdquo;. Move someone to slot 1 to feature them.
+          </p>
+          <BuildCard
+            character={{ ...featured, ...equipment.get(featured.key) }}
+            label={`Featured · slot 1 of ${current.title}`}
+            travelerElement={travelerElement}
+            preview={preview}
+            headingLevel={4}
+          />
+        </section>
+      )}
       <Card>
         <div
           className="flex flex-wrap gap-1 border-b border-gray-200 px-4 pt-2 dark:border-slate-700 sm:px-6"

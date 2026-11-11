@@ -44,6 +44,7 @@ Gacha Savior is an unofficial fan project. It is not affiliated with or endorsed
 - [shadcn/ui](https://ui.shadcn.com/) components (MIT), built on [Radix UI](https://www.radix-ui.com/) (MIT) and [class-variance-authority](https://cva.style/) (Apache-2.0)
 - [Lucide](https://lucide.dev/) icons: ISC
 - [next-themes](https://github.com/pacocoursey/next-themes) for dark mode: MIT
+- [html-to-image](https://github.com/bubkoo/html-to-image) by bubkoo, for saving a build card as a PNG: MIT
 - [Firebase](https://firebase.google.com/) client and Admin SDKs: Apache-2.0
 - [Inter](https://rsms.me/inter/) typeface by Rasmus Andersson, via Google Fonts: SIL Open Font License 1.1
 - [sharp](https://sharp.pixelplumbing.com/) by Lovell Fuller (Apache-2.0), used to crop the game icons and resize the weapon and artifact icons

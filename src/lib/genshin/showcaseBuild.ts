@@ -33,8 +33,37 @@ export function mainStatShort(key: string): string {
   return MAIN_STAT_SHORT[key] ?? key;
 }
 
-/** A 5★ CRIT main stat at +20. Lower levels and rarities aren't counted, since GOOD doesn't give their values. */
-const CRIT_MAIN_MAX = { critRate_: 31.1, critDMG_: 62.2 } as const;
+/**
+ * Main stat values on a 5★ piece at +20. GOOD exports don't include main stat
+ * values, and these are the only ones that need no level-by-level table, so
+ * lower levels and rarities aren't counted.
+ */
+const MAIN_STAT_MAX: Record<string, number> = {
+  hp: 4780,
+  atk: 311,
+  hp_: 46.6,
+  atk_: 46.6,
+  def_: 58.3,
+  eleMas: 186.5,
+  enerRech_: 51.8,
+  heal_: 35.9,
+  critRate_: 31.1,
+  critDMG_: 62.2,
+  physical_dmg_: 58.3,
+  anemo_dmg_: 46.6,
+  geo_dmg_: 46.6,
+  electro_dmg_: 46.6,
+  hydro_dmg_: 46.6,
+  pyro_dmg_: 46.6,
+  cryo_dmg_: 46.6,
+  dendro_dmg_: 46.6,
+};
+
+/** A piece's main stat value when it's known: 5★ at +20. */
+export function mainStatValue(piece: Pick<GoodArtifact, "mainStatKey" | "rarity" | "level">): number | null {
+  if (!piece.mainStatKey || piece.rarity !== 5 || piece.level !== 20) return null;
+  return MAIN_STAT_MAX[piece.mainStatKey] ?? null;
+}
 
 export interface CritTotals {
   critRate: number;
@@ -50,12 +79,10 @@ export function critFromArtifacts(pieces: GoodArtifact[]): CritTotals {
   let partial = false;
   for (const piece of pieces) {
     if (piece.mainStatKey === "critRate_" || piece.mainStatKey === "critDMG_") {
-      if (piece.rarity === 5 && piece.level === 20) {
-        if (piece.mainStatKey === "critRate_") critRate += CRIT_MAIN_MAX.critRate_;
-        else critDMG += CRIT_MAIN_MAX.critDMG_;
-      } else {
-        partial = true;
-      }
+      const value = mainStatValue(piece);
+      if (value === null) partial = true;
+      else if (piece.mainStatKey === "critRate_") critRate += value;
+      else critDMG += value;
     }
     for (const sub of piece.substats ?? []) {
       if (sub.key === "critRate_") critRate += sub.value;
@@ -63,6 +90,41 @@ export function critFromArtifacts(pieces: GoodArtifact[]): CritTotals {
     }
   }
   return { critRate: roundCv(critRate), critDMG: roundCv(critDMG), partial };
+}
+
+/** The order the build card lists stats in: HP, ATK and DEF first, then the rest. */
+const TOTALS_ORDER = [
+  "hp", "hp_", "atk", "atk_", "def", "def_", "eleMas", "enerRech_", "critRate_", "critDMG_", "heal_",
+  "anemo_dmg_", "geo_dmg_", "electro_dmg_", "dendro_dmg_", "hydro_dmg_", "pyro_dmg_", "cryo_dmg_", "physical_dmg_",
+];
+
+export interface ArtifactTotals {
+  /** Every stat the pieces give, in `TOTALS_ORDER`, rounded to one decimal */
+  stats: { key: string; value: number }[];
+  /** True when a main stat below 5★ +20 was left out */
+  partial: boolean;
+}
+
+/** All the stats a character's pieces give: main stats (5★ +20 only) and substats. */
+export function artifactTotals(pieces: GoodArtifact[]): ArtifactTotals {
+  const totals = new Map<string, number>();
+  const add = (key: string, value: number) => totals.set(key, (totals.get(key) ?? 0) + value);
+  let partial = false;
+  for (const piece of pieces) {
+    const main = mainStatValue(piece);
+    if (main === null) {
+      if (piece.mainStatKey) partial = true;
+    } else {
+      add(piece.mainStatKey!, main);
+    }
+    for (const sub of piece.substats ?? []) add(sub.key, sub.value);
+  }
+  const known = TOTALS_ORDER.filter((key) => totals.has(key));
+  const others = [...totals.keys()].filter((key) => !TOTALS_ORDER.includes(key));
+  return {
+    stats: [...known, ...others].map((key) => ({ key, value: roundCv(totals.get(key)!) })),
+    partial,
+  };
 }
 
 export function totalCritValue(pieces: GoodArtifact[]): number {

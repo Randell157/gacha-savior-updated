@@ -2,7 +2,8 @@ import ArtifactIcon from "@/components/ArtifactIcon";
 import { CvChip } from "@/components/ArtifactScore";
 import ArtifactSubstats from "@/components/ArtifactSubstats";
 import { artifactSetName } from "@/lib/genshin/artifactSets";
-import { formatSlotName, formatStatName } from "@/lib/genshin/stats";
+import { mainStatValue } from "@/lib/genshin/showcaseBuild";
+import { formatSlotName, formatStat, formatStatName } from "@/lib/genshin/stats";
 import type { GoodArtifact } from "@/lib/genshin/types";
 import { cn } from "@/lib/utils";
 
@@ -16,10 +17,13 @@ import { cn } from "@/lib/utils";
 export default function ArtifactSlotCard({
   artifact,
   slotNameNarrowOnly = false,
+  showMainValue = false,
   className,
 }: {
   artifact: GoodArtifact;
   slotNameNarrowOnly?: boolean;
+  /** Add the main stat's value where it's known (5★ at +20), as on the build card */
+  showMainValue?: boolean;
   className?: string;
 }) {
   return (
@@ -52,7 +56,10 @@ export default function ArtifactSlotCard({
       </p>
       {artifact.mainStatKey && (
         <p className="mt-2 font-semibold text-indigo-900 dark:text-indigo-200">
-          {formatStatName(artifact.mainStatKey)}
+          {(() => {
+            const value = showMainValue ? mainStatValue(artifact) : null;
+            return value === null ? formatStatName(artifact.mainStatKey) : formatStat(artifact.mainStatKey, value);
+          })()}
         </p>
       )}
       <ArtifactSubstats substats={artifact.substats} />

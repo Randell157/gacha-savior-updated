@@ -16,7 +16,7 @@ import { getCharacterRarity } from "@/lib/genshinCharacters";
 import { cn } from "@/lib/utils";
 
 /** Chip colours for each element, in the same light/dark pairs as the rest of the site. */
-const ELEMENT_CHIP: Record<string, string> = {
+export const ELEMENT_CHIP: Record<string, string> = {
   Anemo: "bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-200",
   Geo: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200",
   Electro: "bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-200",

@@ -1,6 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
+  artifactTotals,
+  mainStatValue,
   buildChanges,
   buildGaps,
   critFromArtifacts,
@@ -137,4 +139,28 @@ test("swapSlots trades two slots and leaves the rest", () => {
   assert.deepEqual(swapSlots(["A", "B", "C", "D", null], 0, 3), ["D", "B", "C", "A", null]);
   assert.deepEqual(swapSlots(["A", "B", "C"], 1, 1), ["A", "B", "C"]);
   assert.deepEqual(swapSlots(["A", "B"], 0, 4), ["A", "B"]);
+});
+
+test("mainStatValue knows 5★ +20 main stats only", () => {
+  assert.equal(mainStatValue(piece({ mainStatKey: "hp" })), 4780);
+  assert.equal(mainStatValue(piece({ mainStatKey: "pyro_dmg_" })), 46.6);
+  assert.equal(mainStatValue(piece({ mainStatKey: "eleMas" })), 186.5);
+  assert.equal(mainStatValue(piece({ mainStatKey: "atk_", level: 16 })), null);
+  assert.equal(mainStatValue(piece({ mainStatKey: "atk_", rarity: 4 })), null);
+});
+
+test("artifactTotals adds main stats and substats in a fixed order", () => {
+  const totals = artifactTotals([
+    piece({ mainStatKey: "hp", substats: [{ key: "critDMG_", value: 7.8 }, { key: "atk_", value: 5.3 }] }),
+    piece({ slotKey: "plume", mainStatKey: "atk", substats: [{ key: "critDMG_", value: 14 }, { key: "hp", value: 299 }] }),
+    piece({ slotKey: "goblet", mainStatKey: "hydro_dmg_", level: 12, substats: [{ key: "eleMas", value: 23 }] }),
+  ]);
+  assert.deepEqual(totals.stats, [
+    { key: "hp", value: 5079 },
+    { key: "atk", value: 311 },
+    { key: "atk_", value: 5.3 },
+    { key: "eleMas", value: 23 },
+    { key: "critDMG_", value: 21.8 },
+  ]);
+  assert.equal(totals.partial, true);
 });
