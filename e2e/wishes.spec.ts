@@ -28,7 +28,7 @@ test("signed out, the page shows the made-up history with a log-in banner", asyn
   await chart.getByRole("button", { name: /^Jan 2026: .*Venti. Show in the history$/ }).click();
   await expect(page.getByText("Page 1 of 2")).toBeVisible();
   await expect(page.locator("li[data-picked]")).toContainText("Venti");
-  await page.getByRole("button", { name: "Next" }).click();
+  await page.getByRole("button", { name: "Next", exact: true }).click();
   await expect(page.locator("li[data-picked]")).toHaveCount(0);
 });
 
