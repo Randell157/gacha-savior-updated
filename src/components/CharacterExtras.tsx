@@ -165,8 +165,9 @@ export function ConstellationPicker({
   if (loading) return <Skeleton className="h-24" />;
   if (!constellations) return null;
   const hasBuild = owned !== undefined;
-  const selected = picked ?? (hasBuild ? Math.min(owned + 1, 6) : 1);
-  const current = constellations[selected - 1];
+  // Opens on the character's own constellation: C0 with none unlocked, C1 with one, and so on.
+  const selected = picked ?? (hasBuild ? owned : 1);
+  const current = selected > 0 ? constellations[selected - 1] : null;
   const status = !hasBuild ? null : selected <= owned ? "Unlocked" : selected === owned + 1 ? "Next to unlock" : "Locked";
   return (
     <div>
@@ -175,10 +176,12 @@ export function ConstellationPicker({
         <NumberButtons
           label="Constellation"
           prefix="C"
-          count={6}
+          // Owned characters get C0 too: where a character with none unlocked starts.
+          start={hasBuild ? 0 : 1}
+          count={hasBuild ? 7 : 6}
           selected={selected}
           onSelect={setPicked}
-          isMarked={hasBuild ? (n) => n <= owned : undefined}
+          isMarked={hasBuild ? (n) => n > 0 && n <= owned : undefined}
           markLabel="unlocked"
           markTitle="Unlocked"
           dimUnmarked={hasBuild}
@@ -186,6 +189,15 @@ export function ConstellationPicker({
         {hasBuild && <span className="text-sm text-gray-500 dark:text-slate-400">{owned} of 6 unlocked</span>}
       </div>
       <div aria-live="polite">
+        {current === null ? (
+          <p className="mt-2 text-sm text-gray-600 dark:text-slate-400">
+            <span className="font-semibold text-gray-900 dark:text-slate-100">C0</span>
+            {owned === 0
+              ? " · No constellations unlocked yet. Press C1 to C6 to read what each one does."
+              : ` · The character without constellations. ${owned} of 6 are unlocked.`}
+          </p>
+        ) : (
+        <>
         <p className="mt-2 text-sm font-semibold text-gray-900 dark:text-slate-100">
           {current.name}
           {status && (
@@ -197,6 +209,8 @@ export function ConstellationPicker({
         <p key={current.name} className="fade-up mt-1 max-w-4xl whitespace-pre-line text-sm text-gray-600 dark:text-slate-400">
           <MarkedText text={current.text} />
         </p>
+        </>
+        )}
       </div>
     </div>
   );

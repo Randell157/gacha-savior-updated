@@ -2,12 +2,14 @@ import { cn } from "@/lib/utils";
 
 /**
  * Joined buttons for picking a numbered thing to read about: R1 to R5 on a
- * weapon, C1 to C6 for constellations. The ones the player has get a star.
+ * weapon, C0 to C6 for an owned character's constellations (C1 to C6 in the
+ * quick view). The ones the player has get a star.
  */
 export default function NumberButtons({
   label,
   prefix,
   count,
+  start = 1,
   selected,
   onSelect,
   isMarked,
@@ -18,7 +20,10 @@ export default function NumberButtons({
   /** What the group is called for screen readers */
   label: string;
   prefix: string;
+  /** How many buttons, from `start` up */
   count: number;
+  /** The first number: 1 for R1–R5, 0 for C0–C6 on an owned character */
+  start?: number;
   selected: number;
   onSelect: (n: number) => void;
   /** Which buttons get a star; none if left out */
@@ -35,7 +40,7 @@ export default function NumberButtons({
       aria-label={label}
       className="inline-flex rounded-md border border-gray-200 dark:border-slate-700 p-0.5"
     >
-      {Array.from({ length: count }, (_, i) => i + 1).map((n) => {
+      {Array.from({ length: count }, (_, i) => i + start).map((n) => {
         const marked = isMarked?.(n) ?? false;
         const pressed = n === selected;
         return (
