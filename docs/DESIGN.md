@@ -24,7 +24,7 @@ This document describes what comes next for Gacha Savior and how each piece will
 | Where uploaded data lives | Firestore, under the user's account | Works across devices and survives clearing the browser. |
 | Next focus | Deepen Genshin before adding games | Finish one game well first. |
 | Genshin features | Artifact analysis, detail pages, wish history tracker | Chosen. A material planner was considered and not included. |
-| Wish history source | UIGF JSON file import | The standard export format used by paimon.moe, Snap Hutao and others. It works the same way as the existing GOOD upload and needs no server. |
+| Wish history source | UIGF JSON file import, plus paimon.moe Excel exports | UIGF is the standard format of Snap Hutao and other tools; paimon.moe has no UIGF export, and its Excel file is often the only record older than the game's six months. Both work like the GOOD upload and need no server. |
 | Game data (stats, talents, images) | `genshin-db` npm package, extracted at build time | Works offline and is kept up to date (v5.2.14, updated Sept 2026). It's 187 MB unpacked, so it must never be shipped to the browser. |
 | Artifact score | Crit Value: CRIT Rate × 2 + CRIT DMG | Widely understood and easy to explain. |
 | Groundwork | Fix lint, shared types, Firebase config from env | Chosen. Tests deferred. |
@@ -54,7 +54,7 @@ Each phase builds on the one before it. Phase 2 comes first so later phases buil
 | 2 | UI review and consistency pass | 1 | **Done** (2026-11-02); still open for a few more UI changes the user is considering |
 | 3 | Artifact analysis | 1 | **Done** (2026-11-06) |
 | 4 | Character and weapon detail pages | 1 | **Done** (2026-11-06) |
-| 5 | Wish history tracker | 1 | In progress: logic, mockup, storage, import, page (2026-11-10) and chart (2026-11-11) done; final tests and release left |
+| 5 | Wish history tracker | 1 | **Done** (2026-11-11) |
 
 ---
 
@@ -148,7 +148,8 @@ users/{uid}/games/genshin                { source, format, version, uploadedAt,
                                            weapons: Weapon[],
                                            materials: Record<string, number> }
 users/{uid}/games/genshin/artifactChunks/{0..n}   { items: Artifact[] }   (at most 400 per chunk)
-users/{uid}/games/genshin/wishes/...     Phase 5
+users/{uid}/games/genshin/wishes/meta     { gameUid, lastImportedAt, totals, chunks }   (Phase 5)
+users/{uid}/games/genshin/wishes/{pool}_{n}   { items: Pull[] }   (at most 2,000 per chunk)
 ```
 
 - `games/{gameId}` keeps the model ready for `hsr` and `zzz` later.
@@ -390,6 +391,8 @@ A new route. It shows base ATK and the substat at its level, the passive at the 
 
 ## Phase 5: Wish history tracker
 
+> **Done (2026-11-11).** Committed as `7e06a41` and deployed; how it works is in the "Wish history" section of [docs/ARCHITECTURE.md](ARCHITECTURE.md). Besides the plan below, it also reads paimon.moe Excel exports, and pressing a chart month with a 5★ finds it in the 5★ history.
+
 ### Import
 
 - A new route, `/genshin/wishes`, with a UIGF JSON upload, and paimon.moe's Excel export as well (picked 2026-11-08: paimon.moe has no UIGF export, and UIGF tools only reach the game's last six months, so older history often exists only there). Support **UIGF v4** (the `hk4e: [{ uid, list }]` layout) first, and accept **v3** (`info` and `list`). Reject other games' sections with a clear message.
@@ -478,10 +481,10 @@ A step is finished only when every box is checked. Each check is verified (run, 
 7. **Tests and docs**
    - [x] Unit tests for any new logic; `npm test`, lint, `npx tsc --noEmit` and `npm run build` pass (2026-11-11: 53 unit tests; the build lists `/genshin/wishes`)
    - [x] E2E specs updated (import, pity shown, page in the `a11y` spec), run when the user asks (2026-11-11, at the user's request: all 70 passed in 5.5 minutes, the 61 from before plus 9 in `wishes.spec.ts`, with the Wishes page in the `a11y` spec in both themes)
-   - [ ] `docs/ARCHITECTURE.md` and `CLAUDE.md` describe what was built (done); README credits complete (UIGF and paimon.moe added); this phase is marked done once step 8 ships
+   - [x] `docs/ARCHITECTURE.md` and `CLAUDE.md` describe what was built (done); README credits complete (UIGF and paimon.moe added); this phase is marked done once step 8 ships (done 2026-11-11)
 8. **Release** (only when the user asks)
-   - [ ] Test build served on localhost for the user to check
-   - [ ] Committed, then deployed, and the live wishes page and API routes checked
+   - [x] Test build served on localhost for the user to check (2026-11-11, twice: before and after the chart-click addition)
+   - [x] Committed (`7e06a41`), then deployed (2026-11-11), and the live wishes page and API routes checked: `/`, `/genshin`, `/genshin/wishes`, `/profile` and the sample wish files return 200; the account and username routes answer an empty request with 401; signed out, the live page shows the sample (6 / 90) and pressing Feb 2024 highlights Jean, with no console errors
 
 ---
 
