@@ -27,11 +27,13 @@ npm run dev:emu      # dev server pointed at the emulators (start `npm run emula
 npm run build        # production build
 npm run lint         # eslint . (flat config in eslint.config.mjs)
 npx tsc --noEmit     # type check
+npm test             # unit tests (src/**/*.test.ts, Node's built-in runner, about a second)
 npm run test:e2e     # end-to-end tests on fresh emulators (stop the dev server and emulators first)
 npm run data:genshin # regenerate src/data/genshin/*.json from genshin-db (after a game patch)
 npm run icons:weapons # download icons for weapons that don't have one yet (after data:genshin)
 npm run icons:artifacts # same for artifact pieces (each set's icon per slot)
 npm run data:test-export # regenerate the made-up test export (after data:genshin or a new character)
+npm run data:test-wishes # regenerate the made-up UIGF and paimon.moe wish exports (after data:genshin)
 npm run migrate:usernames [-- --apply]       # one-time username lowercase migration (live project; dry run by default)
 npm run migrate:usernames:emu [-- --apply]   # same, against the emulator
 npx firebase deploy --only firestore:rules   # publish firestore.rules (needs `npx firebase login`)
@@ -41,6 +43,7 @@ npx firebase deploy --only firestore:rules   # publish firestore.rules (needs `n
 - `.claude/launch.json` has `dev`, `emulators` and `dev:emu` configurations for previewing in the Claude desktop app, plus `start` (`npm run start`, the production build from `npm run build`, for the test build the user checks before every commit and deploy) and `mockups`, which serves the gitignored `.mockups/` folder (standalone HTML design mockups) on port 4100 with Python's `http.server`.
 - `eslint.config.mjs` sets `settings.react.version` explicitly. Without it, `eslint-plugin-react` crashes under ESLint 10 while trying to auto-detect the version. The React Compiler lint rules are on, including `react-hooks/set-state-in-effect`: don't call `setState` synchronously in an effect body. Read external state with `useSyncExternalStore` or a lazy `useState` initializer, and set state from async callbacks.
 - The playwright Claude Code plugin writes its snapshots, console logs and screenshots to `.playwright-mcp/` (gitignored). On the user's machine it runs as a local MCP server `playwright-chrome` (`npx @playwright/mcp@latest --browser chrome --headless`, added with `claude mcp add --scope local`), and the plugin's own windowed copy is turned off for this folder in `.claude/settings.local.json`. Playwright's Firefox builds don't start on that PC (Windows reports a missing `mozglue` side-by-side assembly), so stay on Chrome or Edge.
+- **Unit tests** (`*.test.ts` beside the code): they're cheap, so run `npm test` after changing a tested module, and add cases when its behavior changes. Import with the `.ts` extension and keep tested code free of `@/` imports, since plain Node can't resolve them. Details are in the "Unit tests" section of `docs/ARCHITECTURE.md`.
 - **End-to-end tests** (Playwright, in `e2e/`): `npm run test:e2e` starts its own empty emulators and dev server on port 3100, so stop any dev server and the emulators first. **Run the tests only when the user asks** (a full run costs a lot of tokens); still update the specs when features change, and when copy changes on purpose, update the text the tests expect. How the setup, helpers and specs work is in the "End-to-end tests" section of `docs/ARCHITECTURE.md`.
 - Don't read the generated files in `src/data/genshin/` whole: `characterExtras.json` (~480 KB) and `weaponDetails.json` (~210 KB) would cost over 100,000 tokens. Look up only the entries needed with a short `node -e` query, or use the helpers in `src/lib/genshin/`.
 - `.claude/settings.local.json` turns off the `firebase`, `vercel`, `example-skills` and `plugin-dev` plugins for this folder, to save tokens. Deploy with `npx vercel --prod`, and publish rules with the Firebase CLI or the console.
@@ -58,6 +61,8 @@ The details are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). **Before changi
 - **Games:** the hub, each game's section and tabs, adding a game.
 - **Character names and portraits:** the roster, game data and how to update it after a patch, stat and name helpers, and the Genshin pages (features and sample, weapons and each weapon's page, artifacts and Crit Value, character page), shared components, icons.
 - **UI conventions:** read before any UI change: page shells, titles, accessibility, motion, header, copy, dark mode.
+- **Wish history:** reading UIGF and paimon.moe exports, merging, pity and the 50/50, and storage (`src/lib/genshin/wishes.ts`, `wishStore.ts`, `src/lib/xlsx.ts`).
+- **Unit tests:** the Node test runner, `npm test`, and what's covered.
 - **End-to-end tests:** the Playwright setup, helpers, specs, and checking the parser by hand.
 
 Rules for every change:

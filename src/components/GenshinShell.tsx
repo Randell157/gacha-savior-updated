@@ -10,6 +10,7 @@ const TABS = [
   { href: "/genshin/characters", label: "Characters" },
   { href: "/genshin/weapons", label: "Weapons" },
   { href: "/genshin/artifacts", label: "Artifacts" },
+  { href: "/genshin/wishes", label: "Wishes" },
 ];
 
 /**

@@ -232,6 +232,24 @@ writeFileSync(
 );
 console.log(`Wrote ${Object.keys(materialNames).length} material names.`);
 
+// Wish history (UIGF) identifies each pull by the game's item ID, and may leave
+// out the name and rarity, so the wish tracker looks them up here.
+const wishItems = {};
+for (const [kind, list] of [
+  ["Character", db.characters("names", { matchCategories: true }).map((n) => db.characters(n))],
+  ["Weapon", db.weapons("names", { matchCategories: true }).map((n) => db.weapons(n))],
+]) {
+  for (const item of list) {
+    if (!item?.id || item.rarity < 3) continue;
+    wishItems[item.id] = { name: item.name, rarity: item.rarity, type: kind };
+  }
+}
+writeFileSync(
+  "src/data/genshin/wishItems.json",
+  JSON.stringify({ source: `genshin-db ${version}`, items: wishItems }) + "\n"
+);
+console.log(`Wrote ${Object.keys(wishItems).length} wish items.`);
+
 // Report sets and weapons in the sample exports that the data doesn't cover.
 const SAMPLE_EXPORTS = [
   "public/sample-data/inventory-kamera/genshin_export_2026-02-11_12-16.json",

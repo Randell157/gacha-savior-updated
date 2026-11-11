@@ -54,7 +54,7 @@ Each phase builds on the one before it. Phase 2 comes first so later phases buil
 | 2 | UI review and consistency pass | 1 | **Done** (2026-11-02); still open for a few more UI changes the user is considering |
 | 3 | Artifact analysis | 1 | **Done** (2026-11-06) |
 | 4 | Character and weapon detail pages | 1 | **Done** (2026-11-06) |
-| 5 | Wish history tracker | 1 | Planned |
+| 5 | Wish history tracker | 1 | In progress: logic, mockup, storage, import, page (2026-11-10) and chart (2026-11-11) done; final tests and release left |
 
 ---
 
@@ -392,7 +392,7 @@ A new route. It shows base ATK and the substat at its level, the passive at the 
 
 ### Import
 
-- A new route, `/genshin/wishes`, with a UIGF JSON upload. Support **UIGF v4** (the `hk4e: [{ uid, list }]` layout) first, and accept **v3** (`info` and `list`). Reject other games' sections with a clear message.
+- A new route, `/genshin/wishes`, with a UIGF JSON upload, and paimon.moe's Excel export as well (picked 2026-11-08: paimon.moe has no UIGF export, and UIGF tools only reach the game's last six months, so older history often exists only there). Support **UIGF v4** (the `hk4e: [{ uid, list }]` layout) first, and accept **v3** (`info` and `list`). Reject other games' sections with a clear message.
 - **Merge, don't replace.** Pulls are identified by their `id`, so importing a newer export adds only the new pulls and keeps older ones the game no longer shows. The game only shows about 6 months of history, so keeping it is a key reason to use this feature.
 - If an export contains more than one game account (UID), ask which one to import.
 
@@ -424,13 +424,72 @@ Pull history can reach thousands of entries, so it's chunked by pool, the same w
 
 **Done when** importing two overlapping exports gives the right merged total with no duplicate pulls, and pity matches what the game shows.
 
+### Steps, and what finished means for each
+
+A step is finished only when every box is checked. Each check is verified (run, opened or read back), not assumed, and the step's report lists the boxes with what showed each one.
+
+1. **Logic** — done 2026-11-07
+   - [x] `src/lib/genshin/wishes.ts` reads UIGF v4 (every UID) and v3, and rejects other games' files and non-UIGF files with a clear message
+   - [x] Names and rarities come from `wishItems.json` by item ID, falling back to the export's own fields
+   - [x] `mergePulls` adds by pull ID: an overlapping export adds only new pulls, and the same file twice adds nothing
+   - [x] Pity per pool (5★ and 4★), both Character Event banners sharing one pity, average per 5★, the 50/50 and the next pull's guarantee
+   - [x] Unit tests cover all of the above (`npm test` passes), plus merging the two made-up test exports
+   - [x] Pity checked against real data: every 5★ and 4★ in the user's paimon.moe export matched
+   - [x] `docs/ARCHITECTURE.md`, `CLAUDE.md` and the README credits updated
+2. **Mockup** of `/genshin/wishes` (`.mockups/wishes.html`, 2026-11-08)
+   - [x] Standalone HTML in `.mockups/`, open in the browser pane on the `mockups` server
+   - [x] Option toggles at the top for each choice, plus Light/Dark, Desktop/Phone and Show/Hide changes, with what's new marked
+   - [x] Numbers are real, worked out by `wishes.ts`, not typed in by hand (`.mockups/wish-data.js`, from the user's paimon.moe history and the merged test exports)
+   - [x] Covers: the tab in the Genshin section, the import area, choosing a UID when a file has several, the result of an import ("N new wishes added"), each pool's summary, the 5★ history with pity and 50/50, the guarantee estimate and its note, the empty state and the signed-out view (plus a wrong-file error)
+   - [x] Follows the UI conventions: current look, dark-mode partners, small text contrast, sentence case, "owned"
+   - [x] Checked in light, dark and phone width with no overflow or console errors (all 48 state, data, size and option combinations checked for overflow)
+   - [x] The user has picked an option for every choice: **1A** banner chips and stat tiles, **2A** rows with pity bars, **3A** a 50/50 chip on every 5★ with the next pull's estimate, **4A** an import bar above the stats, **5B** paimon.moe Excel files accepted too (2026-11-08)
+3. **Storage** (`src/lib/genshin/wishStore.ts`, 2026-11-10)
+   - [x] Pulls saved under `users/{uid}/games/genshin/wishes/` as in "Storage" above: a `meta` document and chunks of at most 2,000 pulls per pool (a 3,637-pull pool made `character_0` and `character_1`; unit tests for the split and read-back)
+   - [x] Security rules allow only the owner (on the emulator, a second signed-in user was refused reading the meta and a chunk, writing and deleting)
+   - [x] Deleting the account also deletes wish history (the delete route's `recursiveDelete` left no wish documents on the emulator)
+   - [x] Deleting the GOOD upload keeps wish history (it's stored apart, so `deleteGenshin` doesn't touch it; the user agreed on 2026-11-10). Profile's Delete data panel gets its own "Delete wish history" (`deleteWishes`), added to step 5's boxes.
+   - [x] Saved and read back on the emulators, including a merge over existing history (1,253 saved, then the newer export added 528 for 1,781 with no duplicate IDs and the same pity), and a smaller save deletes stale chunks
+4. **Import**
+   - [x] Upload on the wishes page accepts UIGF v4 and v3; errors show as an alert with a title and what to do next (on `dev:emu` 2026-11-10: v4 imported through the page, v3 by the unit tests on the same parser; a .txt, broken JSON, a GOOD file, another game's export and a fake .xlsx each showed "Import failed" with their own next step)
+   - [x] It also accepts paimon.moe's Excel export (.xlsx, read in the browser with no new library), with unit tests; those wishes have no IDs, so they match by banner, time, name and order within the same second, and a later paimon.moe or UIGF import over them adds no duplicates (the logic, 2026-11-10: `src/lib/xlsx.ts`, `parsePaimon`, `mergePulls`; the upload itself comes with the page)
+   - [x] The user's own paimon.moe file imports with the same totals and pity as paimon.moe shows (read with the site's `readXlsx` and `parsePaimon`: 4,752 wishes, every 5★ pity matching, the same file again adding 0; to repeat through the page in step 5)
+   - [x] A file with several UIDs asks which one to import ("Choose an account" with native radios; the arrow keys move the choice; picking a different UID than the saved one is refused with how to switch)
+   - [x] Importing reports how many wishes were new; importing the same file again adds 0 ("No new wishes: all 1,253 wishes in this file were already saved.")
+   - [x] The two made-up test exports, imported in either order, give the same total as the merge test (unit tests for every order; through the page: `wishes-paimon.xlsx` 1,253, then `wishes-newer.json` +528 = 1,781, then `wishes-older.json` +0; Firestore then held 1,781 wishes, every one with its real game ID)
+5. **Page** (2026-11-10)
+   - [x] `/genshin/wishes` with its `layout.tsx` title ("Wishes · Genshin · Gacha Savior"), a Wishes tab in `GenshinShell`, inside `PageShell`
+   - [x] Every element the user picked in the mockup is there: 1A banner chips and five tiles, 2A rows with pity bars and 10 per page, 3A a 50/50 chip on every Character Event 5★ and the next pull's estimate, 4A the import bar above the stats, 5B .xlsx accepted
+   - [x] Skeleton while loading, an empty state before the first import, and a signed-out view (the made-up history under the log-in banner)
+   - [x] Profile's Delete data panel has "Delete wish history", confirmed in a dialog like the others (option A from `.mockups/delete-wishes.html`, picked 2026-11-10), and deleting the GOOD upload leaves wishes in place (on `dev:emu` with a throwaway account: after Delete upload, the GOOD document was gone and all five wish documents stayed and still showed on the Wishes page; Delete wish history then left none; the status line took focus both times)
+   - [x] Long lists are paged; dark-mode partners, `aria-label`s and copy rules followed (lint and type check pass)
+   - [x] Checked on `dev:emu` in light, dark and phone width with the `copytest` account, and pity matches the test data's expected numbers (Character Event 6 / 90, 8 / 10, 1,137 wishes, 17 5★, 66.5; Weapon 15, Standard 62, Chronicled 5; no sideways scroll at 375 px; every history icon loads)
+6. **Pulls-per-month chart** (after the core stats; mockup first: `.mockups/wish-chart.html`, 2026-11-11)
+   - [x] Mockup with options A (all wishes, one color), B (stacked by banner) and C (the chosen banner, with gold dots on months with a 5★), real numbers from `wishes.ts`, checked in 72 combinations of theme, width, data, option and range with no overflow or label overlap
+   - [x] Colors run through the dataviz validator against the site's surfaces (white and `slate-900`): one color is `indigo-600` light / `indigo-500` dark (`indigo-400` failed the dark lightness band); B's four are the reference palette's first four slots (pass; aqua and yellow are under 3:1 on white, so the legend and table are required); the 5★ dot is `amber-600` in both modes (`amber-500` failed in dark)
+   - [x] The user has picked an option: C (2026-11-11)
+   - [x] Built in `WishStats` under the 5★ history (`src/components/WishesPerMonth.tsx`): columns at most 24 px with 4 px rounded tops, hairline grid, a 12 months / 2 years / All range, a hover and keyboard-focus tooltip per month, a legend (the banner's wishes and the 5★ dot), and "Show as a table" with every number (a focusable scroll area)
+   - [x] Unit tests for the monthly counts (`monthlyCounts`: empty months filled, 5★ names, totals adding up on every pool; 53 pass); checked on `dev:emu` in light, dark and phone width, matching the logic's numbers (Character Event: 557 for 12 months with 9 dots, 1,092 for 2 years with 16, 1,137 all time; Weapon Event 290 with 5; Tab reaches each month and shows its tooltip; no console errors, no sideways scroll, no label overlaps at 375 px)
+   - **Pressing a month with a 5★ finds it in the 5★ history** (the user's idea after trying the test build, 2026-11-11; mockup `.mockups/chart-click.html`)
+     - [x] Mockup with options A (turn to the history page holding that month's 5★s, scroll, highlight the rows) and B (filter the history to that month with a "Show all" chip), checked with the user's data by mouse and keyboard, no console errors or overflow
+     - [x] The user has picked an option: A (2026-11-11)
+     - [x] Built: months with a 5★ are buttons (click, Enter or Space) whose name ends "Show in the history"; months without one stay as they are. Pressing one turns the history to the page holding that month's newest 5★, scrolls to it and highlights every 5★ row from that month (a fading flash, or a steady highlight with reduce motion on); the month stays tinted in the chart until another month, banner or history page is chosen
+     - [x] Checked on `dev:emu` (with the signed-out sample, the same 1,781 test wishes `copytest` has) in light and dark, by mouse and keyboard: Feb 2024 turned to page 2 and highlighted Jean, Jan 2026 back to page 1 and Venti, Next cleared it, the live region announced each; the flash keyframes compiled (the user's reduce-motion setting gets the steady tint); no new console errors, no sideways scroll; lint and type check pass; `wishes.spec.ts` updated (not run)
+7. **Tests and docs**
+   - [x] Unit tests for any new logic; `npm test`, lint, `npx tsc --noEmit` and `npm run build` pass (2026-11-11: 53 unit tests; the build lists `/genshin/wishes`)
+   - [x] E2E specs updated (import, pity shown, page in the `a11y` spec), run when the user asks (2026-11-11, at the user's request: all 70 passed in 5.5 minutes, the 61 from before plus 9 in `wishes.spec.ts`, with the Wishes page in the `a11y` spec in both themes)
+   - [ ] `docs/ARCHITECTURE.md` and `CLAUDE.md` describe what was built (done); README credits complete (UIGF and paimon.moe added); this phase is marked done once step 8 ships
+8. **Release** (only when the user asks)
+   - [ ] Test build served on localhost for the user to check
+   - [ ] Committed, then deployed, and the live wishes page and API routes checked
+
 ---
 
 ## Later
 
 Ideas that came up but aren't scheduled yet:
 
-- **Automated tests**, starting with the pure logic: `parseGood`, CV scoring, UIGF merging and pity counting. These are the parts where a silent bug gives users wrong numbers.
+- **More unit tests.** `parseGood`, CV scoring, the stat helpers and Phase 5's wish logic (UIGF and paimon.moe reading, merging, pity, storage chunks) are covered by `npm test`. Other pure helpers could follow. These are the parts where a silent bug gives users wrong numbers.
 - **Material planner**: what a character or weapon still needs to reach a target level, using the uploaded `materials`.
 - **Per-character artifact scoring**: weighting substats by what each character wants, shown next to CV.
 - **Honkai: Star Rail and Zenless Zone Zero**, using the `games/{gameId}` structure from Phase 1.

@@ -47,6 +47,15 @@
         ],
         "createdAt": "2026-11-07T06:07:42.482Z",
         "reason": "Claude's triage: flat text-indigo-900 dark:text-indigo-200 panel heading, the same class the character page uses under the site's documented palette; no gradient"
+      },
+      {
+        "rule": "ai-color-palette",
+        "value": "*",
+        "files": [
+          "src/components/WishStats.tsx"
+        ],
+        "createdAt": "2026-11-11T00:17:48.823Z",
+        "reason": "Claude's triage: lines 122 and 204 are flat text-indigo-900 dark:text-indigo-200, the site's documented heading/number colour mapping (same as ArtifactScore.tsx); no gradient"
       }
     ]
   }

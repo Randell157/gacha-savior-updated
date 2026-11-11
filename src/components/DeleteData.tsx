@@ -6,6 +6,7 @@ import { FirebaseError } from "firebase/app";
 import { auth } from "@/lib/firebase";
 import { clearRememberedTabState } from "@/hooks/useRememberedState";
 import { useGenshinData } from "@/hooks/useGenshinData";
+import { useWishData } from "@/hooks/useWishData";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -47,10 +48,16 @@ function Row({
   );
 }
 
-/** Profile's panel for deleting the upload or the whole account. */
+/**
+ * Profile's panel for deleting the upload, the wish history or the whole
+ * account. The upload and the wish history are deleted separately (option "A"
+ * from `.mockups/delete-wishes.html`): wishes older than the game's six months
+ * may exist nowhere else.
+ */
 export default function DeleteData() {
   const { data } = useGenshinData();
-  const [uploadDeleted, setUploadDeleted] = useState(false);
+  const { wishes } = useWishData();
+  const [deleted, setDeleted] = useState<"upload" | "wishes" | null>(null);
   const message = useRef<HTMLParagraphElement>(null);
 
   return (
@@ -64,24 +71,38 @@ export default function DeleteData() {
       >
         Delete data
       </h2>
-      {uploadDeleted && (
+      {deleted && (
         <p
+          key={deleted}
           ref={message}
           tabIndex={-1}
           role="status"
           className="fade-up mx-4 mt-3 rounded-md border border-green-300 bg-green-50 p-3 text-sm text-green-800 outline-none dark:border-green-800 dark:bg-green-900/30 dark:text-green-300 sm:mx-6"
         >
-          Your upload was deleted.
+          {deleted === "upload" ? "Your upload was deleted." : "Your wish history was deleted."}
         </p>
       )}
       <div>
         {data && (
           <Row
             title="Delete my upload"
-            text="Removes your Genshin data but keeps your account."
+            text="Removes your Genshin data but keeps your account and your wish history."
             action={
               <DeleteUpload
-                onDeleted={() => setUploadDeleted(true)}
+                onDeleted={() => setDeleted("upload")}
+                focusMessage={() => message.current?.focus()}
+              />
+            }
+          />
+        )}
+        {wishes && wishes.pulls.length > 0 && (
+          <Row
+            title="Delete my wish history"
+            text="Removes your saved wishes. Your upload and account stay."
+            action={
+              <DeleteWishes
+                count={wishes.pulls.length}
+                onDeleted={() => setDeleted("wishes")}
                 focusMessage={() => message.current?.focus()}
               />
             }
@@ -159,6 +180,83 @@ function DeleteUpload({ onDeleted, focusMessage }: { onDeleted: () => void; focu
           </Button>
           <Button variant="destructive" disabled={isDeleting} onClick={confirm}>
             {isDeleting ? "Deleting..." : "Delete upload"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function DeleteWishes({
+  count,
+  onDeleted,
+  focusMessage,
+}: {
+  count: number;
+  onDeleted: () => void;
+  focusMessage: () => void;
+}) {
+  const { deleteHistory } = useWishData();
+  const [isOpen, setIsOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [error, setError] = useState("");
+  const deleted = useRef(false);
+
+  const confirm = async () => {
+    setIsDeleting(true);
+    setError("");
+    try {
+      await deleteHistory();
+      deleted.current = true;
+      setIsOpen(false);
+      onDeleted();
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Check your connection and try again.");
+      setIsDeleting(false);
+    }
+  };
+
+  return (
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (isDeleting) return;
+        setError("");
+        setIsOpen(open);
+      }}
+    >
+      <DialogTrigger asChild>
+        <Button variant="outline" className={DELETE_BUTTON}>
+          Delete wish history
+        </Button>
+      </DialogTrigger>
+      <DialogContent
+        onCloseAutoFocus={(e) => {
+          // The button that opened this goes away with the history.
+          if (deleted.current) {
+            e.preventDefault();
+            focusMessage();
+          }
+        }}
+      >
+        <DialogHeader>
+          <DialogTitle>Delete your wish history?</DialogTitle>
+          <DialogDescription>
+            This removes all {count.toLocaleString("en-US")} saved wishes. The game only shows the last six months, so
+            older wishes come back only if you still have a file that holds them, such as a paimon.moe export.
+          </DialogDescription>
+        </DialogHeader>
+        {error && (
+          <p role="alert" className="text-sm text-red-600 dark:text-red-300">
+            Couldn&apos;t delete your wish history. {error}
+          </p>
+        )}
+        <DialogFooter className="gap-2 sm:gap-0">
+          <Button variant="outline" disabled={isDeleting} onClick={() => setIsOpen(false)}>
+            Cancel
+          </Button>
+          <Button variant="destructive" disabled={isDeleting} onClick={confirm}>
+            {isDeleting ? "Deleting..." : "Delete wish history"}
           </Button>
         </DialogFooter>
       </DialogContent>

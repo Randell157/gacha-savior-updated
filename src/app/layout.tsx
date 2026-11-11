@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { GenshinDataProvider } from "@/contexts/GenshinDataContext";
+import { WishDataProvider } from "@/contexts/WishDataContext";
 import { ThemeProvider } from "@/components/ThemeControls";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -25,7 +26,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider>
           <AuthProvider>
-            <GenshinDataProvider>{children}</GenshinDataProvider>
+            <GenshinDataProvider><WishDataProvider>{children}</WishDataProvider></GenshinDataProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

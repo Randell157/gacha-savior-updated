@@ -12,7 +12,7 @@ Using Vercel to host the website for now: https://gacha-savior-updated.vercel.ap
 2. Copy `.env.example` to `.env.local` and fill in the Firebase values. The same variables need to be set in Vercel.
 3. Start the dev server: `npm run dev`, then open http://localhost:3000
 
-Other commands: `npm run build`, `npm run lint`
+Other commands: `npm run build`, `npm run lint`, `npm test` (unit tests)
 
 To use the site, export your Genshin account as a GOOD-format JSON file with [Inventory Kamera](https://github.com/Andrewthe13th/Inventory_Kamera) or Irminsul, then upload it on the dashboard. Sample exports are in `public/sample-data/inventory-kamera/`.
 
@@ -28,11 +28,12 @@ Gacha Savior is an unofficial fan project. It is not affiliated with or endorsed
 - **Character portraits** come from the [Genshin Impact Wiki character gallery](https://genshin-impact.fandom.com/wiki/Character/Gallery) on Fandom, for Vodyanitsa from [HoYoWiki](https://wiki.hoyolab.com/) via the link in genshin-db, and for Vesna, Mitya and Valeriy from [Enka.Network](https://enka.network/). The artwork itself is HoYoverse's.
 - **Weapon and artifact icons** (`public/weapon-icons/`, `public/artifact-icons/`) are HoYoverse's, downloaded from [HoYoLAB](https://www.hoyolab.com/) via the links in genshin-db, and from [Enka.Network](https://enka.network/) for the few HoYoLAB no longer serves, with `npm run icons:weapons` and `npm run icons:artifacts`.
 - **Game app icons** (`public/genshinappicon.png`, `starrailappicon.png`, `zzzappicon.png`) were cropped from the games' App Store listings. They are HoYoverse's.
-- **Artifact set names, bonuses and release versions** come from [genshin-db](https://github.com/theBowja/genshin-db) by theBowja (MIT License), extracted with `npm run data:genshin`. Character rarities, titles, descriptions, birthdays, base stats, talent and constellation names and text, and other details, and weapon names, rarities, passives, descriptions and stat growth come from it too. The playstyle roles on character pages are the site's own picks, not game data. So are the reactions on character pages, written in the site's own words with help from the character quick guides on [KQM (KeqingMains)](https://keqingmains.com/). The underlying game text belongs to HoYoverse.
+- **Artifact set names, bonuses and release versions** come from [genshin-db](https://github.com/theBowja/genshin-db) by theBowja (MIT License), extracted with `npm run data:genshin`. Character rarities, titles, descriptions, birthdays, base stats, talent and constellation names and text, and other details, and weapon names, rarities, passives, descriptions and stat growth come from it too, as do the item IDs used to read wish history. The playstyle roles on character pages are the site's own picks, not game data. So are the reactions on character pages, written in the site's own words with help from the character quick guides on [KQM (KeqingMains)](https://keqingmains.com/). The underlying game text belongs to HoYoverse.
 
 ### Account exports
 
 - Uploads use the **GOOD** (Genshin Open Object Description) format created by the [Genshin Optimizer](https://github.com/frzyc/genshin-optimizer) project.
+- Wish history imports use the [UIGF](https://uigf.org/) (Uniformed Interchangeable GachaLog Format) standard by UIGF-org (MIT License). The site also reads the Excel wish history export of [paimon.moe](https://paimon.moe/) by MadeBaruna ([source](https://github.com/MadeBaruna/paimon-moe), MIT License). The wish exports in `public/sample-data/test-account/` are made up, written by `npm run data:test-wishes`.
 - Exports come from [Inventory Kamera](https://github.com/Andrewthe13th/Inventory_Kamera) or Irminsul. The sample exports in `public/sample-data/` were made with them.
 
 ### Libraries and tools

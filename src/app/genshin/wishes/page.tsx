@@ -1,0 +1,286 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
+import GenshinShell from "@/components/GenshinShell";
+import PageSkeleton from "@/components/PageSkeleton";
+import RequireAuth from "@/components/RequireAuth";
+import SignedOutBanner from "@/components/SignedOutBanner";
+import { UploadBar, UploadDropZone } from "@/components/UploadArea";
+import WishStats, { wishDate } from "@/components/WishStats";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import wishItems from "@/data/genshin/wishItems.json";
+import { useWishData } from "@/hooks/useWishData";
+import { mergePulls, nameLookup, parsePaimon, parseUigfText, type ParseUigfResult, type Pull, type WishAccount, type WishItem } from "@/lib/genshin/wishes";
+import { formatUploadTime, cn } from "@/lib/utils";
+import { readXlsx } from "@/lib/xlsx";
+
+// /genshin/wishes: the wish tracker (Phase 5; picks 1A 2A 3A 4A 5B from
+// .mockups/wishes.html). Imports UIGF .json and paimon.moe .xlsx files,
+// merges them into the saved history, and shows each banner's pity.
+
+const ITEMS = wishItems.items as Record<string, WishItem>;
+const lookupId = (id: string) => ITEMS[id];
+const lookupName = nameLookup(ITEMS);
+const n = (value: number) => value.toLocaleString("en-US");
+const wishes = (count: number) => `${n(count)} ${count === 1 ? "wish" : "wishes"}`;
+
+export default function WishesPage() {
+  return (
+    <RequireAuth skeleton="cards" signedOut={<SampleWishes />}>
+      <Wishes />
+    </RequireAuth>
+  );
+}
+
+const HOW_TO = (
+  <>
+    <li>
+      On <b>paimon.moe</b>, export your wish history to Excel. It saves a .xlsx file.
+    </li>
+    <li>
+      Or use a wish history tool that exports <b>UIGF</b>, such as Snap Hutao, and save a .json file.
+    </li>
+    <li>
+      Drop that file above, or choose it with the link. Import again any time: only new wishes are added, and older ones
+      stay even after the game stops showing them.
+    </li>
+  </>
+);
+
+/** Reads a dropped or chosen file: a paimon.moe .xlsx or a UIGF .json. */
+async function readWishFile(file: File): Promise<ParseUigfResult> {
+  if (file.name.toLowerCase().endsWith(".xlsx")) {
+    try {
+      return parsePaimon(await readXlsx(new Uint8Array(await file.arrayBuffer())), lookupName);
+    } catch (error) {
+      console.error("Reading the Excel file failed:", error);
+      return { ok: false, error: "This Excel file couldn't be read. Export it again from paimon.moe and import the new file." };
+    }
+  }
+  if (!file.name.toLowerCase().endsWith(".json")) {
+    return { ok: false, error: "Choose a paimon.moe Excel file (.xlsx) or a UIGF wish history file (.json)." };
+  }
+  return parseUigfText(await file.text(), lookupId);
+}
+
+function Wishes() {
+  const { wishes: saved, loading, loadError, importPulls } = useWishData();
+  const [error, setError] = useState<string | null>(null);
+  const [warnings, setWarnings] = useState<string[]>([]);
+  const [done, setDone] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [choices, setChoices] = useState<WishAccount[] | null>(null);
+  const [picked, setPicked] = useState(0);
+
+  if (loading) return <PageSkeleton kind="cards" />;
+
+  const importAccount = async (account: WishAccount, fileWarnings: string[]) => {
+    setSaving(true);
+    try {
+      const result = await importPulls(account.uid, account.pulls);
+      setError(null);
+      setWarnings(fileWarnings);
+      setDone(
+        result.added === 0
+          ? `No new wishes: all ${wishes(result.inFile)} in this file were already saved.`
+          : `${wishes(result.added)} added. ${n(result.inFile - result.added)} ${result.inFile - result.added === 1 ? "was" : "were"} already saved. You now have ${wishes(result.total)}.`
+      );
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+      setWarnings([]);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleFile = async (file: File) => {
+    setDone(null);
+    const result = await readWishFile(file);
+    if (!result.ok) {
+      setError(result.error);
+      setWarnings([]);
+      return;
+    }
+    if (result.accounts.length > 1) {
+      setPicked(0);
+      setChoices(result.accounts);
+      setWarnings(result.warnings);
+      return;
+    }
+    await importAccount(result.accounts[0], result.warnings);
+  };
+
+  const errorTitle = error ? "Import failed" : "Couldn't load your wish history";
+  const errorMessage = error ?? (loadError ? `Your saved wishes couldn't be opened. ${loadError}` : null);
+  const pulls = saved?.pulls ?? [];
+  const accept = ".json,.xlsx,application/json,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  const inputLabel = "Import a wish history file (.xlsx or .json)";
+
+  return (
+    <GenshinShell title="Wishes">
+      <div className="mb-6 space-y-4 empty:hidden">
+        {done && (
+          <Alert className="fade-up border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950/40 text-green-800 dark:text-green-200 [&>svg]:text-green-600">
+            <CheckCircle2 className="h-4 w-4" />
+            <AlertTitle>Import complete</AlertTitle>
+            <AlertDescription>{done}</AlertDescription>
+          </Alert>
+        )}
+        {errorMessage && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>{errorTitle}</AlertTitle>
+            <AlertDescription>{errorMessage}</AlertDescription>
+          </Alert>
+        )}
+        {warnings.length > 0 && (
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Imported with some wishes skipped</AlertTitle>
+            <AlertDescription>
+              <ul className="list-disc pl-5">
+                {warnings.map((warning) => (
+                  <li key={warning}>{warning}</li>
+                ))}
+              </ul>
+            </AlertDescription>
+          </Alert>
+        )}
+      </div>
+
+      {pulls.length > 0 ? (
+        <>
+          <div className="mb-6">
+            <UploadBar
+              onFile={handleFile}
+              disabled={saving}
+              accept={accept}
+              inputLabel={inputLabel}
+              lastUploadedAt={saved?.lastImportedAt ?? null}
+              buttonLabel="Import a newer export"
+              info={
+                <>
+                  {saved?.lastImportedAt && `Last import ${formatUploadTime(saved.lastImportedAt)} · `}
+                  {wishes(pulls.length)} since {wishDate(pulls[0].time)}
+                  {saved?.gameUid && ` · UID ${saved.gameUid}`}
+                </>
+              }
+            />
+          </div>
+          <WishStats pulls={pulls} />
+        </>
+      ) : (
+        <UploadDropZone
+          onFile={handleFile}
+          disabled={saving}
+          accept={accept}
+          inputLabel={inputLabel}
+          title="Import your wish history"
+          format="paimon.moe .xlsx or UIGF .json"
+          howToTitle="How do I export my wish history?"
+          howTo={HOW_TO}
+        />
+      )}
+
+      <Dialog open={choices !== null} onOpenChange={(open) => !open && setChoices(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Choose an account</DialogTitle>
+            <DialogDescription>
+              This file has wish history for {choices?.length} game accounts. Which one is yours to import?
+            </DialogDescription>
+          </DialogHeader>
+          <fieldset className="space-y-2">
+            <legend className="sr-only">Game account</legend>
+            {choices?.map((account, i) => (
+              <label
+                key={account.uid}
+                className={cn(
+                  "flex cursor-pointer items-start gap-3 rounded-lg border p-3 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-indigo-500 dark:border-slate-700",
+                  i === picked && "border-transparent ring-2 ring-indigo-600 dark:ring-indigo-400"
+                )}
+              >
+                <input
+                  type="radio"
+                  name="wish-account"
+                  checked={i === picked}
+                  onChange={() => setPicked(i)}
+                  className="mt-1 h-4 w-4 shrink-0 accent-indigo-600 dark:accent-indigo-400"
+                />
+                <span>
+                  <span className="block font-semibold">UID {account.uid}</span>
+                  <span className="block text-xs text-gray-500 dark:text-slate-400">
+                    {wishes(account.pulls.length)} · {wishDate(account.pulls[0].time)} to {wishDate(account.pulls.at(-1)!.time)}
+                  </span>
+                </span>
+              </label>
+            ))}
+          </fieldset>
+          <p className="text-xs text-gray-500 dark:text-slate-400">
+            Only one account&apos;s wishes are kept for now.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setChoices(null)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                const account = choices?.[picked];
+                setChoices(null);
+                if (account) void importAccount(account, warnings);
+              }}
+            >
+              Import
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </GenshinShell>
+  );
+}
+
+/** Signed out: the made-up test history, so visitors can see what the page does. */
+function SampleWishes() {
+  const [pulls, setPulls] = useState<Pull[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = (file: string) =>
+      fetch(`/sample-data/test-account/${file}`)
+        .then((r) => r.text())
+        .then((text) => {
+          const result = parseUigfText(text, lookupId);
+          return result.ok ? result.accounts[0].pulls : [];
+        });
+    Promise.all([load("wishes-older.json"), load("wishes-newer.json")]).then(
+      ([older, newer]) => {
+        if (!cancelled) setPulls(mergePulls(older, newer).pulls);
+      },
+      (error) => {
+        console.error("Loading the sample wishes failed:", error);
+        if (!cancelled) setPulls([]);
+      }
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return (
+    <GenshinShell title="Wishes">
+      <SignedOutBanner>
+        This is a made-up wish history. Log in to import your own and keep it past the game&apos;s six months.
+      </SignedOutBanner>
+      {pulls === null ? (
+        <p className="text-sm text-gray-500 dark:text-slate-400" aria-busy="true">
+          Loading the sample...
+        </p>
+      ) : (
+        pulls.length > 0 && <WishStats pulls={pulls} />
+      )}
+    </GenshinShell>
+  );
+}

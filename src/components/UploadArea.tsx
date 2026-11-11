@@ -8,10 +8,14 @@ import { cn, formatUploadTime } from "@/lib/utils";
 interface UploadProps {
   onFile: (file: File) => void;
   disabled?: boolean;
+  /** File types the picker offers; defaults to .json */
+  accept?: string;
+  /** Label for the hidden file input */
+  inputLabel?: string;
 }
 
 /** Hidden file input plus drag-and-drop handlers shared by both upload styles. */
-function useFilePicker({ onFile, disabled }: UploadProps) {
+function useFilePicker({ onFile, disabled, accept = ".json,application/json", inputLabel = "Upload a GOOD export (.json)" }: UploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
 
@@ -19,8 +23,8 @@ function useFilePicker({ onFile, disabled }: UploadProps) {
     <input
       ref={inputRef}
       type="file"
-      accept=".json,application/json"
-      aria-label="Upload a GOOD export (.json)"
+      accept={accept}
+      aria-label={inputLabel}
       className="sr-only"
       tabIndex={-1}
       disabled={disabled}
@@ -49,8 +53,27 @@ function useFilePicker({ onFile, disabled }: UploadProps) {
   return { input, dragging, dropHandlers, open: () => inputRef.current?.click() };
 }
 
-/** Shown before the first upload: a drop zone with export instructions. */
-export function UploadDropZone(props: UploadProps) {
+/**
+ * Shown before the first upload: a drop zone with export instructions. The
+ * text defaults to the GOOD upload's; the Wishes page passes its own.
+ */
+export function UploadDropZone({
+  title = "Drop your Genshin export here",
+  format = "GOOD format .json",
+  howToTitle = "How do I export my account?",
+  howTo = (
+    <>
+      <li>
+        Run <b>Inventory Kamera</b> or <b>Irminsul</b> while Genshin Impact is open.
+      </li>
+      <li>
+        Export in the <b>GOOD</b> format. It saves a .json file.
+      </li>
+      <li>Drop that file above, or choose it with the link.</li>
+    </>
+  ),
+  ...props
+}: UploadProps & { title?: string; format?: React.ReactNode; howToTitle?: string; howTo?: React.ReactNode }) {
   const { input, dragging, dropHandlers, open } = useFilePicker(props);
 
   return (
@@ -67,7 +90,7 @@ export function UploadDropZone(props: UploadProps) {
           <Upload className="h-5 w-5" />
         </div>
         <p className="font-semibold text-gray-900 dark:text-slate-100">
-          {props.disabled ? "Saving to your account..." : "Drop your Genshin export here"}
+          {props.disabled ? "Saving to your account..." : title}
         </p>
         <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
           or{" "}
@@ -79,22 +102,12 @@ export function UploadDropZone(props: UploadProps) {
           >
             choose a file
           </button>{" "}
-          · GOOD format .json
+          · {format}
         </p>
       </div>
       <details className="mt-3 rounded-lg border px-4 py-3 text-sm" open>
-        <summary className="cursor-pointer font-medium text-indigo-900 dark:text-indigo-200">
-          How do I export my account?
-        </summary>
-        <ol className="mt-2 list-decimal space-y-1 pl-5 text-gray-600 dark:text-slate-400">
-          <li>
-            Run <b>Inventory Kamera</b> or <b>Irminsul</b> while Genshin Impact is open.
-          </li>
-          <li>
-            Export in the <b>GOOD</b> format. It saves a .json file.
-          </li>
-          <li>Drop that file above, or choose it with the link.</li>
-        </ol>
+        <summary className="cursor-pointer font-medium text-indigo-900 dark:text-indigo-200">{howToTitle}</summary>
+        <ol className="mt-2 list-decimal space-y-1 pl-5 text-gray-600 dark:text-slate-400">{howTo}</ol>
       </details>
     </div>
   );
@@ -103,8 +116,15 @@ export function UploadDropZone(props: UploadProps) {
 /** Shown once data exists: last upload, counts and a button to upload again. */
 export function UploadBar({
   lastUploadedAt,
+  info,
+  buttonLabel = "Upload new export",
   ...props
-}: UploadProps & { lastUploadedAt: Date | null }) {
+}: UploadProps & {
+  lastUploadedAt: Date | null;
+  /** Replaces the "Last uploaded" line */
+  info?: React.ReactNode;
+  buttonLabel?: string;
+}) {
   const { input, dragging, dropHandlers, open } = useFilePicker(props);
 
   return (
@@ -117,12 +137,11 @@ export function UploadBar({
     >
       {input}
       <p className="text-sm text-gray-500 dark:text-slate-400">
-        {lastUploadedAt &&
-          `Last uploaded ${formatUploadTime(lastUploadedAt)}`}
+        {info ?? (lastUploadedAt && `Last uploaded ${formatUploadTime(lastUploadedAt)}`)}
       </p>
       <Button size="sm" variant="outline" onClick={open} disabled={props.disabled}>
         <Upload className="mr-1.5 h-4 w-4" />
-        {props.disabled ? "Saving..." : "Upload new export"}
+        {props.disabled ? "Saving..." : buttonLabel}
       </Button>
     </div>
   );

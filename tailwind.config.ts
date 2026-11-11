@@ -59,6 +59,16 @@ const config: Config = {
   			'out-strong': 'cubic-bezier(0.23, 1, 0.32, 1)',
   			drawer: 'cubic-bezier(0.32, 0.72, 0, 1)'
   		},
+  		// The Wishes page: a 5★ row found from the chart flashes, then fades back.
+  		keyframes: {
+  			'wish-flash': {
+  				from: { backgroundColor: 'var(--wish-flash)', boxShadow: 'inset 3px 0 0 var(--wish-flash-bar)' },
+  				to: { backgroundColor: 'transparent', boxShadow: 'inset 3px 0 0 transparent' }
+  			}
+  		},
+  		animation: {
+  			'wish-flash': 'wish-flash 1.2s ease-out 0.15s both'
+  		},
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',

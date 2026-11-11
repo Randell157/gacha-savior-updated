@@ -11,6 +11,13 @@ export const SAMPLE_EXPORT = path.join(
   "../public/sample-data/inventory-kamera/genshin_export_2026-02-11_12-16.json"
 );
 
+/** The made-up wish exports from `npm run data:test-wishes`. */
+export const WISH_FILE = (name: "wishes-older.json" | "wishes-newer.json" | "wishes-paimon.xlsx") =>
+  path.join(__dirname, "../public/sample-data/test-account", name);
+
+/** The Wishes page's file input. */
+export const wishInput = (page: Page) => page.getByLabel("Import a wish history file (.xlsx or .json)");
+
 export type TestUser = { username: string; email: string; password: string; uid: string };
 
 /** A name no other test (or earlier run) has used. Letters and digits only. */
