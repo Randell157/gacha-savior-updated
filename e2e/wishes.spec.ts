@@ -17,6 +17,13 @@ test("signed out, the page shows the made-up history with a log-in banner", asyn
   await expect(page.getByText("6 / 90")).toBeVisible();
   await expect(page.getByText("66.5")).toBeVisible();
   await expect(page.getByText("Next 5★: 50/50")).toBeVisible();
+  // Primogems and the 50/50 record (1A from .mockups/wish-additions.html).
+  await expect(page.getByText("≈ 181,920 Primogems")).toBeVisible();
+  await expect(page.getByText("5 won", { exact: true })).toBeVisible();
+  await expect(page.getByText("6 lost", { exact: true })).toBeVisible();
+  await expect(page.getByText("45% of your 50/50s won")).toBeVisible();
+  // Downloading needs an account.
+  await expect(page.getByRole("button", { name: "Download" })).toHaveCount(0);
 
   // Pressing a chart month with a 5★ turns the history to it and highlights it.
   const chart = page.getByRole("region", { name: "Wishes per month" });
@@ -65,6 +72,39 @@ test("a paimon.moe file and UIGF exports merge into one history", async ({ page 
   await expect(page.getByText("15 / 80")).toBeVisible();
   await expect(page.getByText("Next 5★")).toHaveCount(0);
   await expect(chart).toContainText("290 wishes on Weapon Event");
+});
+
+test("Download saves a UIGF file that imports back with nothing new, asking for the UID when none is saved", async ({ page }) => {
+  await logIn(page, await createUser());
+  await page.goto("/genshin/wishes");
+  await wishInput(page).setInputFiles(WISH_FILE("wishes-paimon.xlsx"));
+  await expect(importDone(page)).toBeVisible();
+
+  const open = page.getByRole("button", { name: "Download" });
+  await open.click();
+  const dialog = page.getByRole("dialog", { name: "Download your wish history" });
+  await expect(dialog).toContainText("1,253 wishes, Jan 1, 2024 to Jun 30, 2025");
+  const uid = dialog.getByLabel("Your UID");
+  await expect(uid).toBeFocused();
+  await dialog.getByRole("button", { name: "Download" }).click();
+  await expect(uid).toHaveAttribute("aria-invalid", "true");
+  await expect(dialog).toContainText("Enter your UID: 9 or 10 digits.");
+
+  await uid.fill("800000001");
+  const [download] = await Promise.all([page.waitForEvent("download"), uid.press("Enter")]);
+  expect(download.suggestedFilename()).toMatch(/^gacha-savior-wishes-800000001-\d{4}-\d{2}-\d{2}\.json$/);
+  await expect(dialog).toHaveCount(0);
+  await expect(open).toBeFocused();
+  // Nothing was saved by downloading: the UID is asked for, not kept.
+  await expect(page.getByText(/1,253 wishes since Jan 1, 2024$/)).toBeVisible();
+
+  const file = JSON.parse(readFileSync(await download.path(), "utf8"));
+  expect(file.info.version).toBe("v4.2");
+  expect(file.hk4e[0]).toMatchObject({ uid: "800000001", timezone: 8, lang: "en-us" });
+  expect(file.hk4e[0].list).toHaveLength(1253);
+
+  await wishInput(page).setInputFiles({ name: "back.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(file)) });
+  await expect(importDone(page)).toContainText("No new wishes: all 1,253 wishes in this file were already saved.");
 });
 
 test.describe("import errors", () => {

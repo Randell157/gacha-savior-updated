@@ -118,12 +118,15 @@ export function UploadBar({
   lastUploadedAt,
   info,
   buttonLabel = "Upload new export",
+  actions,
   ...props
 }: UploadProps & {
   lastUploadedAt: Date | null;
   /** Replaces the "Last uploaded" line */
   info?: React.ReactNode;
   buttonLabel?: string;
+  /** More buttons, before the upload one. */
+  actions?: React.ReactNode;
 }) {
   const { input, dragging, dropHandlers, open } = useFilePicker(props);
 
@@ -139,10 +142,13 @@ export function UploadBar({
       <p className="text-sm text-gray-500 dark:text-slate-400">
         {info ?? (lastUploadedAt && `Last uploaded ${formatUploadTime(lastUploadedAt)}`)}
       </p>
-      <Button size="sm" variant="outline" onClick={open} disabled={props.disabled}>
-        <Upload className="mr-1.5 h-4 w-4" />
-        {props.disabled ? "Saving..." : buttonLabel}
-      </Button>
+      <div className="flex flex-wrap gap-2">
+        {actions}
+        <Button size="sm" variant="outline" onClick={open} disabled={props.disabled}>
+          <Upload className="mr-1.5 h-4 w-4" />
+          {props.disabled ? "Saving..." : buttonLabel}
+        </Button>
+      </div>
     </div>
   );
 }

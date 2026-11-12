@@ -12,6 +12,11 @@ import {
   pityBand,
   pullsFromChunks,
   wishDocuments,
+  fiftyFiftyRecord,
+  toUigf,
+  uigfTimezone,
+  wishSpending,
+  UIGF_VERSION,
   isStandardFiveStar,
   mergePulls,
   parseUigf,
@@ -379,4 +384,59 @@ test("pityBand: 1–69 Early, 70–79 Soft pity, 80–90 Hard pity, and 10 soone
   assert.deepEqual(bands("chronicled", [69, 70, 80]), ["early", "soft", "hard"]);
   assert.deepEqual(bands("weapon", [59, 60, 69, 70, 80]), ["early", "soft", "soft", "hard", "hard"]);
   assert.equal(pityBand("beginner", 20), "early");
+});
+
+test("wishSpending: 160 Primogems a wish, and a Beginners' Wish ten-pull costs 8 fates", () => {
+  assert.deepEqual(wishSpending(pulls("3F34")), { fates: 4, primogems: 640 });
+  const beginner = [...pulls("3333333334", "100", "2024-01-01 10:00:00"), ...pulls("44", "100", "2024-01-01 11:00:00")];
+  assert.deepEqual(wishSpending(beginner, "beginner"), { fates: 10, primogems: 1600 });
+  // All pools together, or just one.
+  const mixed = [...pulls("333", "301"), ...pulls("33", "302", "2024-01-02 12:00:00")];
+  assert.equal(wishSpending(mixed).fates, 5);
+  assert.equal(wishSpending(mixed, "weapon").fates, 2);
+  assert.deepEqual(wishSpending([]), { fates: 0, primogems: 0 });
+});
+
+test("fiftyFiftyRecord counts wins and losses, leaving guaranteed 5★s out of the rate", () => {
+  assert.deepEqual(fiftyFiftyRecord(pulls("3F3K3F3F3K")), { won: 2, lost: 2, guaranteed: 1, winRate: 0.5 });
+  assert.deepEqual(fiftyFiftyRecord(pulls("3F3F3F")), { won: 3, lost: 0, guaranteed: 0, winRate: 1 });
+  assert.deepEqual(fiftyFiftyRecord(pulls("333")), { won: 0, lost: 0, guaranteed: 0, winRate: null });
+  // Other banners don't count.
+  assert.equal(fiftyFiftyRecord(pulls("3K", "200")).lost, 0);
+});
+
+test("uigfTimezone goes by the UID's server", () => {
+  assert.equal(uigfTimezone("618033988"), -5);
+  assert.equal(uigfTimezone("700000001"), 1);
+  assert.equal(uigfTimezone("800000001"), 8);
+  assert.equal(uigfTimezone("900000001"), 8);
+  assert.equal(uigfTimezone("100000001"), 8);
+  assert.equal(uigfTimezone("1800000001"), 8);
+});
+
+test("toUigf writes a UIGF v4 file that imports back with nothing new", async () => {
+  const { pulls: paimon } = await paimonPulls();
+  const history = mergePulls(mergePulls([], paimon).pulls, uigf("wishes-newer.json")).pulls;
+  const file = toUigf("800000001", history, { name: "Gacha Savior", version: "1.1.0", exportedAt: new Date("2026-11-12T00:00:00Z") });
+  assert.deepEqual(file.info, { export_timestamp: 1794441600, export_app: "Gacha Savior", export_app_version: "1.1.0", version: UIGF_VERSION });
+  const [account] = file.hk4e;
+  assert.equal(account.timezone, 8);
+  assert.equal(account.list.length, history.length);
+  // Every entry has UIGF's required fields in the right shape, and 400 is filed under 301.
+  for (const item of account.list) {
+    assert.match(item.id, /^[0-9]{1,19}$/);
+    assert.match(item.time, /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
+    assert.ok(["100", "200", "301", "302", "500"].includes(item.uigf_gacha_type), item.uigf_gacha_type);
+    assert.equal(item.uigf_gacha_type, item.gacha_type === "400" ? "301" : item.gacha_type);
+  }
+  assert.ok(account.list.some((i) => i.gacha_type === "400"), "the test history has second-banner pulls");
+
+  // Through JSON and the site's own reader, as a download and re-import would go.
+  const items = JSON.parse(readFileSync(new URL("../../data/genshin/wishItems.json", import.meta.url), "utf8")).items;
+  const back = parseUigfText(JSON.stringify(file), (id) => items[id]);
+  assert.ok(back.ok, back.ok ? "" : back.error);
+  assert.deepEqual(back.warnings, []);
+  assert.equal(back.accounts[0].uid, "800000001");
+  assert.deepEqual(back.accounts[0].pulls, history);
+  assert.equal(mergePulls(history, back.accounts[0].pulls).added, 0);
 });

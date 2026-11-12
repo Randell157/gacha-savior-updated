@@ -499,3 +499,100 @@ export function pullsFromChunks(chunks: unknown[]): Pull[] {
     .map(({ id, gachaType, itemId, name, rarity, type, time }) => ({ id, gachaType, itemId, name, rarity, type, time }))
     .sort(byOrder);
 }
+
+/** What one wish costs: an Intertwined or Acquaint Fate is 160 Primogems. */
+export const PRIMOGEMS_PER_WISH = 160;
+
+export interface WishSpending {
+  /** Fates used. Beginners' Wish ten-pulls take 8, so this can be less than the wish count. */
+  fates: number;
+  /** `fates` × 160. An estimate: some fates come from Starglitter, events or the shop, not Primogems. */
+  primogems: number;
+}
+
+/**
+ * Fates and Primogems spent on one pool, or on all of them when `pool` is left
+ * out. A Beginners' Wish ten-pull (ten pulls in the same second) costs 8 fates.
+ */
+export function wishSpending(pulls: Pull[], pool?: WishPool): WishSpending {
+  const list = pulls.filter((p) => (pool ? poolOf(p.gachaType) === pool : poolOf(p.gachaType) !== undefined));
+  const beginnerPerSecond = new Map<string, number>();
+  let fates = 0;
+  for (const p of list) {
+    if (poolOf(p.gachaType) === "beginner") beginnerPerSecond.set(p.time, (beginnerPerSecond.get(p.time) ?? 0) + 1);
+    else fates++;
+  }
+  for (const n of beginnerPerSecond.values()) fates += n - Math.floor(n / 10) * 2;
+  return { fates, primogems: fates * PRIMOGEMS_PER_WISH };
+}
+
+export interface FiftyFiftyRecord {
+  won: number;
+  lost: number;
+  /** 5★s that came guaranteed after a loss; they aren't 50/50s. */
+  guaranteed: number;
+  /** won ÷ (won + lost), from 0 to 1; null before the first 50/50. */
+  winRate: number | null;
+}
+
+/**
+ * The Character Event 50/50s: how many were won and lost. Capturing Radiance
+ * (5.0 on) can turn a loss into a win, which the history can't show, so a win
+ * here may have been one.
+ */
+export function fiftyFiftyRecord(pulls: Pull[]): FiftyFiftyRecord {
+  const record = { won: 0, lost: 0, guaranteed: 0 };
+  for (const { fiftyFifty } of poolStats(pulls, "character").fiveStars) if (fiftyFifty) record[fiftyFifty]++;
+  const played = record.won + record.lost;
+  return { ...record, winRate: played ? record.won / played : null };
+}
+
+/** UIGF's `uigf_gacha_type` folds the second Character Event banner (400) into 301. */
+const UIGF_GACHA_TYPE: Record<string, string> = { "400": "301" };
+
+/**
+ * The server's offset from UTC in hours, which UIGF v4 asks for: a UID starting
+ * with 6 is America (UTC−5), 7 Europe (UTC+1); Asia, TW/HK/MO and the Chinese
+ * servers are UTC+8.
+ */
+export function uigfTimezone(uid: string): number {
+  const first = uid.replace(/^0+/, "")[0];
+  return first === "6" ? -5 : first === "7" ? 1 : 8;
+}
+
+export const UIGF_VERSION = "v4.2";
+
+/**
+ * A whole history as a UIGF v4 file, for keeping a copy or moving it to another
+ * tool. Times stay as the game wrote them. Pulls imported from paimon.moe keep
+ * their made-up 13-digit ids, so importing the file back adds nothing. Names
+ * are the site's English ones, so `lang` is en-us.
+ */
+export function toUigf(uid: string, pulls: Pull[], app: { name: string; version: string; exportedAt: Date }) {
+  return {
+    info: {
+      export_timestamp: Math.floor(app.exportedAt.getTime() / 1000),
+      export_app: app.name,
+      export_app_version: app.version,
+      version: UIGF_VERSION,
+    },
+    hk4e: [
+      {
+        uid,
+        timezone: uigfTimezone(uid),
+        lang: "en-us",
+        list: [...pulls].sort(byOrder).map((p) => ({
+          uigf_gacha_type: UIGF_GACHA_TYPE[p.gachaType] ?? p.gachaType,
+          gacha_type: p.gachaType,
+          item_id: p.itemId,
+          count: "1",
+          time: p.time,
+          name: p.name,
+          item_type: p.type,
+          rank_type: String(p.rarity),
+          id: p.id,
+        })),
+      },
+    ],
+  };
+}

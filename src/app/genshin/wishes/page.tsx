@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { useEffect, useRef, useState, type RefObject } from "react";
+import { AlertCircle, CheckCircle2, Download } from "lucide-react";
 import GenshinShell from "@/components/GenshinShell";
 import PageSkeleton from "@/components/PageSkeleton";
 import RequireAuth from "@/components/RequireAuth";
@@ -11,15 +11,20 @@ import WishStats, { wishDate } from "@/components/WishStats";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import wishItems from "@/data/genshin/wishItems.json";
 import { useWishData } from "@/hooks/useWishData";
-import { mergePulls, nameLookup, parsePaimon, parseUigfText, type ParseUigfResult, type Pull, type WishAccount, type WishItem } from "@/lib/genshin/wishes";
+import { mergePulls, nameLookup, parsePaimon, parseUigfText, toUigf, type ParseUigfResult, type Pull, type WishAccount, type WishItem } from "@/lib/genshin/wishes";
 import { formatUploadTime, cn } from "@/lib/utils";
 import { readXlsx } from "@/lib/xlsx";
+import { version } from "../../../../package.json";
 
 // /genshin/wishes: the wish tracker (Phase 5; picks 1A 2A 3A 4A 5B from
 // .mockups/wishes.html). Imports UIGF .json and paimon.moe .xlsx files,
-// merges them into the saved history, and shows each banner's pity.
+// merges them into the saved history, and shows each banner's pity. Download
+// saves the whole history as a UIGF v4 file (picks 2A and 3A from
+// .mockups/wish-additions.html: a button in the import bar, and a dialog that
+// asks for the UID each time when none is saved, as with paimon.moe imports).
 
 const ITEMS = wishItems.items as Record<string, WishItem>;
 const lookupId = (id: string) => ITEMS[id];
@@ -74,6 +79,8 @@ function Wishes() {
   const [saving, setSaving] = useState(false);
   const [choices, setChoices] = useState<WishAccount[] | null>(null);
   const [picked, setPicked] = useState(0);
+  const [downloading, setDownloading] = useState(false);
+  const downloadButton = useRef<HTMLButtonElement>(null);
 
   if (loading) return <PageSkeleton kind="cards" />;
 
@@ -161,6 +168,12 @@ function Wishes() {
               inputLabel={inputLabel}
               lastUploadedAt={saved?.lastImportedAt ?? null}
               buttonLabel="Import a newer export"
+              actions={
+                <Button ref={downloadButton} size="sm" variant="outline" onClick={() => setDownloading(true)}>
+                  <Download className="mr-1.5 h-4 w-4" />
+                  Download
+                </Button>
+              }
               info={
                 <>
                   {saved?.lastImportedAt && `Last import ${formatUploadTime(saved.lastImportedAt)} · `}
@@ -171,6 +184,13 @@ function Wishes() {
             />
           </div>
           <WishStats pulls={pulls} />
+          <DownloadDialog
+            open={downloading}
+            onOpenChange={setDownloading}
+            pulls={pulls}
+            savedUid={saved?.gameUid ?? ""}
+            returnFocus={downloadButton}
+          />
         </>
       ) : (
         <UploadDropZone
@@ -239,6 +259,128 @@ function Wishes() {
         </DialogContent>
       </Dialog>
     </GenshinShell>
+  );
+}
+
+const UID = /^\d{9,10}$/;
+
+/** "2026-11-12", in the player's own time zone. */
+function today(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+/**
+ * Saves the history as a UIGF v4 file. UIGF needs the UID, which paimon.moe
+ * files don't have, so with none saved the dialog asks for it (and doesn't keep it).
+ */
+function DownloadDialog({
+  open,
+  onOpenChange,
+  pulls,
+  savedUid,
+  returnFocus,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  pulls: Pull[];
+  savedUid: string;
+  /** The button that opened it, which gets focus back when it closes. */
+  returnFocus: RefObject<HTMLButtonElement | null>;
+}) {
+  const [typed, setTyped] = useState("");
+  const [tried, setTried] = useState(false);
+  const uid = savedUid || typed.trim();
+  const valid = UID.test(uid);
+  const fileName = `gacha-savior-wishes-${valid ? uid : "UID"}-${today()}.json`;
+
+  const close = (next: boolean) => {
+    if (!next) setTried(false);
+    onOpenChange(next);
+  };
+
+  const download = () => {
+    if (!valid) {
+      setTried(true);
+      return;
+    }
+    const file = toUigf(uid, pulls, { name: "Gacha Savior", version, exportedAt: new Date() });
+    const url = URL.createObjectURL(new Blob([JSON.stringify(file, null, 2)], { type: "application/json" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
+    close(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={close}>
+      <DialogContent
+        onCloseAutoFocus={(e) => {
+          e.preventDefault();
+          returnFocus.current?.focus();
+        }}
+      >
+        <DialogHeader>
+          <DialogTitle>Download your wish history</DialogTitle>
+          <DialogDescription>
+            A UIGF v4 file (.json) with every wish saved here. Other wish trackers can import it, and so can this site.
+          </DialogDescription>
+        </DialogHeader>
+        <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 text-sm">
+          <dt className="text-gray-500 dark:text-slate-400">Wishes</dt>
+          <dd>
+            {wishes(pulls.length)}, {wishDate(pulls[0].time)} to {wishDate(pulls.at(-1)!.time)}
+          </dd>
+          {savedUid && (
+            <>
+              <dt className="text-gray-500 dark:text-slate-400">UID</dt>
+              <dd>{savedUid}</dd>
+            </>
+          )}
+          <dt className="text-gray-500 dark:text-slate-400">File</dt>
+          <dd className="break-all">{fileName}</dd>
+        </dl>
+        {!savedUid && (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              download();
+            }}
+          >
+            <label htmlFor="wish-uid" className="mb-1 block text-sm font-semibold">
+              Your UID
+            </label>
+            <Input
+              id="wish-uid"
+              inputMode="numeric"
+              autoComplete="off"
+              placeholder="9 or 10 digits"
+              value={typed}
+              onChange={(e) => setTyped(e.target.value)}
+              aria-invalid={tried && !valid}
+              aria-describedby="wish-uid-help"
+            />
+            <p id="wish-uid-help" className="mt-1 text-xs text-gray-500 dark:text-slate-400">
+              {tried && !valid ? (
+                <span className="font-medium text-red-600 dark:text-red-400">Enter your UID: 9 or 10 digits. </span>
+              ) : null}
+              paimon.moe files don&apos;t include it, and UIGF needs it. Find it in the bottom right corner of the game.
+            </p>
+          </form>
+        )}
+        <DialogFooter>
+          <Button variant="outline" onClick={() => close(false)}>
+            Cancel
+          </Button>
+          <Button onClick={download}>
+            <Download className="mr-1.5 h-4 w-4" />
+            Download
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

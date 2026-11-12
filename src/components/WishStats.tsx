@@ -6,14 +6,16 @@ import { FilterChip } from "@/components/FilterChip";
 import WishesPerMonth from "@/components/WishesPerMonth";
 import { getCharacterPortrait, rarityBackground } from "@/lib/genshinCharacters";
 import { weaponIcon } from "@/lib/genshin/weapons";
-import { POOLS, pityBand, poolOf, poolStats, type FiftyFifty, type PityBand, type Pull, type WishPool } from "@/lib/genshin/wishes";
+import { POOLS, fiftyFiftyRecord, pityBand, poolOf, poolStats, wishSpending, type FiftyFifty, type PityBand, type Pull, type WishPool } from "@/lib/genshin/wishes";
 import { cn } from "@/lib/utils";
 
 // The Wishes page's stats (picks 1A, 2A and 3A from .mockups/wishes.html):
 // banner chips, five tiles for the chosen banner, the next pull's 50/50 on
 // Character Event, and its 5★ history as rows with pity bars, 10 per page.
 // Pressing a chart month with a 5★ turns the history to that month's 5★s and
-// highlights them (option A from .mockups/chart-click.html).
+// highlights them (option A from .mockups/chart-click.html). The Wishes tile
+// says roughly what the banner's wishes cost in Primogems, and the 50/50 record
+// sits beside the Next 5★ chip (option 1A from .mockups/wish-additions.html).
 
 const PAGE_SIZE = 10;
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -65,7 +67,8 @@ export default function WishStats({ pulls }: { pulls: Pull[] }) {
   const pool = pools.some((p) => p.pool === chosen) ? chosen : (pools[0]?.pool ?? "character");
   const info = POOLS.find((p) => p.pool === pool)!;
   const stats = useMemo(() => poolStats(pulls, pool), [pulls, pool]);
-  const lastTime = useMemo(() => pulls.filter((p) => poolOf(p.gachaType) === pool).at(-1)?.time, [pulls, pool]);
+  const spent = useMemo(() => wishSpending(pulls, pool), [pulls, pool]);
+  const record = useMemo(() => fiftyFiftyRecord(pulls), [pulls]);
 
   const history = [...stats.fiveStars].reverse();
   const pages = Math.max(1, Math.ceil(history.length / PAGE_SIZE));
@@ -111,14 +114,14 @@ export default function WishStats({ pulls }: { pulls: Pull[] }) {
 
       {info.hardPity === null ? (
         <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
-          <Tile value={`${n(stats.total)}`} unit=" / 20" label="Wishes" />
+          <Tile value={`${n(stats.total)}`} unit=" / 20" label="Wishes" detail={`≈ ${n(spent.primogems)} Primogems`} />
           <Tile value={n(stats.fourStars)} label="4★ wishes" />
         </div>
       ) : (
         <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
           <Tile value={String(stats.pity5)} unit={` / ${info.hardPity}`} label="5★ pity" detail="Wishes since your last 5★" />
           <Tile value={String(stats.pity4)} unit=" / 10" label="4★ pity" detail="Since your last 4★" />
-          <Tile value={n(stats.total)} label="Wishes" detail={lastTime ? `Last ${wishDate(lastTime)}` : ""} />
+          <Tile value={n(stats.total)} label="Wishes" detail={`≈ ${n(spent.primogems)} Primogems`} />
           <Tile value={n(stats.fiveStars.length)} label="5★ wishes" detail={`${n(stats.fourStars)} 4★`} />
           <Tile value={stats.averagePity === null ? "—" : String(stats.averagePity)} label="Average per 5★" detail="Wishes each" />
         </div>
@@ -126,9 +129,20 @@ export default function WishStats({ pulls }: { pulls: Pull[] }) {
 
       {pool === "character" && (
         <div className="mb-6">
-          <span className={cn(chipClass, "bg-indigo-50 text-indigo-900 ring-1 ring-inset ring-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-100 dark:ring-indigo-800")}>
-            {stats.guaranteed ? "Next 5★: guaranteed featured" : "Next 5★: 50/50"}
-          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className={cn(chipClass, "bg-indigo-50 text-indigo-900 ring-1 ring-inset ring-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-100 dark:ring-indigo-800")}>
+              {stats.guaranteed ? "Next 5★: guaranteed featured" : "Next 5★: 50/50"}
+            </span>
+            {record.winRate !== null && (
+              <>
+                <span className={cn(chipClass, FIFTY_FIFTY.won.chip)}>{n(record.won)} won</span>
+                <span className={cn(chipClass, FIFTY_FIFTY.lost.chip)}>{n(record.lost)} lost</span>
+                <span className="text-xs text-gray-500 dark:text-slate-400">
+                  {Math.round(record.winRate * 100)}% of your 50/50s won
+                </span>
+              </>
+            )}
+          </div>
           <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">
             An estimate: since Version 5.0, Capturing Radiance raises your odds after lost 50/50s, and the game doesn&apos;t show where you stand.
           </p>
