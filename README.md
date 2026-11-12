@@ -16,7 +16,7 @@ Using Vercel to host the website for now: https://gacha-savior-updated.vercel.ap
 
 Other commands: `npm run build`, `npm run lint`, `npm test` (unit tests)
 
-To use the site, export your Genshin account as a GOOD-format JSON file with [Inventory Kamera](https://github.com/taiwenlee/Inventory_Kamera) or Irminsul, then upload it on the dashboard. Sample exports are in `public/sample-data/inventory-kamera/`.
+To use the site, export your Genshin account as a GOOD-format JSON file with [Inventory Kamera](https://github.com/Randell157/Inventory_Kamera_Fork/releases/latest) or Irminsul, then upload it on the dashboard. Sample exports are in `public/sample-data/inventory-kamera/`.
 
 Built with Next.js, React, TypeScript, Tailwind CSS and Firebase (Auth + Firestore). See `docs/DESIGN.md` for the roadmap.
 
@@ -38,7 +38,7 @@ Gacha Savior is an unofficial fan project. It is not affiliated with or endorsed
 
 - Uploads use the **GOOD** (Genshin Open Object Description) format created by the [Genshin Optimizer](https://github.com/frzyc/genshin-optimizer) project.
 - Wish history imports use the [UIGF](https://uigf.org/) (Uniformed Interchangeable GachaLog Format) standard by UIGF-org (MIT License). The site also reads the Excel wish history export of [paimon.moe](https://paimon.moe/) by MadeBaruna ([source](https://github.com/MadeBaruna/paimon-moe), MIT License). The wish exports in `public/sample-data/test-account/` are made up, written by `npm run data:test-wishes`.
-- Exports come from Inventory Kamera or Irminsul. Inventory Kamera was made by Andrewthe13th and contributors ([original repo](https://github.com/Andrewthe13th/Inventory_Kamera), MIT License); the original is no longer updated, so the site now points to the maintained fork by taiwenlee and contributors ([fork](https://github.com/taiwenlee/Inventory_Kamera), MIT License), whose 1.4 releases support the current game and write GOOD version 3. The sample exports in `public/sample-data/` were made with these tools (the 2024 Inventory Kamera sample with the original, version 1.3.16).
+- Exports come from Inventory Kamera or Irminsul. Inventory Kamera was made by Andrewthe13th and contributors ([original repo](https://github.com/Andrewthe13th/Inventory_Kamera), MIT License); the original is no longer updated, so the site now points to [Randell157/Inventory_Kamera_Fork](https://github.com/Randell157/Inventory_Kamera_Fork) (MIT License), this project's own maintained fork. Its 1.5 releases support the current game and write GOOD version 3. That fork is based on taiwenlee's fork version 1.4.5 ([repo](https://github.com/taiwenlee/Inventory_Kamera), MIT License) and adapts the Cryo Traveler and material-count fixes from dmitry-shishkin's fork version 1.4.11 ([repo](https://github.com/dmitry-shishkin/Inventory_Kamera), MIT License). The sample exports in `public/sample-data/` were made with these tools (the 2024 Inventory Kamera sample with the original, version 1.3.16).
 
 ### Libraries and tools
 
