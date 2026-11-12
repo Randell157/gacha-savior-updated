@@ -10,6 +10,7 @@ import { db } from "@/lib/firebase";
 import { parseGood } from "./parseGood";
 import type { GenshinData } from "./types";
 import type { BuildSnapshot } from "./showcaseBuild";
+import { normalizePlans, type SavedPlan } from "./materialPlanner";
 
 // Firestore layout for a user's Genshin upload:
 //   users/{uid}/games/genshin                      everything except artifacts
@@ -50,6 +51,8 @@ export interface StoredGenshin {
   /** The element the player chose on the Traveler's page; the export doesn't say */
   travelerElement: string | null;
   showcaseOptions: ShowcaseOptions;
+  /** The Planner tab's saved plans */
+  plans: SavedPlan[];
   uploadedAt: Date | null;
   /** Number of artifact chunks currently stored, used to clean up on re-upload */
   artifactChunkCount: number;
@@ -126,6 +129,7 @@ export async function loadGenshin(uid: string): Promise<StoredGenshin | null> {
     previousBuilds: normalizeSnapshot(stored.previousBuilds),
     travelerElement: typeof stored.travelerElement === "string" ? stored.travelerElement : null,
     showcaseOptions: normalizeShowcaseOptions(stored.showcaseOptions),
+    plans: normalizePlans(stored.plans),
     uploadedAt: stored.uploadedAt instanceof Timestamp ? stored.uploadedAt.toDate() : null,
     artifactChunkCount: chunkCount,
   };
@@ -143,7 +147,8 @@ export async function saveGenshin(
   previousChunkCount: number,
   travelerElement: string | null = null,
   showcaseOptions: ShowcaseOptions = DEFAULT_SHOWCASE_OPTIONS,
-  previousBuilds: BuildSnapshot | null = null
+  previousBuilds: BuildSnapshot | null = null,
+  plans: SavedPlan[] = []
 ): Promise<StoredGenshin> {
   const chunks: GenshinData["artifacts"][] = [];
   for (let i = 0; i < data.artifacts.length; i += ARTIFACTS_PER_CHUNK) {
@@ -169,6 +174,7 @@ export async function saveGenshin(
     travelerElement,
     showcaseOptions,
     previousBuilds,
+    plans,
   });
   chunks.forEach((items, i) => batch.set(chunkRef(uid, i), { items }));
   for (let i = chunks.length; i < previousChunkCount; i++) {
@@ -176,10 +182,10 @@ export async function saveGenshin(
   }
   await batch.commit();
 
-  return { data, showcases, previousBuilds, travelerElement, showcaseOptions, uploadedAt: new Date(), artifactChunkCount: chunks.length };
+  return { data, showcases, previousBuilds, travelerElement, showcaseOptions, plans, uploadedAt: new Date(), artifactChunkCount: chunks.length };
 }
 
-/** Deletes the saved upload, with its showcase, its settings and the Traveler element. */
+/** Deletes the saved upload, with its showcase, its settings, the Traveler element and the plans. */
 export async function deleteGenshin(uid: string, chunkCount: number) {
   const batch = writeBatch(db);
   batch.delete(gameRef(uid));
@@ -199,4 +205,8 @@ export async function saveShowcaseOptions(uid: string, showcaseOptions: Showcase
 
 export async function saveTravelerElement(uid: string, travelerElement: string) {
   await updateDoc(gameRef(uid), { travelerElement });
+}
+
+export async function savePlans(uid: string, plans: SavedPlan[]) {
+  await updateDoc(gameRef(uid), { plans });
 }

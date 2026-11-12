@@ -10,6 +10,7 @@ import {
   saveGenshin,
   saveShowcases,
   saveShowcaseOptions,
+  savePlans,
   saveTravelerElement,
   type Showcase,
   type NamedShowcase,
@@ -22,6 +23,7 @@ import {
 import { parseGoodText } from "@/lib/genshin/parseGood";
 import type { GenshinData } from "@/lib/genshin/types";
 import { snapshotBuilds, type BuildSnapshot } from "@/lib/genshin/showcaseBuild";
+import type { SavedPlan } from "@/lib/genshin/materialPlanner";
 
 // Loads the signed-in user's Genshin upload from Firestore once per login and
 // shares it with every page. Read it through useGenshinData().
@@ -36,6 +38,8 @@ export interface GenshinDataContextValue {
   travelerElement: string | null;
   /** The showcase's display settings (element colors, CV on each piece) */
   showcaseOptions: ShowcaseOptions;
+  /** The Planner tab's saved plans */
+  plans: SavedPlan[];
   /** True until auth has settled and the user's data has been fetched */
   loading: boolean;
   /** Set when saved data exists but couldn't be loaded */
@@ -43,14 +47,18 @@ export interface GenshinDataContextValue {
   lastUploadedAt: Date | null;
   /** True right after data saved in this browser's localStorage was moved to the account */
   migratedFromLocal: boolean;
-  /** Replaces the saved upload (keeps the current showcase and Traveler element) */
+  /** Replaces the saved upload (keeps the showcases, settings, Traveler element and plans) */
   save: (data: GenshinData) => Promise<void>;
   /** Deletes the saved upload; rejects with a message for the player if it can't */
   deleteUpload: () => Promise<void>;
   setShowcases: (showcases: NamedShowcase[]) => Promise<void>;
   setTravelerElement: (element: string) => Promise<void>;
   setShowcaseOptions: (options: ShowcaseOptions) => Promise<void>;
+  /** Saves the plans; resolves false (and puts the old ones back) if the write fails */
+  setPlans: (plans: SavedPlan[]) => Promise<boolean>;
 }
+
+const NO_PLANS: SavedPlan[] = [];
 
 export const GenshinDataContext = createContext<GenshinDataContextValue | null>(null);
 
@@ -148,7 +156,8 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
           previous?.travelerElement ?? null,
           previous?.showcaseOptions ?? DEFAULT_SHOWCASE_OPTIONS,
           // Kept so the showcase can say what changed since this upload.
-          previous ? snapshotBuilds(previous.data) : null
+          previous ? snapshotBuilds(previous.data) : null,
+          previous?.plans ?? []
         );
         setState({ uid, stored, error: null, migratedFromLocal: false });
       } catch (error) {
@@ -225,6 +234,24 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
     [uid, current?.stored]
   );
 
+  const setPlans = useCallback(
+    async (plans: SavedPlan[]) => {
+      const stored = current?.stored;
+      if (!uid || !stored) return false;
+      // Update the screen right away, and undo it if the write fails.
+      setState((s) => (s && s.stored ? { ...s, stored: { ...s.stored, plans } } : s));
+      try {
+        await savePlans(uid, plans);
+        return true;
+      } catch (error) {
+        console.error("Saving plans failed:", error);
+        setState((s) => (s && s.stored ? { ...s, stored: { ...s.stored, plans: stored.plans } } : s));
+        return false;
+      }
+    },
+    [uid, current?.stored]
+  );
+
   const value: GenshinDataContextValue = {
     data: current?.stored?.data ?? null,
     showcase: current?.stored?.showcases[0]?.picks ?? emptyShowcase(),
@@ -232,6 +259,7 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
     previousBuilds: current?.stored?.previousBuilds ?? null,
     travelerElement: current?.stored?.travelerElement ?? null,
     showcaseOptions: current?.stored?.showcaseOptions ?? DEFAULT_SHOWCASE_OPTIONS,
+    plans: current?.stored?.plans ?? NO_PLANS,
     loading: authLoading || (!!uid && !current),
     loadError: current?.error ?? null,
     lastUploadedAt: current?.stored?.uploadedAt ?? null,
@@ -241,6 +269,7 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
     setShowcases,
     setTravelerElement,
     setShowcaseOptions,
+    setPlans,
   };
 
   return <GenshinDataContext.Provider value={value}>{children}</GenshinDataContext.Provider>;

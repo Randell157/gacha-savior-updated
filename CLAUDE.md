@@ -34,6 +34,7 @@ npm run test:e2e     # end-to-end tests on fresh emulators (stop the dev server 
 npm run data:genshin # regenerate src/data/genshin/*.json from genshin-db (after a game patch)
 npm run icons:weapons # download icons for weapons that don't have one yet (after data:genshin)
 npm run icons:artifacts # same for artifact pieces (each set's icon per slot)
+npm run icons:materials # same for the materials the planner lists (after data:genshin)
 npm run data:test-export # regenerate the made-up test export (after data:genshin or a new character)
 npm run data:test-wishes # regenerate the made-up UIGF and paimon.moe wish exports (after data:genshin)
 npm run migrate:usernames [-- --apply]       # one-time username lowercase migration (live project; dry run by default)

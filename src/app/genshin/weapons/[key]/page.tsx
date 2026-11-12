@@ -11,6 +11,7 @@ import { Stars } from "@/components/CharacterGameInfo";
 import GenshinShell from "@/components/GenshinShell";
 import RequireAuth from "@/components/RequireAuth";
 import WeaponIcon from "@/components/WeaponIcon";
+import WeaponPlan from "@/components/WeaponPlan";
 import WeaponPassive from "@/components/WeaponPassive";
 import { formatCharacterDisplayName } from "@/lib/utils";
 import { getWeaponStats } from "@/lib/genshin/weaponDetails";
@@ -110,6 +111,7 @@ function WeaponDetail() {
           <CopiesList rows={rows} />
           <CopiesTable rows={rows} />
         </section>
+        <WeaponPlan key={weaponKey} copies={copies} rarity={info?.rarity ?? 5} />
       </div>
     </GenshinShell>
   );

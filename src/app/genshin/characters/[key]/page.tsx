@@ -14,6 +14,7 @@ import ArtifactSlotCard from "@/components/ArtifactSlotCard";
 import { BaseStats, ChooseElementHint, ConstellationPicker, TalentKindLabel, TalentText } from "@/components/CharacterExtras";
 import CharacterGameInfo, { Stars } from "@/components/CharacterGameInfo";
 import CharacterStepper from "@/components/CharacterStepper";
+import CharacterPlan from "@/components/CharacterPlan";
 import BuildCard from "@/components/BuildCard";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { IdCard } from "lucide-react";
@@ -106,6 +107,7 @@ function CharacterDetail() {
           <ProfileCard character={character} name={displayName} />
           <WeaponPanel weapon={weapon} />
           <ArtifactsPanel artifacts={artifacts} />
+          <CharacterPlan key={characterKey} character={character} name={displayName} />
         </div>
         {/* Where you finish reading, so the next character is one press away. */}
         <div className="mt-8 px-4 empty:hidden sm:px-0">

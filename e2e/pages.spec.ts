@@ -79,6 +79,7 @@ test.describe("signed out", () => {
   for (const [route, empty] of [
     ["/genshin/weapons", "No weapons to show yet."],
     ["/genshin/artifacts", "No artifacts to show yet."],
+    ["/genshin/planner", "Your plans will show up here."],
   ]) {
     test(`${route} shows an empty page with a log-in banner`, async ({ page }) => {
       await page.goto(route);

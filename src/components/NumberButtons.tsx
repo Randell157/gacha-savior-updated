@@ -51,7 +51,8 @@ export default function NumberButtons({
             title={marked ? markTitle : undefined}
             onClick={() => onSelect(n)}
             className={cn(
-              "press inline-flex items-center gap-1 rounded px-2.5 py-1 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
+              // Narrower on phones, so C0 to C6 with stars fit in 375 px.
+              "press inline-flex items-center gap-0.5 rounded px-1.5 py-1 text-xs sm:gap-1 sm:px-2.5 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
               pressed
                 ? "bg-indigo-600 text-white"
                 : cn(

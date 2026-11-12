@@ -48,6 +48,7 @@ export default async function globalSetup(config: FullConfig) {
     "/genshin/characters/Aino",
     "/genshin/weapons",
     "/genshin/artifacts",
+    "/genshin/planner",
   ];
   for (const route of routes) {
     await fetch(baseURL + route);

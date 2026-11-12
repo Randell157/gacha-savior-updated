@@ -74,6 +74,33 @@
         ],
         "createdAt": "2026-11-11T07:34:57.235Z",
         "reason": "Claude: indigo is the site's set accent (docs/DESIGN.md UI style); the Total CV number uses the same indigo-900/indigo-200 as the existing CvBlock on the Artifacts page"
+      },
+      {
+        "rule": "ai-color-palette",
+        "value": "*",
+        "files": [
+          "src/components/CharacterPlan.tsx"
+        ],
+        "createdAt": "2026-11-11T23:11:52.157Z",
+        "reason": "Project heading style: the indigo-900/indigo-200 panel headings already used on the character and weapon pages (PanelHeading); CLAUDE.md says keep the current look"
+      },
+      {
+        "rule": "ai-color-palette",
+        "value": "*",
+        "files": [
+          "src/components/WeaponPlan.tsx"
+        ],
+        "createdAt": "2026-11-11T23:11:52.404Z",
+        "reason": "Project heading style: the indigo-900/indigo-200 panel headings already used on the character and weapon pages (PanelHeading); CLAUDE.md says keep the current look"
+      },
+      {
+        "rule": "ai-color-palette",
+        "value": "*",
+        "files": [
+          "src/app/genshin/planner/page.tsx"
+        ],
+        "createdAt": "2026-11-11T23:11:52.635Z",
+        "reason": "Project heading style: the indigo-900/indigo-200 panel headings already used on the character and weapon pages (PanelHeading); CLAUDE.md says keep the current look"
       }
     ]
   }

@@ -250,6 +250,69 @@ writeFileSync(
 );
 console.log(`Wrote ${Object.keys(wishItems).length} wish items.`);
 
+// What the material planner needs: each character's ascension costs (ascend1-6)
+// and talent costs (lvl2-10, the same for each of the three talents), and each
+// weapon's ascension costs. Each step is a list of [material, count], where
+// material is a place in `materials`: [key as the export's (normalize), in-game name, rarity]. EXP books, ore and the Mora for levels
+// aren't in genshin-db's costs; the planner works those out itself.
+// Each material is listed once and referred to by its place in the list, which
+// keeps the file a third of the size of repeating the keys.
+const costMaterials = [];
+const costIndex = new Map();
+const costList = (items) =>
+  (items ?? []).map(({ name, count }) => {
+    const id = normalize(name);
+    if (!costIndex.has(id)) {
+      costIndex.set(id, costMaterials.length);
+      // Rarity, for the icon's background; null when genshin-db doesn't know it.
+      costMaterials.push([id, name, db.materials(name)?.rarity ?? null]);
+    }
+    return [costIndex.get(id), count];
+  });
+const costSteps = (costs, prefix, from, to) =>
+  Array.from({ length: to - from + 1 }, (_, i) => costList(costs?.[`${prefix}${from + i}`]));
+const characterCosts = {};
+for (const name of db.characters("names", { matchCategories: true })) {
+  const c = db.characters(name);
+  if (!c?.costs || c.name === "Lumine" || c.name === "Manekina") continue;
+  const rawKey = normalize(c.name);
+  const key = c.name === "Aether" ? "traveler" : rawKey === "manekin" ? "wonderlandmanekin" : rawKey;
+  const talents = c.name === "Aether" ? undefined : db.talents(c.name);
+  characterCosts[key] = {
+    ascend: costSteps(c.costs, "ascend", 1, 6),
+    // The Traveler's talents depend on the element; see travelerTalents.
+    talent: talents?.costs ? costSteps(talents.costs, "lvl", 2, 10) : null,
+  };
+}
+const travelerTalents = {};
+for (const element of Object.keys(travelerElements)) {
+  const talents = db.talents(`Traveler (${element})`);
+  if (talents?.costs) travelerTalents[element] = costSteps(talents.costs, "lvl", 2, 10);
+}
+const weaponCosts = {};
+for (const name of db.weapons("names", { matchCategories: true })) {
+  const w = db.weapons(name);
+  if (!w?.costs) continue;
+  // 1★ and 2★ weapons ascend four times, the rest six.
+  const steps = Object.keys(w.costs).filter((k) => /^ascend\d$/.test(k)).length;
+  weaponCosts[normalize(w.name)] = costSteps(w.costs, "ascend", 1, steps);
+}
+writeFileSync(
+  "src/data/genshin/materialCosts.json",
+  JSON.stringify({
+    source: `genshin-db ${version}`,
+    materials: costMaterials,
+    characters: characterCosts,
+    travelerTalents,
+    weapons: weaponCosts,
+  }) + "\n"
+);
+const noTalentCosts = Object.entries(characterCosts).filter(([k, c]) => !c.talent && k !== "traveler").map(([k]) => k);
+console.log(
+  `Wrote costs for ${Object.keys(characterCosts).length} characters, ${Object.keys(travelerTalents).length} Traveler elements and ${Object.keys(weaponCosts).length} weapons.` +
+    (noTalentCosts.length ? ` No talent costs for: ${noTalentCosts.join(", ")}` : "")
+);
+
 // Report sets and weapons in the sample exports that the data doesn't cover.
 const SAMPLE_EXPORTS = [
   "public/sample-data/inventory-kamera/genshin_export_2026-02-11_12-16.json",
