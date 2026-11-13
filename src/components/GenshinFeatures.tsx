@@ -14,18 +14,13 @@ import { SAMPLE_GENSHIN_DATA, SAMPLE_SHOWCASE } from "@/lib/genshin/sampleData";
 import { DEFAULT_SHOWCASE_OPTIONS } from "@/lib/genshin/firestoreStore";
 import GameIcon from "@/components/GameIcon";
 import { GAMES } from "@/lib/games";
-import { Flower2, IdCard, LayoutGrid, Swords, Users } from "lucide-react";
+import { ClipboardList, Flower2, LayoutGrid, Sparkles, Swords, Users } from "lucide-react";
 
 const FEATURES = [
   {
     icon: Users,
-    title: "Character roster",
-    text: "Every character in the game, with yours in color and their level, constellation and talents. Sort and filter.",
-  },
-  {
-    icon: IdCard,
-    title: "Character pages",
-    text: "Level, talents, constellations, and the weapon and artifacts they have on.",
+    title: "Characters",
+    text: "Every character in the game, with yours in color, and a page for each with their level, talents, constellations, weapon and artifacts. Sort and filter.",
   },
   {
     icon: Swords,
@@ -40,42 +35,56 @@ const FEATURES = [
   {
     icon: LayoutGrid,
     title: "Team showcase",
-    text: "Pin up to five characters to your Genshin overview, in as many as five named showcases, with their gear, Crit Value, what's still missing and what changed since your last upload.",
+    text: "Pin up to five characters to your Genshin overview, in as many as five named showcases, with their gear, Crit Value, what's still missing and what changed since your last upload. Save any build as an image.",
+  },
+  {
+    icon: ClipboardList,
+    title: "Material planner",
+    text: "Pick the levels and talents you're aiming for and see which materials, EXP and Mora you still need, for one character or weapon or all your plans added up.",
+  },
+  {
+    icon: Sparkles,
+    title: "Wish history",
+    text: "Import paimon.moe or UIGF files and keep every wish past the game's six months: pity, your 50/50 record, Primogems spent and wishes per month. Download it all as UIGF.",
   },
 ];
 
 const PLANNED_GAMES = GAMES.filter((game) => !game.href);
 
-/** The feature cards, shared by the home page and /features. */
+/**
+ * The feature cards, shared by the home page and /features: six features in
+ * two rows of three, then "More games soon" as a strip (option B from
+ * .mockups/feature-cards.html).
+ */
 export function FeatureGrid() {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {FEATURES.map(({ icon: Icon, title, text }) => (
-        <Card key={title}>
-          <CardHeader className="pb-2">
-            <Icon className="h-6 w-6 text-indigo-600 dark:text-indigo-300" aria-hidden />
-            <CardTitle className="pt-2 text-base">{title}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <CardDescription>{text}</CardDescription>
-          </CardContent>
-        </Card>
-      ))}
+    <div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {FEATURES.map(({ icon: Icon, title, text }) => (
+          <Card key={title}>
+            <CardHeader className="pb-2">
+              <Icon className="h-6 w-6 text-indigo-600 dark:text-indigo-300" aria-hidden />
+              <CardTitle className="pt-2 text-base">{title}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>{text}</CardDescription>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
       {/* Not a feature yet, so it's dashed and grey like the hub's "Coming soon" list. */}
-      <Card className="border-dashed border-gray-300 bg-transparent shadow-none dark:border-slate-600">
-        <CardHeader className="pb-2">
-          <div className="flex gap-2">
-            {PLANNED_GAMES.map((game) => (
-              <GameIcon key={game.id} game={game} size={28} className="grayscale" />
-            ))}
-          </div>
-          <CardTitle className="pt-2 text-base text-gray-700 dark:text-slate-300">More games soon</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <CardDescription className="text-gray-600 dark:text-slate-400">
+      <Card className="mt-4 flex items-center gap-4 border-dashed border-gray-300 bg-transparent px-5 py-4 shadow-none dark:border-slate-600">
+        <div className="flex shrink-0 gap-2">
+          {PLANNED_GAMES.map((game) => (
+            <GameIcon key={game.id} game={game} size={28} className="grayscale" />
+          ))}
+        </div>
+        <div>
+          <CardTitle className="text-base text-gray-700 dark:text-slate-300">More games soon</CardTitle>
+          <CardDescription className="mt-0.5 text-gray-600 dark:text-slate-400">
             Honkai: Star Rail and Zenless Zone Zero are planned.
           </CardDescription>
-        </CardContent>
+        </div>
       </Card>
     </div>
   );

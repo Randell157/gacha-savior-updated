@@ -61,10 +61,10 @@ The details are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). **Before changi
 - **Data flow:** uploads, parsing, Firestore storage, `useGenshinData`, remembered filters.
 - **Protected pages:** `RequireAuth`, signed-out views, skeletons, the quick view.
 - **Auth and Firestore:** collections, security rules, login, passwords, account routes, the Admin SDK, profile pictures.
-- **Games:** the hub, each game's section and tabs, adding a game.
-- **Character names and portraits:** the roster, game data and how to update it after a patch, stat and name helpers, and the Genshin pages (features and sample, weapons and each weapon's page, artifacts and Crit Value, character page), shared components, icons.
+- **Games:** the hub, each game's section and tabs (Planner and Wishes among them), the material planner's pages, adding a game.
+- **Character names and portraits:** the roster, game data and how to update it after a patch, stat and name helpers, and the Genshin pages (features and sample, the showcase and build card, what changed since the last upload, weapons and each weapon's page, artifacts and Crit Value, character page), the planner's cost and EXP data, shared components, icons.
 - **UI conventions:** read before any UI change: page shells, titles, accessibility, motion, header, copy, dark mode.
-- **Wish history:** reading UIGF and paimon.moe exports, merging, pity and the 50/50, and storage (`src/lib/genshin/wishes.ts`, `wishStore.ts`, `src/lib/xlsx.ts`).
+- **Wish history:** reading UIGF and paimon.moe exports, merging, pity and the 50/50 record, Primogems, the UIGF download, and storage (`src/lib/genshin/wishes.ts`, `wishStore.ts`, `src/lib/xlsx.ts`).
 - **Unit tests:** the Node test runner, `npm test`, and what's covered.
 - **End-to-end tests:** the Playwright setup, helpers, specs, and checking the parser by hand.
 

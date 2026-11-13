@@ -377,7 +377,8 @@ test.describe("signed in with the sample upload", () => {
 
     // Identical copies merge, strongest first, each with its own numbers.
     await expect(page.getByRole("heading", { name: "Your 10 copies" })).toBeVisible();
-    const rows = page.locator("main tbody tr");
+    // Only the copies table: the Plan section below has a table of its own.
+    const rows = page.locator("section", { has: page.getByRole("heading", { name: "Your 10 copies" }) }).locator("tbody tr");
     await expect(rows).toHaveCount(3);
     await expect(rows.nth(0)).toContainText("Yelan");
     await expect(rows.nth(0)).toContainText("454");

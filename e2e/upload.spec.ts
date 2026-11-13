@@ -66,8 +66,10 @@ test("a second upload lists what changed, once", async ({ page }) => {
     await expect(changes.getByRole("definition").filter({ hasText: new RegExp(`^${count}$`) })).toBeVisible();
     await expect(changes.getByText(label, { exact: true })).toBeVisible();
   }
-  await expect(changes.getByText("Level 1 → 80")).toBeVisible(); // Chevreuse
+  // Chevreuse is past the first eight changed characters.
+  await expect(changes.getByText("Level 1 → 80")).toHaveCount(0);
   await changes.getByRole("button", { name: "Show all 58" }).click();
+  await expect(changes.getByText("Level 1 → 80")).toBeVisible();
   await expect(changes.getByRole("button", { name: "Show fewer" })).toBeVisible();
   await changes.getByRole("button", { name: "Close what changed" }).click();
   await expect(changes).toHaveCount(0);

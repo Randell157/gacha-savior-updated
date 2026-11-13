@@ -235,37 +235,40 @@ export default function Showcase({
         </section>
       )}
       <Card>
-        <div
-          className="flex flex-wrap gap-1 border-b border-gray-200 px-4 pt-2 dark:border-slate-700 sm:px-6"
-          role="tablist"
-          aria-label="Showcases"
-          onKeyDown={(e) => {
-            if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
-            const next = (index + (e.key === "ArrowRight" ? 1 : -1) + showcases.length) % showcases.length;
-            selectTab(next);
-            focusNext.current = `#showcase-tab-${next}`;
-          }}
-        >
-          {showcases.map((s, i) => (
-            <button
-              key={i}
-              id={`showcase-tab-${i}`}
-              type="button"
-              role="tab"
-              aria-selected={i === index}
-              aria-controls="showcase-panel"
-              tabIndex={i === index ? 0 : -1}
-              onClick={() => selectTab(i)}
-              className={cn(
-                "-mb-px max-w-[12rem] truncate border-b-2 px-3 py-2 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
-                i === index
-                  ? "border-indigo-600 text-indigo-700 dark:border-indigo-400 dark:text-indigo-300"
-                  : "border-transparent text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-100"
-              )}
-            >
-              {s.title}
-            </button>
-          ))}
+        <div className="flex flex-wrap gap-1 border-b border-gray-200 px-4 pt-2 dark:border-slate-700 sm:px-6">
+          {/* Only the tabs go in the tablist; New showcase is a plain button beside it. */}
+          <div
+            className="flex flex-wrap gap-1"
+            role="tablist"
+            aria-label="Showcases"
+            onKeyDown={(e) => {
+              if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+              const next = (index + (e.key === "ArrowRight" ? 1 : -1) + showcases.length) % showcases.length;
+              selectTab(next);
+              focusNext.current = `#showcase-tab-${next}`;
+            }}
+          >
+            {showcases.map((s, i) => (
+              <button
+                key={i}
+                id={`showcase-tab-${i}`}
+                type="button"
+                role="tab"
+                aria-selected={i === index}
+                aria-controls="showcase-panel"
+                tabIndex={i === index ? 0 : -1}
+                onClick={() => selectTab(i)}
+                className={cn(
+                  "-mb-px max-w-[12rem] truncate border-b-2 px-3 py-2 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
+                  i === index
+                    ? "border-indigo-600 text-indigo-700 dark:border-indigo-400 dark:text-indigo-300"
+                    : "border-transparent text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-100"
+                )}
+              >
+                {s.title}
+              </button>
+            ))}
+          </div>
           {showcases.length < MAX_SHOWCASES && (
             <button
               type="button"
