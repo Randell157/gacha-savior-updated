@@ -2,6 +2,8 @@
 
 **Version 1.1** · [Live site](https://gacha-savior-updated.vercel.app/)
 
+> **AI disclosure:** this project's work since the capstone was written with [Claude Code](https://claude.com/claude-code) using Claude Opus 5.5. See [AI-assisted development](#ai-assisted-development).
+
 This is a personal project! Gacha Savior started as my Computer Science capstone, and I wanted to keep building on it, so I picked it back up and continued it with the help of Claude Code.
 
 This is a website that allows people to track and organize their information for various gacha games, starting with Genshin Impact! Will update to have more in the future!
@@ -19,6 +21,12 @@ Other commands: `npm run build`, `npm run lint`, `npm test` (unit tests)
 To use the site, export your Genshin account as a GOOD-format JSON file with [Inventory Kamera](https://github.com/Randell157/Inventory_Kamera_Fork/releases/latest) or Irminsul, then upload it on the dashboard. Sample exports are in `public/sample-data/inventory-kamera/`.
 
 Built with Next.js, React, TypeScript, Tailwind CSS and Firebase (Auth + Firestore). See `docs/DESIGN.md` for the roadmap.
+
+## AI-assisted development
+
+The work on this project since it was picked back up after the capstone, from the groundwork for version 1.0 on, was made with [Claude Code](https://claude.com/claude-code), Anthropic's AI coding tool, using the Claude Opus 5.5 model. Claude Code wrote the code, tests and documentation changes. I directed the work, chose the designs from mockups, and checked each change on a local test build before it was committed and deployed. Commits written this way carry a `Co-Authored-By: Claude` line.
+
+The original capstone code, from before the project moved to Claude Code, is not covered by this note.
 
 ## Credits
 
