@@ -31,15 +31,15 @@ export async function POST(request: Request) {
   }
 
   try {
-    const profile = adminDb.collection("users").doc(uid);
-    const username = (await profile.get()).data()?.username;
-
     // The login goes last, so if a step fails the person can log in and try again.
-    await adminDb.recursiveDelete(profile);
-    if (typeof username === "string" && username) {
-      const claim = adminDb.collection("usernames").doc(username.toLowerCase());
-      // Only their own: the profile's name isn't proof of who holds the claim.
-      if ((await claim.get()).data()?.uid === uid) await claim.delete();
+    await adminDb.recursiveDelete(adminDb.collection("users").doc(uid));
+    // Every claim that points at this account, not just the one the profile
+    // names (older accounts could hold more than one).
+    const claims = await adminDb.collection("usernames").where("uid", "==", uid).get();
+    if (!claims.empty) {
+      const batch = adminDb.batch();
+      for (const claim of claims.docs) batch.delete(claim.ref);
+      await batch.commit();
     }
     await adminAuth.deleteUser(uid);
     return NextResponse.json({ ok: true });

@@ -1,6 +1,6 @@
 # Gacha Savior Updated
 
-**Version 1.0** · [Live site](https://gacha-savior-updated.vercel.app/)
+**Version 1.1** · [Live site](https://gacha-savior-updated.vercel.app/)
 
 This is a personal project! Gacha Savior started as my Computer Science capstone, and I wanted to keep building on it, so I picked it back up and continued it with the help of Claude Code.
 

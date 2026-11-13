@@ -5,7 +5,8 @@ import nextTs from "eslint-config-next/typescript";
 export default defineConfig([
   ...nextVitals,
   ...nextTs,
-  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
+  // .agents/ holds installed Claude Code skills (the security audit), not site code.
+  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts", ".agents/**"]),
   {
     // eslint-plugin-react can't auto-detect the React version under ESLint 10
     settings: { react: { version: "19" } },

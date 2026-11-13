@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithCustomToken, signInWithEmailAndPassword } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
 import { auth } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
@@ -50,26 +50,26 @@ export default function LoginPage() {
     setError("");
 
     try {
-      let email = identifier.trim();
-      // If the identifier is not an email, assume it's a username. The server
-      // looks up the email, since users/{uid} isn't readable while signed out.
-      if (!email.includes("@")) {
-        const response = await fetch("/api/auth/resolve-username", {
+      const typed = identifier.trim();
+      if (typed.includes("@")) {
+        await signInWithEmailAndPassword(auth, typed, password);
+      } else {
+        // A username: the server checks the password against the account's
+        // email and sends back a sign-in token, so the email stays private.
+        const response = await fetch("/api/auth/username-login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username: email }),
+          body: JSON.stringify({ username: typed, password }),
         });
         const result = await response.json().catch(() => ({}));
         if (response.status === 401) {
           throw new LoginError(BAD_CREDENTIALS);
         }
-        if (!response.ok || typeof result.email !== "string") {
+        if (!response.ok || typeof result.token !== "string") {
           throw new LoginError(result.error ?? LOGIN_FAILED);
         }
-        email = result.email;
+        await signInWithCustomToken(auth, result.token);
       }
-
-      await signInWithEmailAndPassword(auth, email, password);
       router.push("/dashboard");
     } catch (error) {
       setError(

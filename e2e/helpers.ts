@@ -55,20 +55,48 @@ export async function createUser(prefix?: string): Promise<TestUser> {
   if (!signUp.ok) throw new Error(`Auth emulator sign-up failed: ${await signUp.text()}`);
   const { localId: uid } = await signUp.json();
 
-  // "Bearer owner" lets the emulator skip the security rules.
-  const write = async (docPath: string, fields: Record<string, string>) => {
-    const res = await fetch(`${FIRESTORE}/${docPath}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json", Authorization: "Bearer owner" },
-      body: JSON.stringify({
-        fields: Object.fromEntries(Object.entries(fields).map(([k, v]) => [k, { stringValue: v }])),
-      }),
-    });
-    if (!res.ok) throw new Error(`Firestore emulator write failed: ${await res.text()}`);
-  };
-  await write(`usernames/${username.toLowerCase()}`, { uid });
-  await write(`users/${uid}`, { username, email, createdAt: new Date().toISOString() });
+  await ownerWrite(`usernames/${username.toLowerCase()}`, { uid });
+  await ownerWrite(`users/${uid}`, { username, email, createdAt: new Date().toISOString() });
   return { username, email, password, uid };
+}
+
+/** Writes string fields to a document, skipping the security rules ("Bearer owner"). */
+export async function ownerWrite(docPath: string, fields: Record<string, string>) {
+  const res = await firestoreAs("owner", docPath, "PATCH", fields);
+  if (!res.ok) throw new Error(`Firestore emulator write failed: ${await res.text()}`);
+}
+
+/**
+ * A Firestore emulator REST request as a signed-in user (an ID token from
+ * `idTokenFor`) or as "owner", which skips the rules. `docPath` may also name a
+ * collection, to list it.
+ */
+export function firestoreAs(
+  token: string,
+  docPath: string,
+  method: "GET" | "PATCH" | "DELETE" = "GET",
+  fields?: Record<string, string>
+) {
+  return fetch(`${FIRESTORE}/${docPath}`, {
+    method,
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: fields
+      ? JSON.stringify({
+          fields: Object.fromEntries(Object.entries(fields).map(([k, v]) => [k, { stringValue: v }])),
+        })
+      : undefined,
+  });
+}
+
+/** Signs the user in through the Auth emulator and returns their ID token. */
+export async function idTokenFor(user: TestUser): Promise<string> {
+  const res = await fetch(`${AUTH}/identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=emulator`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: user.email, password: user.password, returnSecureToken: true }),
+  });
+  if (!res.ok) throw new Error(`Auth emulator sign-in failed: ${await res.text()}`);
+  return (await res.json()).idToken;
 }
 
 /**

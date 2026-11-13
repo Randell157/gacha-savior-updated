@@ -16,19 +16,20 @@ class ResetError extends Error {}
 
 const SEND_FAILED = "Couldn't send the link right now. Please try again.";
 
-/** The account's email for a username, or null if there's no such account. */
-async function emailForUsername(username: string): Promise<string | null> {
-  const response = await fetch("/api/auth/resolve-username", {
+/**
+ * Asks the server to email a reset link to a username's account. The server
+ * never sends the email address back, and answers the same for unknown names.
+ */
+async function sendResetForUsername(username: string) {
+  const response = await fetch("/api/auth/reset-password", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username }),
   });
-  const result = await response.json().catch(() => ({}));
-  if (response.status === 401) return null;
-  if (!response.ok || typeof result.email !== "string") {
+  if (!response.ok) {
+    const result = await response.json().catch(() => ({}));
     throw new ResetError(result.error ?? SEND_FAILED);
   }
-  return result.email;
 }
 
 export default function ForgotPasswordPage() {
@@ -56,8 +57,8 @@ export default function ForgotPasswordPage() {
 
     try {
       const typed = identifier.trim();
-      const email = typed.includes("@") ? typed : await emailForUsername(typed);
-      if (email) await sendPasswordResetEmail(auth, email);
+      if (typed.includes("@")) await sendPasswordResetEmail(auth, typed);
+      else await sendResetForUsername(typed);
       setSent(true);
     } catch (error) {
       // An unknown account looks the same as a known one, so this page can't

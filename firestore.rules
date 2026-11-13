@@ -21,8 +21,11 @@ service cloud.firestore {
                  && data.avatarImage.matches('^data:image/jpeg;base64,[A-Za-z0-9+/=]+$'));
     }
 
+    // The profile itself can't be deleted from the browser (the delete-account
+    // route does it): a deleted and re-created profile would let the account
+    // claim another username below.
     match /users/{userId} {
-      allow read, delete: if isOwner(userId);
+      allow read: if isOwner(userId);
       allow create, update: if isOwner(userId) && validPicture(request.resource.data);
 
       // {collection} first: on its own, {document=**} also matches users/{userId}
@@ -32,15 +35,22 @@ service cloud.firestore {
       }
     }
 
-    // usernames/{lowercased name} -> { uid }. Claimed at sign-up. Signed-out login
-    // lookups, changing a username and deleting an account go through API routes
-    // that use the Admin SDK and aren't bound by these rules.
+    // usernames/{lowercased name} -> { uid }. Claimed at sign-up. Logging in with
+    // a username, password resets by username, changing a username and deleting
+    // an account go through API routes that use the Admin SDK and aren't bound
+    // by these rules.
     match /usernames/{username} {
-      allow read: if request.auth != null;
+      // One name at a time (sign-up checks whether it's free); no listing, so
+      // nobody can download every username.
+      allow get: if request.auth != null;
+      // Only at sign-up: the profile doesn't exist yet and is created in the
+      // same transaction with this name, so each account gets one claim.
       allow create: if request.auth != null
                     && username == username.lower()
                     && request.resource.data.uid == request.auth.uid
-                    && request.resource.data.keys().hasOnly(["uid"]);
+                    && request.resource.data.keys().hasOnly(["uid"])
+                    && !exists(/databases/$(database)/documents/users/$(request.auth.uid))
+                    && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.username.lower() == username;
       allow update, delete: if false;
     }
   }

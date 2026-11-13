@@ -17,10 +17,25 @@ function loadServiceAccount() {
   return JSON.parse(Buffer.from(encoded, "base64").toString("utf8"));
 }
 
-// Against the emulators (`npm run dev:emu` sets FIRESTORE_EMULATOR_HOST), the
-// Admin SDK needs no key, only the same demo project ID the browser uses.
+/**
+ * Whether the server talks to the local emulators (`npm run dev:emu` and the
+ * e2e tests set these). Against the Auth emulator, sign-ins aren't checked for
+ * real, so the live site refuses to start in this mode.
+ */
+export function usingEmulators() {
+  const emulators = Boolean(
+    process.env.FIRESTORE_EMULATOR_HOST || process.env.FIREBASE_AUTH_EMULATOR_HOST
+  );
+  if (emulators && process.env.VERCEL_ENV === "production") {
+    throw new Error("Emulator settings are set on the live site. Remove them from the Vercel env.");
+  }
+  return emulators;
+}
+
+// Against the emulators the Admin SDK needs no key, only the same demo project
+// ID the browser uses.
 function createApp() {
-  if (process.env.FIRESTORE_EMULATOR_HOST) {
+  if (usingEmulators()) {
     return initializeApp({ projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID });
   }
   return initializeApp({ credential: cert(loadServiceAccount()) });

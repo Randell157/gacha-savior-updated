@@ -54,6 +54,12 @@ next-env.d.ts
 /test-results/
 /playwright-report/
 
+# Cloudflare's security-audit skill, installed locally for release audits
+# (`npx skills add`), and its lock file. Reports go to ~/security-audit-skill/.
+.agents/
+.claude/skills/
+skills-lock.json
+
 # Impeccable critique reports (ignore.md is shared)
 .impeccable/critique/*.md
 !.impeccable/critique/ignore.md

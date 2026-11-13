@@ -1,0 +1,27 @@
+# Files `npx vercel --prod` must never upload. Vercel builds from its own env
+# settings, so local secrets stay here. Keep in step with .gitignore.
+
+# Secrets
+.env*.local
+*-firebase-adminsdk-*.json
+*.pem
+
+# Build output, dependencies and caches
+node_modules
+.next
+out
+build
+*.tsbuildinfo
+
+# Local data, logs and tool output
+.emulator-data
+*-debug.log
+npm-debug.log*
+coverage
+test-results
+playwright-report
+.playwright-mcp
+.mockups
+.impeccable/critique
+.agents
+skills-lock.json

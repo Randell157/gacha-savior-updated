@@ -1,5 +1,15 @@
 import { expect, test, type Page } from "@playwright/test";
-import { createUser, formError, logIn, resetEmailsSentTo, uniqueName, uploadSample } from "./helpers";
+import {
+  createUser,
+  firestoreAs,
+  formError,
+  idTokenFor,
+  logIn,
+  ownerWrite,
+  resetEmailsSentTo,
+  uniqueName,
+  uploadSample,
+} from "./helpers";
 
 const BAD_CREDENTIALS = "That email, username or password isn't right. Check them and try again.";
 
@@ -89,6 +99,41 @@ test.describe("log in", () => {
     await expect(page.getByRole("button", { name: "Log in" })).toBeEnabled();
     await expect(formError(page)).toHaveText(BAD_CREDENTIALS);
     await expect(page).toHaveURL(/\/login$/);
+  });
+
+  test("the username route checks the password and never sends back the email", async ({ request }) => {
+    const user = await createUser("private");
+    const wrong = await request.post("/api/auth/username-login", {
+      data: { username: user.username, password: "not-the-password" },
+    });
+    expect(wrong.status()).toBe(401);
+    expect(await wrong.text()).not.toContain(user.email);
+
+    const right = await request.post("/api/auth/username-login", {
+      data: { username: user.username, password: user.password },
+    });
+    expect(right.status()).toBe(200);
+    const body = await right.text();
+    expect(body).not.toContain(user.email);
+    expect(typeof JSON.parse(body).token).toBe("string");
+  });
+});
+
+test.describe("username rules", () => {
+  test("a name can be looked up but the list can't be read", async () => {
+    const user = await createUser("reader");
+    const other = await createUser("listed");
+    const token = await idTokenFor(user);
+    expect((await firestoreAs(token, `usernames/${other.username.toLowerCase()}`)).status).toBe(200);
+    expect((await firestoreAs(token, "usernames")).status).toBe(403);
+  });
+
+  test("an account can't claim a second name or delete its profile", async () => {
+    const user = await createUser("squatter");
+    const token = await idTokenFor(user);
+    const extra = await firestoreAs(token, `usernames/${uniqueName("extra")}`, "PATCH", { uid: user.uid });
+    expect(extra.status).toBe(403);
+    expect((await firestoreAs(token, `users/${user.uid}`, "DELETE")).status).toBe(403);
   });
 });
 
@@ -184,6 +229,9 @@ test.describe("deleting", () => {
 
   test("Delete account needs the password, then frees the username", async ({ page }) => {
     const user = await createUser("leaver");
+    // A second claim, as older accounts could have: deleting frees it too.
+    const extraName = uniqueName("extra").toLowerCase();
+    await ownerWrite(`usernames/${extraName}`, { uid: user.uid });
     await logIn(page, user);
     await page.goto("/profile");
     await page.getByRole("button", { name: "Delete account" }).click();
@@ -195,6 +243,7 @@ test.describe("deleting", () => {
     await dialog.getByLabel("Password").fill(user.password);
     await dialog.getByRole("button", { name: "Delete account" }).click();
     await expect(page).toHaveURL(/\/$/);
+    expect((await firestoreAs("owner", `usernames/${extraName}`)).status).toBe(404);
 
     await page.goto("/login");
     await page.locator("#identifier").fill(user.email);
