@@ -57,7 +57,8 @@ export default function Segmented<T extends string>({
             onClick={() => onChange(option.value)}
             className={cn(
               // Unchosen buttons sit above, so the highlight passes behind their labels.
-              "press relative flex items-center gap-1.5 rounded px-3 py-1.5 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              // after:-inset-y-1.5 makes each 32 px button 44 px tall to tap, without changing its look.
+              "press relative flex items-center gap-1.5 rounded px-3 py-1.5 text-sm font-medium after:absolute after:inset-x-0 after:-inset-y-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               chosen
                 ? "isolate z-0 text-white"
                 : "z-10 text-gray-700 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/40"

@@ -95,7 +95,14 @@ export default function UploadChanges({
           </h3>
           {date && <p className="text-sm text-gray-500 dark:text-slate-400">Compared with {date}</p>}
         </div>
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose} aria-label="Close what changed">
+        {/* after:-inset-1.5 stretches the 32 px button's tappable area to 44 px without changing how it looks. */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative h-8 w-8 after:absolute after:-inset-1.5"
+          onClick={onClose}
+          aria-label="Close what changed"
+        >
           <X className="h-4 w-4" />
         </Button>
       </div>
