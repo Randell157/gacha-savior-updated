@@ -41,22 +41,22 @@ export async function POST(request: Request) {
   try {
     await adminDb.runTransaction(async (transaction) => {
       const profileRef = adminDb.collection("users").doc(uid);
-      const profile = await transaction.get(profileRef);
-      const current = profile.data()?.username;
-      if (typeof current !== "string") throw new UsernameError(FAILED, 500);
-
       const newClaimRef = adminDb.collection("usernames").doc(username.toLowerCase());
-      const oldClaimRef = adminDb.collection("usernames").doc(current.toLowerCase());
-      const [newClaim, oldClaim] = await Promise.all([
+      // The old claims are found by uid, not from the profile's username, which
+      // the browser can change. Otherwise a made-up name there would keep the
+      // real claim and let one account collect names.
+      const [profile, newClaim, ownClaims] = await Promise.all([
+        transaction.get(profileRef),
         transaction.get(newClaimRef),
-        transaction.get(oldClaimRef),
+        transaction.get(adminDb.collection("usernames").where("uid", "==", uid)),
       ]);
+      if (!profile.exists) throw new UsernameError(FAILED, 500);
       if (newClaim.exists && newClaim.data()?.uid !== uid) throw new UsernameError(TAKEN, 409);
 
       transaction.set(newClaimRef, { uid });
       // Only capitals changing means the same claim, which must stay.
-      if (oldClaimRef.id !== newClaimRef.id && oldClaim.data()?.uid === uid) {
-        transaction.delete(oldClaimRef);
+      for (const claim of ownClaims.docs) {
+        if (claim.id !== newClaimRef.id) transaction.delete(claim.ref);
       }
       transaction.update(profileRef, { username });
     });

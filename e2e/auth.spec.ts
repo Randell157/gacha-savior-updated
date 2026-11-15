@@ -273,6 +273,22 @@ test.describe("changing a username", () => {
     expect(response.status()).toBe(401);
   });
 
+  test("a made-up name in the profile can't keep the old claim", async ({ request }) => {
+    const user = await createUser("collector");
+    const token = await idTokenFor(user);
+    // The browser can write its own profile, so put someone else's name there.
+    expect((await firestoreAs(token, `users/${user.uid}`, "PATCH", { username: uniqueName("nobody") })).ok).toBe(true);
+
+    const renamed = uniqueName("renamed");
+    const response = await request.post("/api/account/username", {
+      headers: { Authorization: `Bearer ${token}` },
+      data: { username: renamed },
+    });
+    expect(response.status()).toBe(200);
+    expect((await firestoreAs("owner", `usernames/${user.username.toLowerCase()}`)).status).toBe(404);
+    expect((await firestoreAs("owner", `usernames/${renamed.toLowerCase()}`)).status).toBe(200);
+  });
+
   test("refuses bad and taken names, then logs in with the new one", async ({ page }) => {
     const other = await createUser("holder");
     const user = await createUser("renamer");
