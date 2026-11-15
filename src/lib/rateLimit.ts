@@ -2,13 +2,13 @@ import "server-only";
 
 // Basic per-IP limit for the signed-out auth routes. It's kept in memory, so
 // each server instance counts separately: enough to slow down guessing, not a
-// hard guarantee. Firebase also limits failed sign-ins per account.
+// hard guarantee. On Vercel the IP headers come from Vercel itself, so a client
+// can't fake a new IP per request (checked on the live site, 2026-11-15).
 
-const WINDOW_MS = 60_000;
 const MAX_KEYS = 10_000;
 
-/** Returns a check that says whether this request goes over `max` per minute. */
-export function createRateLimit(max: number) {
+/** Returns a check that says whether this request goes over `max` per `windowMs` (a minute by default). */
+export function createRateLimit(max: number, windowMs = 60_000) {
   const attempts = new Map<string, { count: number; resetAt: number }>();
 
   return function isRateLimited(request: Request) {
@@ -24,7 +24,7 @@ export function createRateLimit(max: number) {
     }
     const entry = attempts.get(ip);
     if (!entry || entry.resetAt <= now) {
-      attempts.set(ip, { count: 1, resetAt: now + WINDOW_MS });
+      attempts.set(ip, { count: 1, resetAt: now + windowMs });
       return false;
     }
     entry.count += 1;

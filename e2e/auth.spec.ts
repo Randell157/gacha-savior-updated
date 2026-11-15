@@ -165,6 +165,19 @@ test.describe("passwords", () => {
     await expect.poll(() => resetEmailsSentTo(user.email)).toBe(2);
   });
 
+  test("a username gets at most 3 reset emails an hour", async ({ request }) => {
+    const user = await createUser("flooded");
+    // A different IP each time, so only the per-account cap applies.
+    for (let i = 0; i < 4; i++) {
+      const response = await request.post("/api/auth/reset-password", {
+        headers: { "x-real-ip": `198.51.100.${i + 1}` },
+        data: { username: user.username },
+      });
+      expect(await response.json()).toEqual({ ok: true });
+    }
+    expect(await resetEmailsSentTo(user.email)).toBe(3);
+  });
+
   test("forgot password says the same for an unknown account", async ({ page }) => {
     for (const unknown of [uniqueName("nobody"), `${uniqueName("nobody")}@example.test`]) {
       await page.goto("/forgot-password");

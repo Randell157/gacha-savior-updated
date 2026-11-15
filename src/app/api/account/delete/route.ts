@@ -36,11 +36,11 @@ export async function POST(request: Request) {
     // Every claim that points at this account, not just the one the profile
     // names (older accounts could hold more than one).
     const claims = await adminDb.collection("usernames").where("uid", "==", uid).get();
-    if (!claims.empty) {
-      const batch = adminDb.batch();
-      for (const claim of claims.docs) batch.delete(claim.ref);
-      await batch.commit();
-    }
+    const batch = adminDb.batch();
+    for (const claim of claims.docs) batch.delete(claim.ref);
+    // The reset-email counter from /api/auth/reset-password, if there is one.
+    batch.delete(adminDb.collection("resetRequests").doc(uid));
+    await batch.commit();
     await adminAuth.deleteUser(uid);
     return NextResponse.json({ ok: true });
   } catch (error) {
