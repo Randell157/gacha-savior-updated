@@ -414,7 +414,7 @@ function SampleWishes() {
   return (
     <GenshinShell title="Wishes">
       <SignedOutBanner>
-        This is a made-up wish history. Log in to import your own and keep it past the game&apos;s six months.
+        This is a made-up wish history. Log in to import your own and keep it after the game&apos;s six-month limit.
       </SignedOutBanner>
       {pulls === null ? (
         <p className="text-sm text-gray-500 dark:text-slate-400" aria-busy="true">

@@ -20,6 +20,8 @@ Update this file (commands, rules) and `docs/ARCHITECTURE.md` (how the code work
 
 **Credits go in `README.md`, in the same change, without being asked.** Whenever a change brings in something made by someone else, add it to the README's "Credits" section under the matching heading (Game content, Account exports, or Libraries and tools): a new npm dependency the site or its scripts use, a data source, images or icons, fonts, or a file format or tool. Give the name, a link, the author where relevant, and the license, read from the package's own `package.json` or LICENSE rather than from memory. Game artwork, names and text are credited to HoYoverse. Also remove the credit when the thing is removed.
 
+**Each release gets a step in the About page's "How it started" timeline** (`STORY` in `src/app/about/page.tsx`), in the release change, without being asked: one line for every minor or major version (1.2, 1.3, 2.0, 2.1, ...), titled "Version X.Y, Month YYYY", naming its main features from the release notes. Patch versions (1.1.1, 1.2.1) don't get a step.
+
 ## Commands
 
 ```bash

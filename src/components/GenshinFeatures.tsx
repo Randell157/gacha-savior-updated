@@ -20,32 +20,32 @@ const FEATURES = [
   {
     icon: Users,
     title: "Characters",
-    text: "Every character in the game, with yours in color, and a page for each with their level, talents, constellations, weapon and artifacts. Sort and filter.",
+    text: "See every character in the game, with the ones you own in color. Sort and filter them, and open any character for their level, talents, constellations, weapon and artifacts.",
   },
   {
     icon: Swords,
     title: "Weapons",
-    text: "Cards or a table, with search, type and rarity filters, and a page for each weapon showing every copy you own.",
+    text: "Browse them as cards or a table, with search and filters for type and rarity. Each weapon has a page with every copy you own.",
   },
   {
     icon: Flower2,
     title: "Artifacts",
-    text: "Who's wearing what, their active set bonuses, a Crit Value score on every piece, and filters to find your best and worst.",
+    text: "See who's wearing what and which set bonuses are active. Every piece gets a Crit Value score, and filters help you find your best and worst.",
   },
   {
     icon: LayoutGrid,
     title: "Team showcase",
-    text: "Pin up to five characters to your Genshin overview, in as many as five named showcases, with their gear, Crit Value, what's still missing and what changed since your last upload. Save any build as an image.",
+    text: "Pin up to five characters to your Genshin overview, and keep up to five named showcases. Each card shows their gear, Crit Value, what's still missing and what changed since your last upload. Save any build as an image.",
   },
   {
     icon: ClipboardList,
     title: "Material planner",
-    text: "Pick the levels and talents you're aiming for and see which materials, EXP and Mora you still need, for one character or weapon or all your plans added up.",
+    text: "Pick the levels and talents you're aiming for and see which materials, EXP and Mora you still need. Check one character or weapon, or all your plans added up.",
   },
   {
     icon: Sparkles,
     title: "Wish history",
-    text: "Import paimon.moe or UIGF files and keep every wish past the game's six months: pity, your 50/50 record, Primogems spent and wishes per month. Download it all as UIGF.",
+    text: "Import paimon.moe or UIGF files to keep your wishes after the game's six-month limit. See your pity, your 50/50 record, Primogems spent and wishes per month, and download it all as UIGF.",
   },
 ];
 
@@ -82,7 +82,7 @@ export function FeatureGrid() {
         <div>
           <CardTitle className="text-base text-gray-700 dark:text-slate-300">More games soon</CardTitle>
           <CardDescription className="mt-0.5 text-gray-600 dark:text-slate-400">
-            Honkai: Star Rail and Zenless Zone Zero are planned.
+            Honkai: Star Rail and Zenless Zone Zero are next.
           </CardDescription>
         </div>
       </Card>

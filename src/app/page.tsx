@@ -80,8 +80,8 @@ export default function Home() {
               Which of your characters did you actually build?
             </h1>
             <p className="mt-3 max-w-xl text-indigo-100">
-              Upload your Genshin export and see your whole roster, levels,
-              talents, weapons and artifacts, all in one place.
+              Upload your Genshin export to see your whole roster, with levels,
+              talents, weapons and artifacts.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button asChild className="bg-white text-indigo-900 hover:bg-indigo-50">

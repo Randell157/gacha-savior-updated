@@ -53,6 +53,7 @@ Gacha Savior is an unofficial fan project. It is not affiliated with or endorsed
 - [Next.js](https://nextjs.org/), [React](https://react.dev/) and [Tailwind CSS](https://tailwindcss.com/): MIT
 - [shadcn/ui](https://ui.shadcn.com/) components (MIT), built on [Radix UI](https://www.radix-ui.com/) (MIT) and [class-variance-authority](https://cva.style/) (Apache-2.0)
 - [Lucide](https://lucide.dev/) icons: ISC
+- The GitHub, LinkedIn, X and YouTube logos on the About and Contact pages are trademarks of their owners. The GitHub, LinkedIn and YouTube ones are Lucide icons; the X one is a copy of X's own logo, since Lucide only has the old Twitter bird.
 - [next-themes](https://github.com/pacocoursey/next-themes) for dark mode: MIT
 - [html-to-image](https://github.com/bubkoo/html-to-image) by bubkoo, for saving a build card as a PNG: MIT
 - [Firebase](https://firebase.google.com/) client and Admin SDKs: Apache-2.0

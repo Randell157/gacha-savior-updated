@@ -214,8 +214,8 @@ function Planner() {
                 <MaterialList materials={total.materials} exp={exp} view={view} />
               )}
               <p className="mt-4 text-xs text-gray-500 dark:text-slate-400">
-                Counts ascension, talent and EXP materials from the game&apos;s costs, not resin or days, or materials you could
-                craft from lower tiers. Your plans are saved with your account.
+                Counts ascension, talent and EXP materials from the game&apos;s costs. It doesn&apos;t count resin or days, or
+                materials you could craft from lower tiers. Your plans are saved with your account.
               </p>
             </section>
           </>

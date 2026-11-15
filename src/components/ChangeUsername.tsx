@@ -83,7 +83,7 @@ export default function ChangeUsername() {
       {isOpen && (
         <form className="mt-3 max-w-sm space-y-3" onSubmit={handleSubmit}>
           <p className="text-gray-600 dark:text-slate-400">
-            Your old name becomes free for anyone else straight away.
+            Your old name becomes free for anyone else right away.
           </p>
           <div>
             <label htmlFor="new-username" className="sr-only">

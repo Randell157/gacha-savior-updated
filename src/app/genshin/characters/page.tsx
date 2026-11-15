@@ -127,7 +127,7 @@ export default function CharactersPage() {
       {!user && (
         <SignedOutBanner>
           Log in to see which characters you own, with their levels and builds. Until then, every
-          character shows greyed out.
+          character shows grayed out.
         </SignedOutBanner>
       )}
       <div className="mb-3 flex flex-wrap items-center gap-3">
@@ -196,7 +196,7 @@ export default function CharactersPage() {
         {[
           activeFilterCount(filters) > 0 || ownedFilter !== "all" || search.trim()
             ? `Showing ${roster.length} of ${GENSHIN_CHARACTERS.length} characters.`
-            : user && "Greyed-out portraits are characters you don't own yet.",
+            : user && "Grayed-out portraits are characters you don't own yet.",
           genshinData?.characters.length &&
             "Under each name: level, constellation, then Normal Attack / Skill / Burst.",
           sortField === "obtained" &&
