@@ -22,6 +22,8 @@ Update this file (commands, rules) and `docs/ARCHITECTURE.md` (how the code work
 
 **Each release gets a step in the About page's "How it started" timeline** (`STORY` in `src/app/about/page.tsx`), in the release change, without being asked: one line for every minor or major version (1.2, 1.3, 2.0, 2.1, ...), titled "Version X.Y, Month YYYY", naming its main features from the release notes. Patch versions (1.1.1, 1.2.1) don't get a step.
 
+**Each release, patch versions included, also updates the version line at the top of `README.md`** ("**Version X.Y.Z**", matching `package.json`), in the release change, without being asked.
+
 ## Commands
 
 ```bash
