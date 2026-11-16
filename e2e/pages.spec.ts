@@ -20,6 +20,14 @@ test.describe("signed out", () => {
     await expect(page.locator("main").getByRole("link", { name: "Log in" })).toHaveAttribute("href", "/login");
     await expect(page.locator('[title$="(not owned)"]').first()).toBeVisible();
     await expect(page.locator('main a[href^="/genshin/characters/"]')).toHaveCount(0);
+
+    // Announced characters sit in their own strip: portrait, name and version, nothing to click.
+    const comingSoon = page.getByRole("region", { name: /^Coming in version/ });
+    await expect(comingSoon.getByText("Anastasya")).toBeVisible();
+    await expect(comingSoon.locator("a, button")).toHaveCount(0);
+    // They step aside while a search narrows the roster.
+    await page.getByPlaceholder("Search characters").fill("fur");
+    await expect(comingSoon).toHaveCount(0);
   });
 
   test("the roster filters by element, weapon, rarity, playstyle and region", async ({ page }) => {
@@ -651,13 +659,19 @@ test.describe("signed in with the sample upload", () => {
     await expect(page.getByRole("button", { name: "Choose characters" })).toBeFocused();
   });
 
-  test("a character's page opens their build card", async () => {
+  test("a character's page shows their splash art and opens their build card", async () => {
     await page.goto("/genshin/characters/Furina");
+    await expect(page.locator('main img[src*="character-splash"]')).toBeVisible();
     await page.getByRole("button", { name: "Build card" }).click();
     const dialog = page.getByRole("dialog", { name: "Furina's build" });
     await expect(dialog.getByText("Total CV")).toBeVisible();
     await expect(dialog.getByRole("heading", { name: "From artifacts" })).toBeVisible();
     await expect(dialog.getByRole("button", { name: "Save as image" })).toBeVisible();
+
+    // The card shows both the portrait and the splash art.
+    await expect(dialog.locator('img[src*="character-portraits"]')).toBeVisible();
+    await expect(dialog.locator('img[src*="character-splash"]')).toBeVisible();
+
     await page.keyboard.press("Escape");
     await expect(page.getByRole("button", { name: "Build card" })).toBeFocused();
   });

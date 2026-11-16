@@ -15,6 +15,7 @@
     "icons:weapons": "node scripts/fetch-weapon-icons.mjs",
     "icons:artifacts": "node scripts/fetch-artifact-icons.mjs",
     "icons:materials": "node scripts/fetch-material-icons.mjs",
+    "images:splash": "node scripts/fetch-splash-art.mjs",
     "data:test-export": "node scripts/build-test-export.mjs",
     "data:test-wishes": "node scripts/build-test-wishes.mjs",
     "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test \"src/**/*.test.ts\"",

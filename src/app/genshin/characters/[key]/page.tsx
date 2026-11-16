@@ -25,6 +25,7 @@ import { buildEquipmentIndex } from "@/lib/genshin/equipment";
 import { weaponHref, weaponName } from "@/lib/genshin/weapons";
 import { getWeaponRarity, getWeaponStats } from "@/lib/genshin/weaponDetails";
 import { getCharacterDetails, isTraveler } from "@/lib/genshin/characterDetails";
+import { getSplashArt } from "@/lib/genshin/splashArt";
 import { TALENT_KINDS, type GameText } from "@/lib/genshin/characterExtras";
 import { getCharacterPortrait, getCharacterRarity, rarityBackground } from "@/lib/genshinCharacters";
 import type { GoodArtifact, GoodCharacter, GoodWeapon } from "@/lib/genshin/types";
@@ -139,9 +140,21 @@ function ProfileCard({ character, name }: { character: GoodCharacter; name: stri
   const rarity = getCharacterRarity(character.key);
   const { travelerElement, setTravelerElement } = useGenshinData();
   const extras = useCharacterExtras(character.key, travelerElement, character.level, character.ascension ?? 0);
+  const splash = getSplashArt(character.key);
   return (
     <section aria-label={`About ${name}`} className={PANEL}>
-      <div className="flex flex-col gap-6 sm:flex-row">
+      {/*
+        Splash art (design "A" from `.mockups/splash-size.html`, the user's sizes): from `lg` up it
+        takes the right 51% and runs beside the info and the numbers, 540 px tall, with the numbers
+        in two rows; below `lg` it sits between the info and the numbers, 440 px tall on tablets and 270 px on phones.
+      */}
+      <div
+        className={cn(
+          "grid grid-cols-1 gap-x-6 gap-y-5",
+          splash && "lg:grid-cols-[minmax(0,1fr)_51%] lg:grid-rows-[auto_1fr]"
+        )}
+      >
+      <div className="flex min-w-0 flex-col gap-6 sm:flex-row lg:col-start-1 lg:row-start-1">
         <div className="w-full shrink-0 space-y-3 sm:w-44">
           <div
             className={cn(
@@ -169,8 +182,21 @@ function ProfileCard({ character, name }: { character: GoodCharacter; name: stri
           />
         </div>
       </div>
-      <div className="mt-5">
-        <BuildStrip character={character} talents={extras.talents} />
+      {splash && (
+        // A fixed height, so the page doesn't jump when it loads; any shape fits inside.
+        <div className="relative h-[270px] w-full overflow-hidden sm:h-[440px] lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:h-[540px]">
+          <Image
+            src={splash}
+            alt=""
+            fill
+            sizes="(min-width: 1024px) 640px, 100vw"
+            className="object-contain"
+          />
+        </div>
+      )}
+      <div className="min-w-0 lg:col-start-1 lg:row-start-2">
+        <BuildStrip character={character} talents={extras.talents} twoRows={!!splash} />
+      </div>
       </div>
       {isTraveler(character.key) && !travelerElement && (
         <div className="mt-3">
@@ -193,8 +219,20 @@ function ProfileCard({ character, name }: { character: GoodCharacter; name: stri
 const BIG_NUMBER = "text-3xl font-bold tabular-nums text-indigo-900 dark:text-indigo-200";
 const STRIP_BORDER = "border-indigo-100 dark:border-indigo-900";
 
-/** Level, constellation, ascension and the three talents in one strip. Pressing a talent opens its description. */
-function BuildStrip({ character, talents }: { character: GoodCharacter; talents: GameText[] | null }) {
+/**
+ * Level, constellation, ascension and the three talents in one strip. Pressing a talent opens its description.
+ * `twoRows` keeps the talents in a row of their own under the first three on wide screens, where the
+ * strip shares the width with the splash art.
+ */
+function BuildStrip({
+  character,
+  talents,
+  twoRows = false,
+}: {
+  character: GoodCharacter;
+  talents: GameText[] | null;
+  twoRows?: boolean;
+}) {
   const [open, setOpen] = useState<number | null>(null);
   const names = getCharacterDetails(character.key)?.talents;
   const levels = character.talent;
@@ -216,7 +254,7 @@ function BuildStrip({ character, talents }: { character: GoodCharacter; talents:
       <div
         className={cn(
           "grid grid-cols-3 overflow-hidden rounded-lg bg-indigo-50/60 dark:bg-indigo-900/20 ring-1 ring-indigo-100 dark:ring-indigo-900",
-          "lg:grid-cols-[repeat(3,minmax(0,0.7fr))_repeat(3,minmax(0,1.2fr))]"
+          !twoRows && "lg:grid-cols-[repeat(3,minmax(0,0.7fr))_repeat(3,minmax(0,1.2fr))]"
         )}
       >
         {stats.map((stat, i) => (
@@ -244,7 +282,9 @@ function BuildStrip({ character, talents }: { character: GoodCharacter; talents:
         {row.map((talent, i) => {
           const cell = cn(
             "col-span-3 flex items-center justify-between gap-3 border-t px-3 py-3 text-left",
-            "lg:col-span-1 lg:flex-col lg:border-l lg:border-t-0 lg:text-center",
+            twoRows
+              ? cn("lg:col-span-1 lg:flex-col lg:text-center", i > 0 && "lg:border-l")
+              : "lg:col-span-1 lg:flex-col lg:border-l lg:border-t-0 lg:text-center",
             STRIP_BORDER
           );
           const label = (

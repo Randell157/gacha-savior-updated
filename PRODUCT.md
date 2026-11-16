@@ -29,9 +29,9 @@ One tidy home for your account: your roster, gear and builds organized and easy 
 
 ## Capabilities and Constraints
 
-**Today:** accounts with email or username login; upload and storage of GOOD exports; a "Your games" hub; and a Genshin section with an overview and team showcase, a filterable character roster, character pages, weapons and artifacts. Light, dark and system themes.
+**Today:** accounts with email or username login; upload and storage of GOOD exports; a "Your games" hub; and a Genshin section with an overview, team showcases and a featured build card, a filterable character roster, character and weapon pages, artifacts with Crit Value, a list of what changed since the last upload, a material planner, and a wish history tracker. Light, dark and system themes.
 
-**Planned, in `docs/DESIGN.md`:** version 1.1 (Phase 6): showcase slots that show each build with Crit Value, a featured build card, a list of what changed since the last upload, a material planner, and wish history additions. Honkai: Star Rail and Zenless Zone Zero are planned and appear as "Coming soon". The Genshin work comes first.
+**Planned, in `docs/DESIGN.md`:** version 1.2 (Phase 7): today's farming list, an artifact cleanup view, your own notes and tags on characters, spare weapon copies, a quick search, a year in review, coming-soon characters on the roster, and splash art on character pages. Honkai: Star Rail and Zenless Zone Zero are planned and appear as "Coming soon". The Genshin work comes first.
 
 **Out of scope for now:** full final stats or damage calculation, pulling wish history straight from the game, and per-character artifact scoring.
 

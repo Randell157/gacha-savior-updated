@@ -1,6 +1,6 @@
 # Gacha Savior: Roadmap and Design
 
-Status: draft · Last updated: 2026-11-11
+Status: draft · Last updated: 2026-11-15
 
 This document describes what comes next for Gacha Savior and how each piece will be built. For how the app works today, see [CLAUDE.md](../CLAUDE.md).
 
@@ -55,6 +55,7 @@ Each phase builds on the one before it. Phase 2 comes first so later phases buil
 | 4 | Character and weapon detail pages | 1 | **Done** (2026-11-06) |
 | 5 | Wish history tracker | 1 | **Done** (2026-11-11) |
 | 6 | Version 1.1: showcase and build card, upload changes, material planner, wish additions | 3, 4, 5 | **Done** (2026-11-13, released as v1.1.0) |
+| 7 | Version 1.2: today's farming list, artifact cleanup, notes and tags, spare weapon copies, quick search, year in review, coming-soon characters, splash art on character pages | 6 | **Planned** (2026-11-15) |
 
 ---
 
@@ -582,6 +583,143 @@ A step is finished only when every box is checked. Each check is verified (run, 
    - [x] Test build served on localhost for the user to check (2026-11-13: `npm run build` passed and `start` served it on :3000 with the real project. The user checked password reset, which showed the web API key blocked Firebase's own reset page at `gachasavior-f5987.firebaseapp.com`, so reset links failed on the live site since 2026-11-11; the user added that address and `gachasavior-f5987.web.app` to the key, and reset works. Every Genshin page, a character's build card, a weapon page, the Wishes Download dialog, Profile and Features opened with no console errors. On the user's request Save as image now always saves the three-column desktop layout (a hidden 1,200 px copy, a 2,400 px PNG), checked at 375 px. The user called it good to go.)
    - [x] Committed, tagged `v1.1.0`, deployed, and the live pages checked (2026-11-13: release commit `d47af95` tagged `v1.1.0`, README AI disclosure `429d140`, both pushed. The first `npx vercel --prod` was blocked because Vercel couldn't match the GitHub noreply commit email to the Vercel account; it deployed once the user connected GitHub in Vercel. Live: 16 pages return 200, `/characters` redirects, the old lookup route is 404, the new login and reset routes answer correctly, the account routes refuse requests without a sign-in, and the security headers plus Vercel's HSTS are sent. The user published `firestore.rules` in the console and logged in with their username on the live site. GitHub release "Gacha Savior Updated 1.1" published on `v1.1.0`.)
 
+## Phase 7: Version 1.2
+
+> **Planned (2026-11-15).** Version 1.1.1 is live. The user picked six ideas for 1.2: four everyday helpers built on data the site already has, a quick search, and one shareable feature. Four additions borrowed from other companion sites (paimon.moe, Genshin Optimizer, Akasha) were then folded into them, and coming-soon characters on the roster were added. Like Phase 6, nothing here needs a paid Firebase plan; notes and tags, keep marks and possibly the farming ticks add fields to the Genshin document. The other ideas are under [Later](#later).
+
+### Today's farming list
+
+Talent books and weapon ascension materials drop only on certain weekdays. Using the plans saved in the planner, show what's worth farming today: "Tuesday: Freedom books for Chevreuse and Kazuha (Domain of Mastery: Frosted Altar)", or "Nothing on your plans drops today" with the next day that has something.
+
+- The weekdays and domain names come from genshin-db at build time (`daysOfWeek` and `dropDomainName` on each material; checked for Teachings of Freedom and Tile of Decarabian's Tower), added to the cost data by `scripts/build-game-data.mjs`.
+- Only materials still missing count. A plan that's fully covered drops off the list.
+- The day turns over at 4 AM server time, using the UID's server where one is saved (the same mapping as `uigfTimezone`), and the browser's local time otherwise, labeled that way.
+- Where it sits (the Planner tab, the Genshin overview, or both) is a mockup choice.
+- **A to-do list you tick off** (an idea from paimon.moe's to-do list): each line has a checkbox ("Freedom books done today"), and the ticks clear at the same 4 AM turnover. Whether ticks are saved with the account (every device) or in the browser (this device only) is a mockup choice.
+
+### Artifact cleanup
+
+Help with a 1,700-piece inventory by pointing out pieces that are likely safe to feed or throw away. Plain facts only, never a verdict on what a character needs:
+
+- **Beaten by another piece:** another piece you own of the same set, slot, main stat and rarity is at least as high a level and has more CV.
+- **Unleveled and weak:** level 0 with little CV from its starting substats.
+- **Low rarity:** 4★ and below (often kept as fodder).
+- **Locked pieces are never listed**, and equipped pieces are listed only with their wearer named. The GOOD export already carries `lock` and `location`.
+- It's a filter or view on the Artifacts page, paged like the rest of the inventory. Its exact shape is a mockup choice.
+- The site only lists pieces. Nothing is deleted, since the data comes from the export.
+- **Worth leveling?** (an idea from Genshin Optimizer, without its build search): for a piece below +20, the lowest and highest Total CV it could still reach, from its current substats, the upgrades it has left (one every 4 levels; a piece that starts with three lines spends its first on a fourth) and the game's roll values. Plain math, shown as a range ("CV 12.4 now, 12.4–55.2 at +20"), never a prediction.
+- **Keep marks:** mark a piece "Keep" on the site and cleanup stops listing it, even when it isn't locked in-game. Saved with the account. GOOD has no artifact ids, so a mark is matched to the piece the way upload changes match artifacts (`uploadChanges.ts`: set, slot, rarity, main stat, then a piece it could have been leveled into); a mark whose piece can't be found after a new upload is dropped and the count of dropped marks is shown.
+
+### Notes and tags on characters
+
+Your own words on your own characters: a short note ("waiting on a better goblet") and tags you make up ("Abyss team A", "favorites"), shown on the character page and filterable on the roster.
+
+- Saved with the account as one map on the Genshin document, keyed by character, like `plans`. Kept through new uploads. Check whether `firestore.rules` needs a change (plans needed none).
+- Limits on note length and tag count, so the document stays small.
+- Where the note goes on the character page, and how tags look on roster tiles, are mockup choices.
+
+### Spare weapon copies
+
+Weapons you own more than one copy of: how many are equipped and how many are spare, and what refining with the spares would reach ("3 Favonius Swords: 1 on Bennett, 2 spare. Could refine one to R3"). It uses the export's `location`, `lock` and `refinement`, and leaves locked copies out of the spare count. It goes on the Weapons page, each weapon's page, or both (mockup choice).
+
+### Quick search
+
+One search box for any character, weapon, artifact set or material, which jumps to its page. It opens with Ctrl+K (⌘K on Mac) and from a search button in the header, which also covers phones.
+
+- Built with shadcn's Command component (cmdk), credited in the README.
+- Searches the game's names, not raw keys, and marks what you own.
+- Works signed out, for the game data pages.
+
+### Year in review
+
+A one-page recap of the year, which you can save as an image like the build card (html-to-image is already a dependency): wishes and Primogems spent, 5★s pulled, the luckiest pull (lowest pity), the longest dry streak, the 50/50 record, and the month with the most wishes.
+
+- The numbers come from the stored wish history, so it needs no new storage. Account facts (characters owned, best Total CV) come from the current upload. The site keeps only one earlier upload (`previousBuilds`), so it can't show growth across the year, and the page won't claim it does.
+- It names no other product. It's called "Year in review".
+- Which year to show (the calendar year, or a picker for every year the history covers), where it's reached from, and the image layout are mockup choices.
+- With no wish history, it explains how to import one.
+- **Luck compared with the odds** (inspired by Akasha's percentiles, without other players' data): "Your 5★s came at 58 wishes on average. The expected average is about 62, so you were luckier than about 60% of players." The expected numbers come from the game's published rates (0.6% base, a guaranteed 5★ by 90) plus soft pity from about wish 74, which HoYoverse doesn't publish; that part is community-measured, so the page calls it an estimate and the README credits its source. The percentile is worked out exactly from that model for the number of 5★s pulled, not from any other users.
+
+### Coming soon characters
+
+Upcoming characters on the character roster, so players see what's next: each shows only a portrait, the name and the version number ("7.3"). They aren't links, have no page, and can't be added to the showcase or planner.
+
+- The user says which characters to show, and provides the portraits, when they're announced. They're hand-written data, not from genshin-db, kept in a small file of their own.
+- Labeled as coming soon so they never look owned or released, in line with "Be honest about what's real".
+- When `npm run data:genshin` brings in the patch and the character exists in genshin-db, they leave the coming-soon list and become normal characters.
+- Where they sit on the roster (a strip above the grid, or the end of the grid) and how "coming soon" looks are mockup choices.
+- Portraits are HoYoverse artwork, covered by the README's existing game content credit.
+
+### Splash art on character pages
+
+Each character's page shows their full splash art, the large character artwork from the HoYoLAB wiki (added at the user's request, 2026-11-15). Phase 6 left this out of the build card, since it needed new images; the first version of the build card kept the portraits.
+
+- **Source:** each character's entry on the HoYoLAB wiki (for example Vodyanitsa, entry 11702). The example file is a 2,048×1,024 PNG with a see-through background (1.7 MB, or 318 KB when the wiki serves it as WebP), so it sits well on both light and dark pages and on an element tint.
+- **Size:** about 125 of these as PNGs would add roughly 200 MB to the repo, and even as full-size WebP about 40 MB. So a script (`npm run images:splash`, like the icon scripts) downloads only missing ones, scales them down to the width the page needs and saves them as WebP. Linking straight to HoYoverse's servers instead would add nothing to the repo, but the page would break whenever they move a file, so it's not the plan.
+- **Finding the files:** genshin-db has no splash art link (only a few characters have `cover1`/`cover2`), so the script needs each character's wiki entry. The logic step settles whether the wiki can be read by a script, or whether the user gives the links by hand like the 7.3 portraits.
+- **The Traveler** has two (Aether and Lumine); which one shows is a mockup choice. A character with no splash yet keeps today's page.
+- Where it sits (a banner at the top of the page, beside the details, or behind them), how it looks on phones, and whether the build card's Save as image uses it are mockup choices.
+- Splash art is HoYoverse artwork, covered by the README's game content credit.
+
+**Done when** the farming list matches the in-game weekdays for a few hand-checked materials and its ticks clear at the turnover, the cleanup view lists only pieces that meet its rules and never a locked or kept one, the "worth leveling" ranges match hand-worked examples, notes and tags survive a reload and a new upload, spare copies match the export for a few hand-checked weapons, search reaches every kind of page with the keyboard alone, the year in review's numbers match the Wishes page for the same year, and coming-soon characters show only portrait, name and version and can't be clicked, all in light, dark and phone width.
+
+### Steps, and what finished means for each
+
+A step is finished only when every box is checked. Each check is verified (run, opened or read back), not assumed, and the step's report lists the boxes with what showed each one. Steps 1 to 8 don't depend on each other, so the user picks which comes first.
+
+1. **Today's farming list**
+   - [ ] `npm run data:genshin` writes the weekdays and domain for every talent book and weapon material; a few hand-checked against the game
+   - [ ] Logic with unit tests: missing materials only, the 4 AM turnover by server, Sunday's "everything is open", the next day with something when today has nothing, ticks clearing at the turnover
+   - [ ] Mockup with option toggles at the top (including where ticks are saved), and the user's pick
+   - [ ] Built and checked on `dev:emu` in light, dark and phone width: ticks kept after a reload and cleared after the turnover (by changing the clock in a test), no console errors
+2. **Artifact cleanup**
+   - [ ] Logic with unit tests for each rule, including locked, equipped and kept pieces
+   - [ ] "Worth leveling" ranges with unit tests: three-line and four-line starts, a +16 piece, a maxed piece, and a few worked by hand against the game's roll values
+   - [ ] Keep marks with unit tests: a kept piece still found after a new upload where it was leveled, and a dropped mark counted when it's gone
+   - [ ] Mockup and the user's pick
+   - [ ] Built and checked on `dev:emu` with a large export: a few listed pieces hand-checked against their reason, a Keep mark saved, kept after a reload and a new upload and read back from Firestore, paging works, light, dark and phone width
+3. **Notes and tags**
+   - [ ] Mockup and the user's pick
+   - [ ] Built, with the rules checked (and published with the release if changed); limits enforced
+   - [ ] Checked on `dev:emu`: saved, kept after a reload and a new upload, read back from Firestore, roster filter works, light, dark and phone width
+4. **Spare weapon copies**
+   - [ ] Logic with unit tests (equipped, spare, locked, refinement reached, R5 copies)
+   - [ ] Mockup and the user's pick
+   - [ ] Built and checked on `dev:emu` against the export for a few weapons, light, dark and phone width
+5. **Quick search**
+   - [ ] Mockup and the user's pick
+   - [ ] Built, with cmdk credited in the README; no raw keys shown
+   - [ ] Checked on `dev:emu`: Ctrl+K and the header button open it, keyboard-only reaches a character, weapon, artifact set and material, Escape returns focus, works signed out, axe-core clean, light, dark and phone width
+6. **Year in review**
+   - [ ] Logic with unit tests: totals, luckiest pull, longest dry streak and busiest month for a year
+   - [ ] Luck model with unit tests: the expected average pity matches the soft-pity source, and the percentile for a few cases matches a simulation; the source credited in the README
+   - [ ] Mockup and the user's pick
+   - [ ] Built and checked on `dev:emu`: numbers match the Wishes page for the same year, the luck line says it's an estimate, Save as image comes out right, no-history state, light, dark and phone width
+7. **Coming soon characters**
+   - [x] The user has given the characters, their version numbers and portraits (2026-11-15: Anastasya and Danica for 7.3, portraits from HoYoLAB's character wiki, downloaded as 256×256 PNGs like the others; the user chose to keep the existing portraits rather than replace them all)
+   - [x] Mockup and the user's pick (`.mockups/coming-soon.html`: where A strip above / B first in the grid / C strip below, look 1 dashed frame / 2 "Soon" badge / 3 grayed out, with no filters, filtered and signed out; 108 combinations checked with no overflow, broken images or focusable tiles). The user picked **A2** (2026-11-15)
+   - [x] Built: portrait, name and version only; not a link, not focusable, not in the showcase picker, planner or search; labeled coming soon (2026-11-15: `COMING_SOON` and `upcomingCharacters` in `src/lib/genshin/comingSoon.ts`, `ComingSoonStrip` in the roster page; the strip is a list, not buttons or links, and isn't part of `GENSHIN_CHARACTERS`, so no other list sees it; e2e check added to the signed-out roster test, not run)
+   - [x] A test (unit or e2e) shows a coming-soon character that's now on the roster is no longer listed as coming soon (2026-11-15: 3 unit tests in `comingSoon.test.ts`, 98 in all pass)
+   - [x] Checked on `dev:emu` signed in and signed out, light, dark and phone width, with no console errors (2026-11-15: signed out, "Coming in version 7.3" with both portraits loaded and 0 focusable elements; Hydro, Not owned and Owned hide it and All brings it back; dark at 375 px with no sideways scroll; signed in as `copytest`, the strip sits above all 124 owned characters and "Skip to characters" still focuses Aino; no console or server errors; lint, type check and unit tests pass)
+8. **Splash art on character pages**
+   - [ ] A script downloads each character's splash art from the HoYoLAB wiki (or from links the user gives), skips ones already saved, and saves scaled-down WebP files; the total size is reported and agreed with the user before committing (2026-11-15: `npm run images:splash` (`scripts/fetch-splash-art.mjs`) reads the wiki's public page API (the character list, then each page's Gallery "Avatar" picture), saves `public/character-splash/<key>.webp` at 1,024 px wide and lists them in `src/data/genshin/splashArt.json`; 23.7 MB for all 124 (33.5 MB at 1,280 px); 29.4 MB after cropping. Waiting on the user's OK for the size)
+   - [x] Every character on the roster has splash art, or is listed as missing with the reason (2026-11-15: all 124; the wiki's "Manekin" is mapped to the Wonderland Manekin; the wiki's seven element Travelers, Manekina and the two unreleased characters are reported as not on the roster)
+   - [ ] Mockup with option toggles at the top (where it sits, phones, the Traveler, the build card), and the user's pick (2026-11-15: `.mockups/splash-art.html`, 1 where: A banner on top / B beside the info / C behind the info, 2 background: element tint / indigo / none, 3 phones: show shorter / hide, 4 build card: keep portrait / use splash art; Furina, Vodyanitsa, Zhongli, the Traveler and Clorinde for the range of shapes; 960 combinations checked with no overflow or broken images. The Traveler's art shows Aether and Lumine together, so no pick is needed. The user picked **B** beside the info, **no background**, **shown shorter on phones**, and for the build card **let the player choose** (2026-11-15))
+   - [x] Built; a character without splash art keeps today's page; images load lazily and don't push the page's main content down while loading (2026-11-15: `getSplashArt` in `src/lib/genshin/splashArt.ts`; the About panel's right column from `lg` (416 × 320 px) and under the info below it (224 px tall), a fixed-height box with `object-contain`, lazy by default; the build card's Portrait / Splash art choice, saved as `showcaseOptions.buildCardPicture` (no rules change), on the Featured card and the character page's dialog, kept out of the saved PNG; e2e test extended, not run)
+   - [x] Bigger art (the user's request after trying it, 2026-11-15: wide art like Alyosha's showed too small). Mockup `.mockups/splash-size.html`: layout Today / A half width beside the info and numbers / B half width beside the info only, the numbers in one row or with the talents under Level, Const. and Ascension, empty see-through edges kept or cropped (cropping shrinks Alyosha's 1,024 × 512 to 519 × 475 of actual picture; half the characters lose at least 15%), and sliders for the art's width, height and phone height; 8 characters; 1,152 combinations checked with no overflow or broken images. The user picked **A**, **talents under Level**, **cropped**, at their slider values: width 51%, height 540 px, phone 270 px (2026-11-15)
+   - [x] Built (2026-11-15): `images:splash` crops the empty edges from the wiki's full-size file, then fits 1,024 px (29.4 MB for all 124, up from 23.7 MB since the cropped art keeps more detail), and names each file with a content fingerprint so `/_next/image` never shows a stale picture; the About panel's grid puts the art in the right 51%, 540 px tall, beside the info and the numbers, which go to two rows (`twoRows`); 270 px between the info and the numbers below `lg`. Checked on `dev:emu` with `copytest`: Alyosha (dark, 1280 px, art 580 × 540), Zhongli with a talent's description open in the left column, Illuga at 375 px (270 px, no sideways scroll), Vodyanitsa in light at 900 px; then, at the user's request, 440 px on tablets (`sm` up; checked at 768 px, phone still 270 and desktop still 540); the build card's splash art made bigger at the user's request (270 × 380 px, the weapon column 230 px; artifact cards measured at 205 px tall with either picture, so nothing wraps; saved PNG checked; 288 px square stacked on tablets, full width on phones); a normal rerun of the script skips all 124; no new console errors; lint, type check and 98 unit tests pass
+   - [x] Build card placement (the user's request, 2026-11-15: still not happy with the build and Featured cards' splash art). Mockup `.mockups/build-card-splash.html`: Today (270 × 380 px in the first column), A art over the pieces in the right column (497 × 270 px, the portrait back in the first column), B art fills the right column (497 × 658 px in the dialog, 610 × 658 in the saved image) with the pieces in one row of five across the bottom, C a banner across the top (about 490 × 340 px), D a tall strip of art as the first column; dialog, saved image, tablet and phone widths; 7 characters; 280 combinations checked with no overflow or broken images. The user picked **B**, with the portrait added to the card and the Portrait / Splash art choice removed (2026-11-15). Second mockup `.mockups/build-card-b.html` for where the portrait goes: 1 above the name at 160 px, 2 beside the name at 72 px, 3 a 96 px badge on the art's corner; the desktop card is 1,061 px tall with each; 336 combinations checked with no overflow or broken images. The user picked **1** above the name (2026-11-15). Built: `BuildCard` puts the art in the third column and the pieces in a row of five when the character has splash art, and stacks the art first below `xl`; the `picture` / `onPictureChange` props, the Portrait / Splash art choice and `showcaseOptions.buildCardPicture` are removed. Checked on `dev:emu`: Alyosha's dialog at 1280 px (art 497 × 690 px, portrait 160 px, the five pieces 201 × 205 px each with nothing wrapping, no choice shown), the saved PNG 2,400 × 2,142 px (one row of pieces), the overview's Featured card (Skirk, art 547 × 693 px) and at 768 px (art 599 × 380 px on top, pieces in rows of three) and 375 px (art 293 × 300 px, pieces one per row), no sideways scroll; lint and type check pass; the e2e test now checks both pictures in the dialog (not run)
+   - [x] Checked on `dev:emu` with several characters (a 5★, a 4★, the Traveler, the newest one) in light, dark and phone width, with no sideways scroll or console errors (2026-11-15 with `copytest`: Furina at 1280 px light (416 × 320 column, nothing below moved), Zhongli, the Traveler in dark at 375 px (Aether and Lumine under the info, 224 px tall, no sideways scroll); the build card switched to Splash art, its Save as image PNG (2,400 × 1,522, shown on the page, not downloaded) had the splash art and no Portrait / Splash buttons; the choice carried to the overview's Featured card after a full load, switched back there, and Firestore read back `buildCardPicture: "portrait"`; no console errors on fresh loads (two seen earlier came from hot reload mid-edit))
+9. **Tests and docs**
+   - [ ] `npm test`, lint, `npx tsc --noEmit` and `npm run build` pass
+   - [ ] E2E specs updated for the new pieces, run when the user asks
+   - [ ] `docs/ARCHITECTURE.md`, `CLAUDE.md`, the home page feature cards and the README credits describe what was built
+10. **Release** (only when the user asks)
+   - [ ] Security audit (run 3), with the findings shown to the user before anything is fixed
+   - [ ] `package.json` set to 1.2.0, the README's version line updated, and a "Version 1.2, Month YYYY" step added to the About page's timeline
+   - [ ] Test build served on localhost for the user to check
+   - [ ] Committed, tagged `v1.2.0`, deployed, the live pages checked, and a GitHub release published
+
 ---
 
 ## Later
@@ -592,6 +730,19 @@ Ideas that came up but aren't scheduled yet:
 - **Per-character artifact scoring**: weighting substats by what each character wants, shown next to CV.
 - **Honkai: Star Rail and Zenless Zone Zero**, using the `games/{gameId}` structure from Phase 1.
 - **Public profiles**: a shareable read-only page for a user's showcase.
+
+Kept for a later release from the 1.2 ideas list (2026-11-15):
+
+- **Collection progress**: percent owned by element, region and rarity, with milestones such as "every Mondstadt character" or "all 4★s at C6".
+- **Account timeline**: a small summary saved with each upload (counts, Total CV, levels), shown as a chart of how the account grew, and linked to wish dates. It would also let the year in review show growth.
+- **Pull savings planner**: from your Primogems, fates, pity and guarantee, plus chosen income, estimate how many wishes you'll have by a date. Close to calculator ground, so it needs a decision against PRODUCT.md first.
+- **Imaginarium Theater roster check**: which of your built characters fit this season's elements. The season data would be hand-written each time.
+- **Installable app (PWA)**: add to home screen, with the last-loaded data readable offline.
+- **Spreadsheet export** of the roster and artifacts, using the xlsx code the wish import already has.
+- **Banner timeline with your pulls on it** (paimon.moe has a timeline): past banners with your pulls marked. Needs a banner list as a data source.
+- **Achievement checklist** (paimon.moe): ticked by hand, since GOOD exports have no achievements. Big; a maybe.
+- **Daily-reset countdown** ("Resets in 3h 12m") beside the farming list. No resin timers, which would be calculator ground.
+- **Showcase import by UID** (Enka.Network style): would read the public in-game showcase through a server route, which goes against PRODUCT.md's "the site doesn't connect to game accounts". Only if that rule changes.
 
 ## Open questions
 

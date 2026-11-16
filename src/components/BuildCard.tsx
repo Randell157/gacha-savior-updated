@@ -11,6 +11,7 @@ import { ELEMENT_CHIP } from "@/components/CharacterGameInfo";
 import WeaponIcon from "@/components/WeaponIcon";
 import { Button } from "@/components/ui/button";
 import { getCharacterDetails } from "@/lib/genshin/characterDetails";
+import { getSplashArt } from "@/lib/genshin/splashArt";
 import { SLOT_ORDER, artifactTotals, totalCritValue } from "@/lib/genshin/showcaseBuild";
 import { formatSlotName, formatStatName, isPercentStat } from "@/lib/genshin/stats";
 import type { GoodArtifact, GoodCharacter, GoodWeapon } from "@/lib/genshin/types";
@@ -160,6 +161,10 @@ function CardFace({
   const talent = char.talent;
   const weaponStats = weapon ? getWeaponStats(weapon.key, weapon.level, weapon.ascension ?? 0) : null;
   const passive = weapon ? getWeaponPassive(weapon.key, weapon.refinement) : null;
+  // Layout "B" from `.mockups/build-card-splash.html`, with the portrait above the name (option 1 of
+  // `.mockups/build-card-b.html`): the splash art fills the third column and the five pieces move to a
+  // row across the bottom. A character without splash art keeps the three-column card.
+  const splash = getSplashArt(char.key);
 
   return (
       <div
@@ -169,7 +174,7 @@ function CardFace({
         <div className={cn("h-1.5", (element && ELEMENT_BAND[element]) || "bg-indigo-500")} aria-hidden="true" />
         <div className={cn("flex flex-wrap items-start justify-between gap-3 pt-4", wide ? "px-5" : "px-4 sm:px-5")}>
           <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-slate-400">{label}</p>
-          <div className="flex items-start gap-3">
+          <div className="flex flex-wrap items-start justify-end gap-3">
             {onSave && (
               <Button type="button" variant="outline" size="sm" onClick={onSave} disabled={saving}>
                 <Download className="mr-1.5 h-4 w-4" aria-hidden="true" />
@@ -194,14 +199,14 @@ function CardFace({
           {/* The character */}
           <div className={wide ? "block" : "flex flex-wrap gap-4 xl:block"}>
             <div
-              className={cn(
-                "relative flex-none overflow-hidden rounded-xl",
-                wide ? "h-40 w-40" : "h-32 w-32 xl:h-40 xl:w-40",
-                rarityBackground(rarity)
-              )}
-            >
-              <Image src={getCharacterPortrait(char.key)} alt="" fill sizes="160px" className="object-cover" />
-            </div>
+                className={cn(
+                  "relative flex-none overflow-hidden rounded-xl",
+                  wide ? "h-40 w-40" : "h-32 w-32 xl:h-40 xl:w-40",
+                  rarityBackground(rarity)
+                )}
+              >
+                <Image src={getCharacterPortrait(char.key)} alt="" fill sizes="160px" className="object-cover" />
+              </div>
             <div className="min-w-0 flex-1">
               <NameHeading
                 className={cn(
@@ -363,13 +368,31 @@ function CardFace({
             )}
           </div>
 
+          {/* The splash art: the third column beside the character and weapon; on top when stacked. Any shape fits inside. */}
+          {splash && (
+            <div
+              className={cn(
+                "relative w-full overflow-hidden",
+                wide ? "min-h-[560px]" : "order-first h-[300px] sm:h-[380px] xl:order-none xl:h-auto xl:min-h-[560px]"
+              )}
+            >
+              <Image src={splash} alt="" fill sizes="(min-width: 1280px) 520px, 100vw" className="object-contain" />
+            </div>
+          )}
+
           {/* The pieces */}
-          <section className="min-w-0">
+          <section className={cn("min-w-0", splash && (wide ? "col-span-3" : "xl:col-span-3"))}>
             <SectionHeading className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-slate-400">Artifacts</SectionHeading>
             <div
               className={cn(
                 "grid gap-2.5",
-                wide ? "grid-cols-3" : "grid-cols-1 min-[420px]:grid-cols-2 sm:grid-cols-3"
+                splash
+                  ? wide
+                    ? "grid-cols-5"
+                    : "grid-cols-1 min-[420px]:grid-cols-2 sm:grid-cols-3 xl:grid-cols-5"
+                  : wide
+                    ? "grid-cols-3"
+                    : "grid-cols-1 min-[420px]:grid-cols-2 sm:grid-cols-3"
               )}
             >
               {SLOT_ORDER.map((slot) => {

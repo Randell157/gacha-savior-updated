@@ -40,6 +40,7 @@ import {
   normalizeCharacterKey,
   rarityBackground,
 } from "@/lib/genshinCharacters";
+import { COMING_SOON, upcomingCharacters } from "@/lib/genshin/comingSoon";
 import type { GoodCharacter } from "@/lib/genshin/types";
 
 /**
@@ -70,6 +71,60 @@ function BuildLines({ character, sortField }: { character: GoodCharacter; sortFi
         , level {level}, constellation {constellation}
         {talent && `, talents: Normal Attack ${talent.auto}, Skill ${talent.skill}, Burst ${talent.burst}`}
       </span>
+    </>
+  );
+}
+
+/**
+ * Characters announced for the next update (design "A2" from `.mockups/coming-soon.html`):
+ * portrait, name and version only. Not links and not focusable, since they have no page yet.
+ */
+function ComingSoonStrip() {
+  const groups = useMemo(
+    () => upcomingCharacters(COMING_SOON, GENSHIN_CHARACTERS.map((c) => c.key)),
+    []
+  );
+  if (groups.length === 0) return null;
+  return (
+    <>
+      {groups.map(({ version, characters }) => (
+        <section
+          key={version}
+          aria-labelledby={`coming-soon-${version}`}
+          className="mb-6 rounded-lg border border-indigo-100 bg-indigo-50/40 p-3 dark:border-indigo-900 dark:bg-indigo-950/30"
+        >
+          <h2 id={`coming-soon-${version}`} className="text-sm font-semibold text-indigo-900 dark:text-indigo-200">
+            Coming in version {version}
+          </h2>
+          <p className="mb-2 text-xs text-gray-500 dark:text-slate-400">
+            Announced by HoYoverse. They join the roster when the update is out.
+          </p>
+          <ul className="flex flex-wrap gap-2 sm:gap-4">
+            {characters.map((character) => (
+              <li key={character.name} className="flex w-[6.5rem] sm:w-[7.5rem] flex-col items-center p-2">
+                <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden ring-1 ring-indigo-100 dark:ring-indigo-900 bg-indigo-50 dark:bg-slate-800">
+                  <Image
+                    src={`/character-portraits/${character.iconFile}`}
+                    alt=""
+                    fill
+                    sizes="(min-width: 640px) 96px, 80px"
+                    className="object-cover"
+                  />
+                  <span
+                    aria-hidden
+                    className="absolute right-1 top-1 rounded bg-indigo-600 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white"
+                  >
+                    Soon
+                  </span>
+                </div>
+                <span className="mt-2 w-full text-center text-xs sm:text-sm font-medium leading-tight text-gray-800 dark:text-slate-200">
+                  {character.name}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
     </>
   );
 }
@@ -205,6 +260,8 @@ export default function CharactersPage() {
           .filter(Boolean)
           .join(" ")}
       </p>
+      {/* They have no element, weapon or build to match, so they step aside while anything narrows the roster. */}
+      {activeFilterCount(filters) === 0 && ownedFilter === "all" && !search.trim() && <ComingSoonStrip />}
       {roster.length === 0 ? (
         <p className="text-sm text-gray-500 dark:text-slate-400 mb-6">
           <NoMatches
