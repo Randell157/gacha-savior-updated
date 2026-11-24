@@ -15,6 +15,10 @@ export interface MaterialCosts {
   characters: Record<string, { ascend: CostStep[]; talent: CostStep[] | null }>;
   travelerTalents: Record<string, CostStep[]>;
   weapons: Record<string, CostStep[]>;
+  /** For today's farming list (`farming.ts`): [domain entrance name, region] */
+  domains: [string, string][];
+  /** Place in `materials` → [weekday bits, Sunday as bit 0; place in `domains`], for talent books and weapon materials */
+  farming: Record<string, [number, number]>;
 }
 
 /**

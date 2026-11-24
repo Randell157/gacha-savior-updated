@@ -22,6 +22,7 @@ import {
 } from "@/lib/genshin/firestoreStore";
 import type { BuildSnapshot } from "@/lib/genshin/showcaseBuild";
 import Showcase from "@/components/Showcase";
+import FarmingToday from "@/components/FarmingToday";
 
 interface GenshinProps {
   data: GenshinData;
@@ -103,6 +104,13 @@ export default function Genshin({
           </Link>
         ))}
       </div>
+
+      {/* Today's farming list reads the signed-in account, so the sample leaves it out. */}
+      {!preview && (
+        <div className="mb-6">
+          <FarmingToday compact />
+        </div>
+      )}
 
       <Showcase
         data={data}

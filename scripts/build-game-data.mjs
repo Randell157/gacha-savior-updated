@@ -297,6 +297,33 @@ for (const name of db.weapons("names", { matchCategories: true })) {
   const steps = Object.keys(w.costs).filter((k) => /^ascend\d$/.test(k)).length;
   weaponCosts[normalize(w.name)] = costSteps(w.costs, "ascend", 1, steps);
 }
+// For today's farming list: the weekdays each talent book and weapon material
+// drops, and its domain. `farming` maps a place in `materials` to [days, domain],
+// days being a bit per weekday as JavaScript's getDay counts them (Sunday is
+// bit 0), and domain a place in `domains`: [entrance name, region], read from
+// the domain itself, since the material only names the domain's inner trial
+// ("Domain of Mastery: Frosted Altar" is entered at Forsaken Rift).
+const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const domains = [];
+const domainIndex = new Map();
+const farming = {};
+const unknownDomains = [];
+costMaterials.forEach(([, name], i) => {
+  const m = db.materials(name);
+  if (!m?.daysOfWeek?.length || !m.dropDomainName) return;
+  const days = m.daysOfWeek.reduce((bits, day) => bits | (1 << WEEKDAYS.indexOf(day)), 0);
+  const domain = db.domains(`${m.dropDomainName} I`) ?? db.domains(m.dropDomainName);
+  if (!domain?.entranceName) {
+    unknownDomains.push(m.dropDomainName);
+    return;
+  }
+  const id = `${domain.entranceName}|${domain.regionName}`;
+  if (!domainIndex.has(id)) {
+    domainIndex.set(id, domains.length);
+    domains.push([domain.entranceName, domain.regionName]);
+  }
+  farming[i] = [days, domainIndex.get(id)];
+});
 writeFileSync(
   "src/data/genshin/materialCosts.json",
   JSON.stringify({
@@ -305,7 +332,13 @@ writeFileSync(
     characters: characterCosts,
     travelerTalents,
     weapons: weaponCosts,
+    domains,
+    farming,
   }) + "\n"
+);
+console.log(
+  `Wrote farming days for ${Object.keys(farming).length} materials in ${domains.length} domains.` +
+    (unknownDomains.length ? ` No entrance found for: ${[...new Set(unknownDomains)].join(", ")}` : "")
 );
 const noTalentCosts = Object.entries(characterCosts).filter(([k, c]) => !c.talent && k !== "traveler").map(([k]) => k);
 console.log(

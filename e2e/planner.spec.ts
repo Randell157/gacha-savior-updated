@@ -50,6 +50,13 @@ test("a character's plan, saved to the Planner tab and added up there", async ({
   await page.reload();
   await expect(page.getByRole("button", { name: /^Remove/ })).toHaveCount(2);
 
+  // Today's farming list: Chevreuse is still 19 Philosophies of Order short, from
+  // Pale Forgotten Glory (Wednesday and Saturday), so it's today's or under "Other days".
+  const farming = page.getByRole("region", { name: /^Today's farming: (Mon|Tues|Wednes|Thurs|Fri|Satur|Sun)day$/ });
+  await expect(farming).toContainText("Pale Forgotten Glory");
+  await expect(farming).toContainText(/for Chevreuse/i);
+  await expect(farming).toContainText(/Resets at 4 AM your time, in \d+ (h|min)/);
+
   // Edit, then remove.
   await page.getByRole("button", { name: "Edit Chevreuse's plan" }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Lower Burst target" }).click();

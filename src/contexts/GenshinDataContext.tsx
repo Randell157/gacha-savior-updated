@@ -11,6 +11,7 @@ import {
   saveShowcases,
   saveShowcaseOptions,
   savePlans,
+  saveFarmingTicks,
   saveTravelerElement,
   type Showcase,
   type NamedShowcase,
@@ -24,6 +25,7 @@ import { parseGoodText } from "@/lib/genshin/parseGood";
 import type { GenshinData } from "@/lib/genshin/types";
 import { snapshotBuilds, type BuildSnapshot } from "@/lib/genshin/showcaseBuild";
 import type { SavedPlan } from "@/lib/genshin/materialPlanner";
+import type { FarmingTicks } from "@/lib/genshin/farming";
 
 // Loads the signed-in user's Genshin upload from Firestore once per login and
 // shares it with every page. Read it through useGenshinData().
@@ -40,6 +42,8 @@ export interface GenshinDataContextValue {
   showcaseOptions: ShowcaseOptions;
   /** The Planner tab's saved plans */
   plans: SavedPlan[];
+  /** Today's farming list's ticks as saved; `currentTicks` clears ones from an earlier game day */
+  farmingTicks: FarmingTicks | null;
   /** True until auth has settled and the user's data has been fetched */
   loading: boolean;
   /** Set when saved data exists but couldn't be loaded */
@@ -56,6 +60,8 @@ export interface GenshinDataContextValue {
   setShowcaseOptions: (options: ShowcaseOptions) => Promise<void>;
   /** Saves the plans; resolves false (and puts the old ones back) if the write fails */
   setPlans: (plans: SavedPlan[]) => Promise<boolean>;
+  /** Saves the farming list's ticks; puts the old ones back if the write fails */
+  setFarmingTicks: (ticks: FarmingTicks) => Promise<void>;
 }
 
 const NO_PLANS: SavedPlan[] = [];
@@ -157,7 +163,8 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
           previous?.showcaseOptions ?? DEFAULT_SHOWCASE_OPTIONS,
           // Kept so the showcase can say what changed since this upload.
           previous ? snapshotBuilds(previous.data) : null,
-          previous?.plans ?? []
+          previous?.plans ?? [],
+          previous?.farmingTicks ?? null
         );
         setState({ uid, stored, error: null, migratedFromLocal: false });
       } catch (error) {
@@ -252,6 +259,22 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
     [uid, current?.stored]
   );
 
+  const setFarmingTicks = useCallback(
+    async (farmingTicks: FarmingTicks) => {
+      const stored = current?.stored;
+      if (!uid || !stored) return;
+      // Update the screen right away, and undo it if the write fails.
+      setState((s) => (s && s.stored ? { ...s, stored: { ...s.stored, farmingTicks } } : s));
+      try {
+        await saveFarmingTicks(uid, farmingTicks);
+      } catch (error) {
+        console.error("Saving farming ticks failed:", error);
+        setState((s) => (s && s.stored ? { ...s, stored: { ...s.stored, farmingTicks: stored.farmingTicks } } : s));
+      }
+    },
+    [uid, current?.stored]
+  );
+
   const value: GenshinDataContextValue = {
     data: current?.stored?.data ?? null,
     showcase: current?.stored?.showcases[0]?.picks ?? emptyShowcase(),
@@ -260,6 +283,7 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
     travelerElement: current?.stored?.travelerElement ?? null,
     showcaseOptions: current?.stored?.showcaseOptions ?? DEFAULT_SHOWCASE_OPTIONS,
     plans: current?.stored?.plans ?? NO_PLANS,
+    farmingTicks: current?.stored?.farmingTicks ?? null,
     loading: authLoading || (!!uid && !current),
     loadError: current?.error ?? null,
     lastUploadedAt: current?.stored?.uploadedAt ?? null,
@@ -270,6 +294,7 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
     setTravelerElement,
     setShowcaseOptions,
     setPlans,
+    setFarmingTicks,
   };
 
   return <GenshinDataContext.Provider value={value}>{children}</GenshinDataContext.Provider>;

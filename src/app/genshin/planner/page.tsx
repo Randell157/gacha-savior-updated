@@ -5,6 +5,8 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import CharacterPicker from "@/components/CharacterPicker";
 import { characterNow, shortCount, targetFrom } from "@/components/CharacterPlan";
+import FarmingToday from "@/components/FarmingToday";
+import { planName, rowsFor, type PlanRow as Row } from "@/components/plannerRows";
 import GenshinShell from "@/components/GenshinShell";
 import MaterialList, { MaterialViewToggle, useMaterialView, type ExpRow } from "@/components/MaterialList";
 import { CharacterTargets, LevelTarget } from "@/components/PlanTargets";
@@ -23,21 +25,17 @@ import {
   combinePlans,
   findPlannedWeapon,
   maxLevel,
-  planCharacter,
   planId,
-  planWeapon,
   removePlan,
   upsertPlan,
   MAX_PLANS,
   type CharacterTarget,
-  type MaterialCosts,
   type Plan,
   type SavedPlan,
 } from "@/lib/genshin/materialPlanner";
-import type { GenshinData, GoodCharacter, GoodWeapon } from "@/lib/genshin/types";
-import { getWeapon, weaponHref, weaponIcon, weaponName } from "@/lib/genshin/weapons";
+import type { GenshinData, GoodWeapon } from "@/lib/genshin/types";
+import { getWeapon, weaponHref, weaponIcon } from "@/lib/genshin/weapons";
 import { getCharacterPortrait, getCharacterRarity } from "@/lib/genshinCharacters";
-import { formatCharacterDisplayName } from "@/lib/utils";
 
 export default function PlannerPage() {
   return (
@@ -54,30 +52,6 @@ function SignedOutPlanner() {
       <EmptyList>Your plans will show up here.</EmptyList>
     </GenshinShell>
   );
-}
-
-/** A saved plan matched to the upload: who or what it's for, and what it still needs. */
-interface Row {
-  saved: SavedPlan;
-  character?: GoodCharacter;
-  weapon?: GoodWeapon;
-  plan: Plan | null;
-}
-
-function rowsFor(saved: SavedPlan[], data: GenshinData, costs: MaterialCosts | null, travelerElement: string | null): Row[] {
-  return saved.map((s) => {
-    if (s.kind === "character") {
-      const character = data.characters.find((c) => c.key === s.key);
-      const plan =
-        character && costs
-          ? planCharacter(costs, character, targetFrom(s, characterNow(character)), data.materials, travelerElement)
-          : null;
-      return { saved: s, character, plan };
-    }
-    const weapon = findPlannedWeapon(data.weapons, s.key, s.location);
-    const plan = weapon && costs ? planWeapon(costs, getWeapon(s.key)?.rarity ?? 5, weapon, s.level, data.materials) : null;
-    return { saved: s, weapon, plan };
-  });
 }
 
 function Planner() {
@@ -170,6 +144,8 @@ function Planner() {
           </p>
         </div>
 
+        <FarmingToday />
+
         {plans.length === 0 ? (
           <EmptyList>
             No plans yet. Add a character or weapon here, or use &ldquo;Add to planner&rdquo; on a character&apos;s or
@@ -242,10 +218,6 @@ function Planner() {
       )}
     </GenshinShell>
   );
-}
-
-function planName(plan: SavedPlan) {
-  return plan.kind === "character" ? formatCharacterDisplayName(plan.key) : weaponName(plan.key);
 }
 
 const talents = (t: CharacterTarget["talent"]) => `${t.auto} / ${t.skill} / ${t.burst}`;
