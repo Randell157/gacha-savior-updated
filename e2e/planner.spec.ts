@@ -57,6 +57,19 @@ test("a character's plan, saved to the Planner tab and added up there", async ({
   await expect(farming).toContainText(/for Chevreuse/i);
   await expect(farming).toContainText(/Resets at 4 AM your time, in \d+ (h|min)/);
 
+  // Switching Chevreuse off leaves her card but drops her from the totals and the farming list.
+  const chevreuseSwitch = page.getByRole("switch", { name: "Count Chevreuse in the totals" });
+  await chevreuseSwitch.click();
+  await expect(chevreuseSwitch).toHaveAttribute("aria-checked", "false");
+  await expect(total.getByText("1 of 2 plans added up (1 switched off), against your last upload")).toBeVisible();
+  await expect(farming).not.toContainText("Pale Forgotten Glory");
+  await expect(page.getByRole("switch", { name: /^Characters/ })).toHaveAttribute("aria-checked", "false");
+  await page.reload();
+  await expect(chevreuseSwitch).toHaveAttribute("aria-checked", "false");
+  await page.getByRole("switch", { name: /^Characters/ }).click();
+  await expect(chevreuseSwitch).toHaveAttribute("aria-checked", "true");
+  await expect(total.getByText("All 2 plans added up, against your last upload")).toBeVisible();
+
   // Edit, then remove.
   await page.getByRole("button", { name: "Edit Chevreuse's plan" }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Lower Burst target" }).click();

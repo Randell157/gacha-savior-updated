@@ -307,11 +307,12 @@ export function planWeapon(
  * A plan saved with the account (the Planner tab): a character with a target
  * level and talents, or a weapon with a target level. A weapon is picked by
  * its key and who holds it (null for an unequipped copy), since exports have
- * no weapon ids.
+ * no weapon ids. `off` is set (only ever `true`) on a plan switched off on the
+ * Planner tab: it keeps its card but leaves the totals and the farming list.
  */
 export type SavedPlan =
-  | { kind: "character"; key: string; level: number; talent: { auto: number; skill: number; burst: number } }
-  | { kind: "weapon"; key: string; location: string | null; level: number };
+  | { kind: "character"; key: string; level: number; talent: { auto: number; skill: number; burst: number }; off?: true }
+  | { kind: "weapon"; key: string; location: string | null; level: number; off?: true };
 
 export const MAX_PLANS = 20;
 
@@ -340,6 +341,7 @@ export function normalizePlans(value: unknown): SavedPlan[] {
       plan = { kind: "weapon", key: entry.key, location, level };
     }
     if (!plan) continue;
+    if (entry.off === true) plan.off = true;
     const id = planId(plan);
     if (seen.has(id)) continue;
     seen.add(id);
@@ -354,12 +356,36 @@ export function planId(plan: SavedPlan): string {
   return plan.kind === "character" ? `character:${plan.key}` : `weapon:${plan.key}:${plan.location ?? ""}`;
 }
 
-/** Adds a plan, or replaces the one for the same character or weapon in place. */
+/**
+ * Adds a plan, or replaces the one for the same character or weapon in place.
+ * A replaced plan stays switched off if it was, since editing targets isn't
+ * switching it back on.
+ */
 export function upsertPlan(plans: SavedPlan[], plan: SavedPlan): SavedPlan[] {
   const id = planId(plan);
   const i = plans.findIndex((p) => planId(p) === id);
-  if (i >= 0) return plans.map((p, j) => (j === i ? plan : p));
+  if (i >= 0) return plans.map((p, j) => (j === i ? withOff(plan, p.off === true) : p));
   return plans.length >= MAX_PLANS ? plans : [...plans, plan];
+}
+
+/** Whether a plan counts toward the totals and the farming list. */
+export const isPlanOn = (plan: SavedPlan) => plan.off !== true;
+
+/** A copy with `off` set, or left out entirely when on (Firestore refuses undefined fields). */
+function withOff(plan: SavedPlan, off: boolean): SavedPlan {
+  const { off: _old, ...rest } = plan;
+  return off ? { ...rest, off: true } : rest;
+}
+
+/** Switches one plan on or off. */
+export function setPlanOn(plans: SavedPlan[], plan: SavedPlan, on: boolean): SavedPlan[] {
+  const id = planId(plan);
+  return plans.map((p) => (planId(p) === id ? withOff(p, !on) : p));
+}
+
+/** Switches every character plan, or every weapon plan, on or off. */
+export function setKindOn(plans: SavedPlan[], kind: SavedPlan["kind"], on: boolean): SavedPlan[] {
+  return plans.map((p) => (p.kind === kind ? withOff(p, !on) : p));
 }
 
 export function removePlan(plans: SavedPlan[], plan: SavedPlan): SavedPlan[] {

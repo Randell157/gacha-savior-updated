@@ -7,6 +7,9 @@ import {
   findPlannedWeapon,
   MAX_PLANS,
   normalizePlans,
+  isPlanOn,
+  setKindOn,
+  setPlanOn,
   removePlan,
   upsertPlan,
   type SavedPlan,
@@ -209,4 +212,34 @@ test("combinePlans adds needs up before comparing with what you have", () => {
   assert.equal(total.characterExp?.have, 200000);
   assert.equal(total.weaponExp?.need, weaponExp(5, 80, 90));
   assert.equal(need({ materials: total.materials, exp: null }, "Mora"), need(furina, "Mora") + need(neuvillette, "Mora") + need(harp, "Mora"));
+});
+
+test("plans switched off are read back, kept through edits, and switched one by one or by kind", () => {
+  const furina: SavedPlan = { kind: "character", key: "Furina", level: 90, talent: ten };
+  const kazuha: SavedPlan = { kind: "character", key: "KaedeharaKazuha", level: 90, talent: ten };
+  const lance: SavedPlan = { kind: "weapon", key: "FavoniusLance", location: "Iansan", level: 90 };
+
+  // Saved and read back; anything but true reads as on.
+  const read = normalizePlans([{ ...furina, off: true }, { ...kazuha, off: "yes" }, lance]);
+  assert.deepEqual(read.map(isPlanOn), [false, true, true]);
+  assert.equal(read[0].off, true);
+  assert.equal("off" in read[1], false);
+
+  // One plan off and back on; "on" leaves no off field, since Firestore refuses undefined.
+  const off = setPlanOn([furina, kazuha, lance], kazuha, false);
+  assert.deepEqual(off.map(isPlanOn), [true, false, true]);
+  const back = setPlanOn(off, kazuha, true);
+  assert.deepEqual(back, [furina, kazuha, lance]);
+  assert.equal("off" in back[1], false);
+
+  // Editing a plan's targets keeps it off.
+  const edited = upsertPlan(off, { ...kazuha, talent: one });
+  assert.equal(edited[1].off, true);
+  assert.deepEqual(edited[1].kind === "character" && edited[1].talent, one);
+
+  // Every character at once; weapons untouched. Then all back on.
+  const noCharacters = setKindOn([furina, kazuha, lance], "character", false);
+  assert.deepEqual(noCharacters.map(isPlanOn), [false, false, true]);
+  assert.deepEqual(setKindOn(noCharacters, "character", true), [furina, kazuha, lance]);
+  assert.deepEqual(setKindOn([furina, lance], "weapon", false).map(isPlanOn), [true, false]);
 });

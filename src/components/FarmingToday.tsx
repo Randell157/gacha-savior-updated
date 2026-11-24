@@ -17,7 +17,7 @@ import {
   type FarmingGroup,
   type FarmingPlan,
 } from "@/lib/genshin/farming";
-import type { SavedPlan } from "@/lib/genshin/materialPlanner";
+import { isPlanOn, type SavedPlan } from "@/lib/genshin/materialPlanner";
 import { uigfTimezone } from "@/lib/genshin/wishes";
 import { getWeapon, weaponIcon, weaponName } from "@/lib/genshin/weapons";
 import { getCharacterPortrait, getCharacterRarity } from "@/lib/genshinCharacters";
@@ -84,7 +84,9 @@ export default function FarmingToday({ compact = false }: { compact?: boolean })
   const day = farmingDay(now, offset);
   const pictures = new Map<string, { src: string | null; rarity: number | undefined }>();
   const farmingPlans: FarmingPlan[] = [];
-  for (const row of costs ? rowsFor(plans, data, costs, travelerElement) : []) {
+  // Plans switched off on the Planner tab don't count here either.
+  const onPlans = plans.filter(isPlanOn);
+  for (const row of costs ? rowsFor(onPlans, data, costs, travelerElement) : []) {
     if (!row.plan) continue;
     const label = planLabel(row.saved);
     pictures.set(label, planPicture(row.saved));
@@ -119,6 +121,8 @@ export default function FarmingToday({ compact = false }: { compact?: boolean })
             Nothing on your plans drops today. Next: <strong>{WEEKDAYS[list.next.weekday]}</strong>, {next.domain} for{" "}
             {names(next.for)}.
           </>
+        ) : onPlans.length === 0 ? (
+          "Every plan in your planner is switched off."
         ) : (
           "Your plans have every talent book and weapon material they need."
         )}

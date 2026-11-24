@@ -12,6 +12,7 @@ import MaterialList, { MaterialViewToggle, useMaterialView, type ExpRow } from "
 import { CharacterTargets, LevelTarget } from "@/components/PlanTargets";
 import RarityIcon from "@/components/RarityIcon";
 import RequireAuth from "@/components/RequireAuth";
+import ToggleSwitch from "@/components/ToggleSwitch";
 import SignedOutBanner, { EmptyList } from "@/components/SignedOutBanner";
 import WeaponPicker from "@/components/WeaponPicker";
 import { copyLabel } from "@/components/WeaponPlan";
@@ -26,7 +27,10 @@ import {
   findPlannedWeapon,
   maxLevel,
   planId,
+  isPlanOn,
   removePlan,
+  setKindOn,
+  setPlanOn,
   upsertPlan,
   MAX_PLANS,
   type CharacterTarget,
@@ -36,6 +40,7 @@ import {
 import type { GenshinData, GoodWeapon } from "@/lib/genshin/types";
 import { getWeapon, weaponHref, weaponIcon } from "@/lib/genshin/weapons";
 import { getCharacterPortrait, getCharacterRarity } from "@/lib/genshinCharacters";
+import { cn, formatCharacterDisplayName } from "@/lib/utils";
 
 export default function PlannerPage() {
   return (
@@ -81,7 +86,9 @@ function Planner() {
   }
 
   const rows = rowsFor(plans, data, costs, travelerElement);
-  const live = rows.filter((r): r is Row & { plan: Plan } => r.plan !== null);
+  // Plans switched off keep their cards but leave the totals.
+  const live = rows.filter((r): r is Row & { plan: Plan } => r.plan !== null && isPlanOn(r.saved));
+  const offCount = plans.filter((p) => !isPlanOn(p)).length;
   const total = combinePlans(
     live.map((r) => r.plan),
     live.map((r) => r.saved.kind),
@@ -153,11 +160,26 @@ function Planner() {
           </EmptyList>
         ) : (
           <>
+            <KindSwitches
+              plans={plans}
+              onChange={(kind, on) =>
+                save(
+                  setKindOn(plans, kind, on),
+                  `${kind === "character" ? "Character" : "Weapon"} plans ${on ? "count again" : "are switched off"}.`
+                )
+              }
+            />
             <ul className="grid gap-3 lg:grid-cols-2">
               {rows.map((row) => (
                 <PlanCard
                   key={planId(row.saved)}
                   row={row}
+                  onToggle={(on) =>
+                    save(
+                      setPlanOn(plans, row.saved, on),
+                      on ? `${planLabel(row.saved)} counts again.` : `${planLabel(row.saved)} is switched off.`
+                    )
+                  }
                   onEdit={(event) => {
                     returnFocus.current = event.currentTarget;
                     setEditing(row.saved);
@@ -177,7 +199,10 @@ function Planner() {
                     Everything still needed
                   </h2>
                   <p className="text-sm text-gray-600 dark:text-slate-400">
-                    All {live.length} {live.length === 1 ? "plan" : "plans"} added up, against your last upload
+                    {offCount === 0
+                      ? `All ${live.length} ${live.length === 1 ? "plan" : "plans"} added up`
+                      : `${plans.length - offCount} of ${plans.length} plans added up (${offCount} switched off)`}
+                    , against your last upload
                   </p>
                 </div>
                 <MaterialViewToggle value={view} onChange={setView} />
@@ -239,29 +264,80 @@ function describe(row: Row): string {
   return target > row.weapon.level ? `Lv ${row.weapon.level} → ${target} · ${holder}` : `Already there · ${holder}`;
 }
 
+/** "Furina", or "Favonius Lance (Iansan)" so two copies of a weapon read apart. */
+function planLabel(plan: SavedPlan) {
+  if (plan.kind === "character") return planName(plan);
+  return `${planName(plan)} (${plan.location ? formatCharacterDisplayName(plan.location) : "unequipped"})`;
+}
+
+/**
+ * Switches every character plan or every weapon plan on or off (option "1"
+ * from `.mockups/plan-toggle.html`). A switch is on when every plan of its
+ * kind counts; pressing it with any off turns them all on.
+ */
+function KindSwitches({
+  plans,
+  onChange,
+}: {
+  plans: SavedPlan[];
+  onChange: (kind: SavedPlan["kind"], on: boolean) => void;
+}) {
+  const kinds = (["character", "weapon"] as const).filter((kind) => plans.some((p) => p.kind === kind));
+  return (
+    <div className="flex flex-wrap items-center gap-x-5 gap-y-1 rounded-lg border border-gray-200 bg-white px-3 py-1 text-sm dark:border-slate-700 dark:bg-slate-900">
+      <span className="text-gray-600 dark:text-slate-400">Count in the totals:</span>
+      {kinds.map((kind) => {
+        const total = plans.filter((p) => p.kind === kind).length;
+        const on = plans.filter((p) => p.kind === kind && isPlanOn(p)).length;
+        return (
+          <ToggleSwitch key={kind} checked={on === total} onChange={(checked) => onChange(kind, checked)}>
+            {kind === "character" ? "Characters" : "Weapons"}
+            <span className="text-xs text-gray-500 dark:text-slate-400">
+              {on} of {total}
+            </span>
+          </ToggleSwitch>
+        );
+      })}
+    </div>
+  );
+}
+
 function PlanCard({
   row,
+  onToggle,
   onEdit,
   onRemove,
 }: {
   row: Row;
+  onToggle: (on: boolean) => void;
   onEdit: (event: React.MouseEvent<HTMLButtonElement>) => void;
   onRemove: () => void;
 }) {
   const name = planName(row.saved);
+  const on = isPlanOn(row.saved);
   const isCharacter = row.saved.kind === "character";
   const href = isCharacter ? `/genshin/characters/${encodeURIComponent(row.saved.key)}` : weaponHref(row.saved.key);
   const short = row.plan ? shortCount(row.plan) : null;
   const missingFromUpload = isCharacter ? !row.character : !row.weapon;
   return (
     // The status and buttons wrap under the name when the card is narrow.
-    <li className="flex min-w-0 flex-wrap items-center gap-3 rounded-lg border border-gray-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900">
-      {isCharacter ? (
-        <RarityIcon src={getCharacterPortrait(row.saved.key)} rarity={getCharacterRarity(row.saved.key)} size={44} />
-      ) : (
-        <RarityIcon src={weaponIcon(row.saved.key)} rarity={getWeapon(row.saved.key)?.rarity} size={44} />
+    // A plan that's off is dimmed in place (option "stay" from `.mockups/plan-toggle.html`).
+    <li
+      className={cn(
+        "flex min-w-0 flex-wrap items-center gap-3 rounded-lg border p-3",
+        on
+          ? "border-gray-200 bg-white dark:border-slate-700 dark:bg-slate-900"
+          : "border-dashed border-gray-300 bg-gray-50 dark:border-slate-600 dark:bg-slate-900/60"
       )}
-      <div className="min-w-[9rem] flex-1">
+    >
+      <div className={cn(!on && "opacity-50 grayscale")}>
+        {isCharacter ? (
+          <RarityIcon src={getCharacterPortrait(row.saved.key)} rarity={getCharacterRarity(row.saved.key)} size={44} />
+        ) : (
+          <RarityIcon src={weaponIcon(row.saved.key)} rarity={getWeapon(row.saved.key)?.rarity} size={44} />
+        )}
+      </div>
+      <div className={cn("min-w-[9rem] flex-1", !on && "opacity-70")}>
         <Link href={href} className="block truncate font-semibold text-gray-900 hover:text-indigo-700 dark:text-slate-100 dark:hover:text-indigo-300">
           {name}
         </Link>
@@ -271,14 +347,21 @@ function PlanCard({
         {short !== null && !missingFromUpload && (
           <span
             className={
-              short
-                ? "whitespace-nowrap text-xs font-semibold text-red-700 dark:text-red-300"
-                : "whitespace-nowrap text-xs font-semibold text-emerald-700 dark:text-emerald-300"
+              !on
+                ? "whitespace-nowrap text-xs font-semibold text-gray-600 dark:text-slate-400"
+                : short
+                  ? "whitespace-nowrap text-xs font-semibold text-red-700 dark:text-red-300"
+                  : "whitespace-nowrap text-xs font-semibold text-emerald-700 dark:text-emerald-300"
             }
           >
+            {on ? "" : "Off · "}
             {short ? `${short} short` : "Ready"}
           </span>
         )}
+        {/* The switch's text is for screen readers; the card already shows the name. */}
+        <ToggleSwitch checked={on} onChange={onToggle}>
+          <span className="sr-only">Count {planLabel(row.saved)} in the totals</span>
+        </ToggleSwitch>
         <div className="flex shrink-0 gap-1">
           {!missingFromUpload && (
             <Button type="button" variant="outline" size="sm" onClick={onEdit} aria-label={`Edit ${name}'s plan`}>
