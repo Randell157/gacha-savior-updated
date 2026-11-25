@@ -21,7 +21,8 @@ export default function WeaponPassive({
   showKey?: boolean;
 }) {
   const [shown, setShown] = useState<number | null>(null);
-  const refinement = shown ?? Math.max(...owned);
+  // A weapon you don't have opens on R1, with no refinement marked as yours.
+  const refinement = shown ?? (owned.length ? Math.max(...owned) : 1);
   const passive = getWeaponPassive(weaponKey, refinement);
   const description = getWeaponDescription(weaponKey);
   if (!passive && !description) return null;

@@ -44,11 +44,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ALL_SETS, ANY_MAIN_STAT } from "@/lib/genshin/artifactFilters";
 
 type Show = "equipped" | "all" | "unequipped";
 
-const ALL_SETS = "__all__";
-const ANY_MAIN_STAT = "__any__";
 
 /** Flowers and plumes only ever have one main stat, so filtering them by it does nothing. */
 const SINGLE_MAIN_STAT = ["flower", "plume"];

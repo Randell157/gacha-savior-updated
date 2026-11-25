@@ -19,6 +19,8 @@ import BuildCard from "@/components/BuildCard";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { IdCard } from "lucide-react";
 import RequireAuth from "@/components/RequireAuth";
+import { QuickViewBody } from "@/components/CharacterQuickView";
+import SignedOutBanner from "@/components/SignedOutBanner";
 import WeaponPassive from "@/components/WeaponPassive";
 import { cn, formatCharacterDisplayName } from "@/lib/utils";
 import { buildEquipmentIndex } from "@/lib/genshin/equipment";
@@ -36,13 +38,14 @@ const PANEL = "bg-white dark:bg-slate-900 shadow sm:rounded-lg p-6 sm:p-8";
 
 export default function CharacterDetailPage() {
   return (
-    <RequireAuth skeleton="detail">
+    // Signed out, the page shows the character's game info under the log-in banner.
+    <RequireAuth skeleton="detail" signedOut={<CharacterDetail signedOut />}>
       <CharacterDetail />
     </RequireAuth>
   );
 }
 
-function CharacterDetail() {
+function CharacterDetail({ signedOut = false }: { signedOut?: boolean }) {
   const params = useParams();
   const rawKey = typeof params.key === "string" ? params.key : "";
   const characterKey = decodeURIComponent(rawKey);
@@ -61,10 +64,28 @@ function CharacterDetail() {
 
   const displayName = formatCharacterDisplayName(characterKey);
   if (!character) {
+    // A character in the game data (design "A" from `.mockups/unowned-pages.html`):
+    // its game info, as the roster's quick view shows it, under a banner or a note.
+    if (getCharacterDetails(characterKey)) {
+      return (
+        <GenshinShell title={displayName}>
+          {signedOut ? (
+            <SignedOutBanner>Log in to see your own build and plan for {displayName} here.</SignedOutBanner>
+          ) : (
+            <p className="mb-6 rounded-md bg-gray-50 px-3 py-2 text-sm text-gray-700 dark:bg-slate-800/60 dark:text-slate-300">
+              You don&apos;t have {displayName} in your latest upload, so this is the game&apos;s own information.
+            </p>
+          )}
+          <div className="space-y-5">
+            <QuickViewBody characterKey={characterKey} name={displayName} footer={false} stats={false} />
+          </div>
+        </GenshinShell>
+      );
+    }
     return (
       <GenshinShell title={displayName}>
         <p className="text-gray-600 dark:text-slate-400">
-          You don&apos;t have this character in your latest upload.
+          {signedOut ? "There's no character by that name." : "You don't have this character in your latest upload."}
         </p>
         <div className="mt-8">
           <Button asChild>

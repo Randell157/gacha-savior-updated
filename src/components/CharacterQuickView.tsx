@@ -42,7 +42,23 @@ export default function CharacterQuickView({
   );
 }
 
-function QuickViewBody({ characterKey, name }: { characterKey: string; name: string }) {
+/**
+ * A character's game info with nothing from an upload: the quick view's body,
+ * and the character page for a character you don't have (or signed out), which
+ * shows its own note or banner above it instead of the footer (`footer={false}`).
+ */
+export function QuickViewBody({
+  characterKey,
+  name,
+  footer = true,
+  stats = true,
+}: {
+  characterKey: string;
+  name: string;
+  footer?: boolean;
+  /** The base stats at level 90; the character page leaves them out (design "A" from `.mockups/unowned-pages.html`) */
+  stats?: boolean;
+}) {
   const { user } = useAuth();
   // Not saved: only a Traveler in an upload has a saved element.
   const [travelerElement, setTravelerElement] = useState<string | null>(null);
@@ -69,17 +85,19 @@ function QuickViewBody({ characterKey, name }: { characterKey: string; name: str
       </div>
       {isTraveler(characterKey) && !travelerElement && <ChooseElementHint />}
       {extras.talents && <TalentButtons talents={extras.talents} />}
-      <BaseStats stats={extras.stats} level={90} loading={extras.loading} variant="tiles" />
+      {stats && <BaseStats stats={extras.stats} level={90} loading={extras.loading} variant="tiles" />}
       <ConstellationPicker constellations={extras.constellations} loading={extras.loading} />
-      <div className="border-t border-gray-200 pt-4 dark:border-slate-700 [&>div]:mb-0">
-        {user ? (
-          <p className="text-sm text-gray-600 dark:text-slate-400">
-            You don&apos;t have this character in your latest upload.
-          </p>
-        ) : (
-          <SignedOutBanner>Log in to see your build for {name}.</SignedOutBanner>
-        )}
-      </div>
+      {footer && (
+        <div className="border-t border-gray-200 pt-4 dark:border-slate-700 [&>div]:mb-0">
+          {user ? (
+            <p className="text-sm text-gray-600 dark:text-slate-400">
+              You don&apos;t have this character in your latest upload.
+            </p>
+          ) : (
+            <SignedOutBanner>Log in to see your build for {name}.</SignedOutBanner>
+          )}
+        </div>
+      )}
     </>
   );
 }

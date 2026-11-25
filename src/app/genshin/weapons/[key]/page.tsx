@@ -10,6 +10,7 @@ import CharacterAvatar from "@/components/CharacterAvatar";
 import { Stars } from "@/components/CharacterGameInfo";
 import GenshinShell from "@/components/GenshinShell";
 import RequireAuth from "@/components/RequireAuth";
+import SignedOutBanner from "@/components/SignedOutBanner";
 import WeaponIcon from "@/components/WeaponIcon";
 import WeaponPlan from "@/components/WeaponPlan";
 import WeaponPassive from "@/components/WeaponPassive";
@@ -48,13 +49,14 @@ function copyRows(copies: GoodWeapon[]): CopyRow[] {
 
 export default function WeaponDetailPage() {
   return (
-    <RequireAuth skeleton="detail">
+    // Signed out, the page shows the weapon's game info under the log-in banner.
+    <RequireAuth skeleton="detail" signedOut={<WeaponDetail signedOut />}>
       <WeaponDetail />
     </RequireAuth>
   );
 }
 
-function WeaponDetail() {
+function WeaponDetail({ signedOut = false }: { signedOut?: boolean }) {
   const params = useParams();
   const weaponKey = decodeURIComponent(typeof params.key === "string" ? params.key : "");
   const { data } = useGenshinData();
@@ -65,10 +67,31 @@ function WeaponDetail() {
   const rows = useMemo(() => copyRows(copies), [copies]);
   const name = weaponName(weaponKey);
 
+  const info = getWeapon(weaponKey);
+  if (copies.length === 0 && info) {
+    // A weapon in the game data you don't have (design "A" from `.mockups/unowned-pages.html`):
+    // its game info under a banner or a note, with no copies or plan.
+    return (
+      <GenshinShell title={name} panel="none">
+        <div className="max-w-7xl mx-auto space-y-6 py-4 sm:py-12 sm:px-6 lg:px-8">
+          {signedOut ? (
+            <SignedOutBanner>Log in to see your own copies and plan for {name} here.</SignedOutBanner>
+          ) : (
+            <p className="rounded-md bg-white px-3 py-2 text-sm text-gray-700 shadow dark:bg-slate-900 dark:text-slate-300">
+              You don&apos;t have {name} in your latest upload, so this is the game&apos;s own information.
+            </p>
+          )}
+          <WeaponAbout weaponKey={weaponKey} name={name} copies={[]} />
+        </div>
+      </GenshinShell>
+    );
+  }
   if (copies.length === 0) {
     return (
       <GenshinShell title={name}>
-        <p className="text-gray-600 dark:text-slate-400">You don&apos;t have this weapon in your latest upload.</p>
+        <p className="text-gray-600 dark:text-slate-400">
+          {signedOut ? "There's no weapon by that name." : "You don't have this weapon in your latest upload."}
+        </p>
         <div className="mt-8">
           <Button asChild>
             <Link href="/genshin/weapons">Back to Weapons</Link>
@@ -78,32 +101,11 @@ function WeaponDetail() {
     );
   }
 
-  const info = getWeapon(weaponKey);
   return (
     <GenshinShell title={name} panel="none">
       {/* Same width and margins as PageShell's own panel, split into two. */}
       <div className="max-w-7xl mx-auto space-y-6 py-4 sm:py-12 sm:px-6 lg:px-8">
-        <section aria-label={`About ${name}`} className={PANEL}>
-          <div className="grid gap-6 md:grid-cols-[minmax(0,20rem)_1fr]">
-            <div className="flex items-center gap-4 self-start">
-              <WeaponIcon weaponKey={weaponKey} size="lg" />
-              <div>
-                <p className="font-semibold text-gray-900 dark:text-slate-100">{name}</p>
-                <div className="mt-1.5 flex flex-wrap gap-1.5">
-                  {info && <Chip>{info.type}</Chip>}
-                  {info && (
-                    <Chip>
-                      <Stars rarity={info.rarity} />
-                    </Chip>
-                  )}
-                  {info?.version && <Chip>Version {info.version}</Chip>}
-                  {copies.length > 1 && <Chip>{copies.length} copies</Chip>}
-                </div>
-              </div>
-            </div>
-            <WeaponPassive weaponKey={weaponKey} owned={copies.map((w) => w.refinement)} showKey />
-          </div>
-        </section>
+        <WeaponAbout weaponKey={weaponKey} name={name} copies={copies} />
         <section className={PANEL}>
           <h2 className="mb-3 text-lg font-semibold text-indigo-900 dark:text-indigo-200">
             {copies.length > 1 ? `Your ${copies.length} copies` : "Your copy"}
@@ -114,6 +116,34 @@ function WeaponDetail() {
         <WeaponPlan key={weaponKey} copies={copies} rarity={info?.rarity ?? 5} />
       </div>
     </GenshinShell>
+  );
+}
+
+/** The weapon's icon, chips, passive (R1–R5) and description; for one you don't have, `copies` is empty. */
+function WeaponAbout({ weaponKey, name, copies }: { weaponKey: string; name: string; copies: GoodWeapon[] }) {
+  const info = getWeapon(weaponKey);
+  return (
+    <section aria-label={`About ${name}`} className={PANEL}>
+      <div className="grid gap-6 md:grid-cols-[minmax(0,20rem)_1fr]">
+        <div className="flex items-center gap-4 self-start">
+          <WeaponIcon weaponKey={weaponKey} size="lg" />
+          <div>
+            <p className="font-semibold text-gray-900 dark:text-slate-100">{name}</p>
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
+              {info && <Chip>{info.type}</Chip>}
+              {info && (
+                <Chip>
+                  <Stars rarity={info.rarity} />
+                </Chip>
+              )}
+              {info?.version && <Chip>Version {info.version}</Chip>}
+              {copies.length > 1 && <Chip>{copies.length} copies</Chip>}
+            </div>
+          </div>
+        </div>
+        <WeaponPassive weaponKey={weaponKey} owned={copies.map((w) => w.refinement)} showKey={copies.length > 0} />
+      </div>
+    </section>
   );
 }
 

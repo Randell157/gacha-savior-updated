@@ -4,6 +4,9 @@ import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 
 const PREFIX = "gachasavior:";
 
+/** Sent when a remembered choice is changed from outside its page (quick search setting a filter). */
+const CHANGED = "gachasavior:remembered";
+
 type Scope = "tab" | "device";
 
 function storageFor(scope: Scope): Storage {
@@ -41,6 +44,16 @@ export function useRememberedState<T>(
   scope: Scope = "tab"
 ): [T, Dispatch<SetStateAction<T>>] {
   const [value, setValue] = useState<T>(() => read(key, initial, scope));
+  // Follow changes made elsewhere in this tab, so a page that's already open shows them.
+  useEffect(() => {
+    const onChange = (event: Event) => {
+      if ((event as CustomEvent<string>).detail === key) setValue(read(key, initial, scope));
+    };
+    window.addEventListener(CHANGED, onChange);
+    return () => window.removeEventListener(CHANGED, onChange);
+    // `initial` is only the fallback for a missing value; a new object each render mustn't resubscribe.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key, scope]);
   useEffect(() => {
     try {
       storageFor(scope).setItem(PREFIX + key, JSON.stringify(value));
@@ -49,6 +62,21 @@ export function useRememberedState<T>(
     }
   }, [key, scope, value]);
   return [value, setValue];
+}
+
+/**
+ * Sets another page's choices for this browser tab, as if picked there: read
+ * when that page opens, and passed to it at once if it's already open.
+ */
+export function setRememberedTabState(values: Record<string, unknown>) {
+  for (const [key, value] of Object.entries(values)) {
+    try {
+      window.sessionStorage.setItem(PREFIX + key, JSON.stringify(value));
+    } catch {
+      // Blocked storage only means the choice isn't remembered.
+    }
+    window.dispatchEvent(new CustomEvent(CHANGED, { detail: key }));
+  }
 }
 
 /** One saved choice for this browser tab, for a page that only reads another page's choices. */

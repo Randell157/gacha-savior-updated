@@ -31,6 +31,7 @@ import Logo from "@/components/Logo";
 import { ThemeChoice, ThemeCycleButton } from "@/components/ThemeControls";
 import { ChevronDown, LogOut, Menu, Check, User } from "lucide-react";
 import { useState } from "react";
+import QuickSearch from "@/components/QuickSearch";
 
 const NAV_LINKS = [
   { href: "/features", label: "Features" },
@@ -162,6 +163,7 @@ export default function Header() {
               {link.label}
             </Link>
           ))}
+          <QuickSearch />
           {loading ? (
             <span
               className="h-4 w-16 rounded bg-gray-200 dark:bg-slate-700 animate-pulse"
