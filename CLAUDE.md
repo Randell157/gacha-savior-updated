@@ -12,6 +12,10 @@ Stack: Next.js 16 (App Router), React 19, TypeScript (strict), Tailwind CSS 3, s
 
 Planned work is in [docs/DESIGN.md](docs/DESIGN.md), organized into phases with a "Done when" check for each. Read the relevant phase before starting feature work. Who the site is for and what it's trying to be are in [PRODUCT.md](PRODUCT.md), written with the Impeccable design plugin (`/impeccable init`); keep it current when those facts change.
 
+**Before writing a new phase or step into `docs/DESIGN.md`**, ask the user questions until nothing in it is a guess: the player's problem, what's in and out of scope, which pages and data it touches, and "Done when" boxes that can each be checked by running, opening or reading something. Ask 2–4 questions at a time, with a recommended option. Small fixes skip this.
+
+**Before reporting a phase step as finished**, have a fresh subagent review it against [docs/REVIEW_RUBRIC.md](docs/REVIEW_RUBRIC.md), and fix what it finds, up to 3 rounds. That file explains how the review runs. Small fixes and copy changes skip it.
+
 The code is on GitHub (public) at https://github.com/Randell157/gacha-savior-updated, branch `main`, since version 1.0 (tag `v1.0.0`, 2026-11-11). Push only when the user asks. Commits use the GitHub no-reply email (`git config user.email` is set for this repo); keep personal emails out of commits and files.
 
 ## Keeping these docs current
