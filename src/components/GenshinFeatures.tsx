@@ -30,7 +30,7 @@ const FEATURES = [
   {
     icon: Flower2,
     title: "Artifacts",
-    text: "See who's wearing what and which set bonuses are active. Every piece gets a Crit Value score, and filters help you find your best and worst.",
+    text: "See who's wearing what and which set bonuses are active. Every piece gets a Crit Value score, and filters help you find your best and worst. Cleanup lists the pieces likely safe to feed, with the reason for each.",
   },
   {
     icon: LayoutGrid,

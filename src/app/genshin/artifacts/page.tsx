@@ -5,7 +5,6 @@ import Link from "next/link";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { useGenshinData } from "@/hooks/useGenshinData";
 import { useRememberedState } from "@/hooks/useRememberedState";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import GenshinShell from "@/components/GenshinShell";
 import RequireAuth from "@/components/RequireAuth";
@@ -14,10 +13,10 @@ import SearchInput from "@/components/SearchInput";
 import { ClearFilters, FilterChip, NoMatches, RARITY_CHIP } from "@/components/FilterChip";
 import CharacterAvatar from "@/components/CharacterAvatar";
 import ArtifactIcon from "@/components/ArtifactIcon";
-import { CvBlock } from "@/components/ArtifactScore";
+import ArtifactCard from "@/components/ArtifactCard";
+import ArtifactCleanup from "@/components/ArtifactCleanup";
 import ArtifactSetBonuses from "@/components/ArtifactSetBonuses";
 import ArtifactSlotCard from "@/components/ArtifactSlotCard";
-import ArtifactSubstats from "@/components/ArtifactSubstats";
 import SignedOutBanner, { EmptyList } from "@/components/SignedOutBanner";
 import { cn, formatCharacterDisplayName } from "@/lib/utils";
 import { formatSlotName, formatStatName } from "@/lib/genshin/stats";
@@ -45,8 +44,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ALL_SETS, ANY_MAIN_STAT } from "@/lib/genshin/artifactFilters";
+import { cleanupList, matchKeepMarks } from "@/lib/genshin/artifactCleanup";
 
-type Show = "equipped" | "all" | "unequipped";
+type Show = "equipped" | "all" | "unequipped" | "cleanup";
 
 
 /** Flowers and plumes only ever have one main stat, so filtering them by it does nothing. */
@@ -87,7 +87,7 @@ export default function ArtifactsPage() {
 
 /** Signed out, the page shows the log-in banner, the Show toggle faded and disabled, and an empty list. */
 function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
-  const { data: genshinData } = useGenshinData();
+  const { data: genshinData, keepMarks } = useGenshinData();
   // Equipped is the default: a few hundred pieces grouped by character loads
   // quickly, where drawing every artifact at once was slow.
   const [show, setShow] = useRememberedState<Show>("artifacts:show", "equipped");
@@ -110,6 +110,12 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
   const artifacts = useMemo(() => genshinData?.artifacts ?? [], [genshinData]);
 
   const equippedCount = useMemo(() => artifacts.filter((a) => a.location).length, [artifacts]);
+
+  // Cleanup's list, worked out here too for its count in the Show toggle.
+  const kept = useMemo(() => matchKeepMarks(keepMarks, artifacts).kept, [keepMarks, artifacts]);
+  const cleanupEntries = useMemo(() => cleanupList(artifacts, kept), [artifacts, kept]);
+  // The All and Unequipped views, which share the summary tiles, filters and sort.
+  const flatView = show === "all" || show === "unequipped";
 
   // Each character's equipped pieces, characters A–Z, pieces in slot order.
   // Every owned character gets a row, including those with nothing equipped.
@@ -323,6 +329,7 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
               { value: "equipped", label: "Equipped (0)" },
               { value: "all", label: "All (0)" },
               { value: "unequipped", label: "Unequipped (0)" },
+              { value: "cleanup", label: "Cleanup (0)" },
             ]}
           />
         </fieldset>
@@ -356,6 +363,7 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
               value: "unequipped",
               label: `Unequipped (${(artifacts.length - equippedCount).toLocaleString()})`,
             },
+            { value: "cleanup", label: `Cleanup (${cleanupEntries.length.toLocaleString()})` },
           ]}
         />
           {show === "equipped" ? (
@@ -377,7 +385,7 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
                 </Select>
               </div>
             </>
-          ) : (
+          ) : flatView && (
             <div className="flex items-center gap-2">
               <label htmlFor="artifact-sort" className="text-sm font-medium">
                 Sort by:
@@ -403,7 +411,7 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
               </Select>
             </div>
           )}
-          {show !== "equipped" && (
+          {flatView && (
             <Button
               variant="outline"
               aria-expanded={filtersOpen}
@@ -415,7 +423,7 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
             </Button>
           )}
         </div>
-        {show !== "equipped" && (
+        {flatView && (
           <div className="grid gap-3 pb-1 sm:grid-cols-3">
             <SummaryTile
               value={summary.equippedAverage === null ? "–" : String(summary.equippedAverage)}
@@ -461,7 +469,7 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
             <ClearFilters count={completeness ? 1 : 0} onClick={() => setCompleteness(null)} />
           </div>
         )}
-        {show !== "equipped" && (
+        {flatView && (
           <div className={cn(!filtersOpen && "hidden", "space-y-3 sm:block")}>
           <div role="group" aria-label="Filter by slot" className="flex flex-wrap gap-2">
             {SLOT_ORDER.map((slot) => (
@@ -584,7 +592,9 @@ function Artifacts({ signedOut = false }: { signedOut?: boolean }) {
         )}
       </div>
 
-      {show === "equipped" ? (
+      {show === "cleanup" ? (
+        <ArtifactCleanup artifacts={artifacts} entries={cleanupEntries} kept={kept} />
+      ) : show === "equipped" ? (
         groups.length === 0 ? (
           <p className="text-gray-600 dark:text-slate-400">No artifacts are equipped.</p>
         ) : (
@@ -846,41 +856,5 @@ function ArtifactGrid({ artifacts }: { artifacts: GoodArtifact[] }) {
         <ArtifactCard key={index} artifact={artifact} />
       ))}
     </div>
-  );
-}
-
-function ArtifactCard({ artifact }: { artifact: GoodArtifact }) {
-  const setName = artifactSetName(artifact.setKey);
-  return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-3 text-lg">
-          <ArtifactIcon artifact={artifact} />
-          <span className="min-w-0 flex-1">{setName}</span>
-          {artifact.location && (
-            <CharacterAvatar
-              characterKey={artifact.location}
-              label={`Equipped by ${formatCharacterDisplayName(artifact.location)}`}
-            />
-          )}
-        </CardTitle>
-      </CardHeader>
-      {/* Main stat and substats styled like the Equipped slot cards, with the score in the same place on every card. */}
-      <CardContent className="flex items-start justify-between gap-3 text-sm">
-        <div className="min-w-0">
-          <p className="text-gray-500 dark:text-slate-400">
-            {formatSlotName(artifact.slotKey)} · {artifact.rarity}★ · Lv. {artifact.level}
-            {artifact.lock && " · Locked"}
-          </p>
-          {artifact.mainStatKey && (
-            <p className="mt-2 font-semibold text-indigo-900 dark:text-indigo-200">
-              {formatStatName(artifact.mainStatKey)}
-            </p>
-          )}
-          <ArtifactSubstats substats={artifact.substats} />
-        </div>
-        <CvBlock artifact={artifact} />
-      </CardContent>
-    </Card>
   );
 }

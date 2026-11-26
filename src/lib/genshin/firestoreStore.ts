@@ -12,6 +12,7 @@ import type { GenshinData } from "./types";
 import type { BuildSnapshot } from "./showcaseBuild";
 import { normalizePlans, type SavedPlan } from "./materialPlanner";
 import { normalizeFarmingTicks, type FarmingTicks } from "./farming";
+import { readKeepMarks, type KeepMark } from "./artifactCleanup";
 
 // Firestore layout for a user's Genshin upload:
 //   users/{uid}/games/genshin                      everything except artifacts
@@ -56,6 +57,8 @@ export interface StoredGenshin {
   plans: SavedPlan[];
   /** Today's farming list's ticks: the game day and the domains done; old ones read as none */
   farmingTicks: FarmingTicks | null;
+  /** Artifacts marked Keep on the Artifacts page's cleanup view, matched again after each upload */
+  keepMarks: KeepMark[];
   uploadedAt: Date | null;
   /** Number of artifact chunks currently stored, used to clean up on re-upload */
   artifactChunkCount: number;
@@ -134,6 +137,7 @@ export async function loadGenshin(uid: string): Promise<StoredGenshin | null> {
     showcaseOptions: normalizeShowcaseOptions(stored.showcaseOptions),
     plans: normalizePlans(stored.plans),
     farmingTicks: normalizeFarmingTicks(stored.farmingTicks),
+    keepMarks: readKeepMarks(stored.keepMarks),
     uploadedAt: stored.uploadedAt instanceof Timestamp ? stored.uploadedAt.toDate() : null,
     artifactChunkCount: chunkCount,
   };
@@ -153,7 +157,8 @@ export async function saveGenshin(
   showcaseOptions: ShowcaseOptions = DEFAULT_SHOWCASE_OPTIONS,
   previousBuilds: BuildSnapshot | null = null,
   plans: SavedPlan[] = [],
-  farmingTicks: FarmingTicks | null = null
+  farmingTicks: FarmingTicks | null = null,
+  keepMarks: KeepMark[] = []
 ): Promise<StoredGenshin> {
   const chunks: GenshinData["artifacts"][] = [];
   for (let i = 0; i < data.artifacts.length; i += ARTIFACTS_PER_CHUNK) {
@@ -181,6 +186,7 @@ export async function saveGenshin(
     previousBuilds,
     plans,
     farmingTicks,
+    keepMarks,
   });
   chunks.forEach((items, i) => batch.set(chunkRef(uid, i), { items }));
   for (let i = chunks.length; i < previousChunkCount; i++) {
@@ -196,12 +202,13 @@ export async function saveGenshin(
     showcaseOptions,
     plans,
     farmingTicks,
+    keepMarks,
     uploadedAt: new Date(),
     artifactChunkCount: chunks.length,
   };
 }
 
-/** Deletes the saved upload, with its showcase, its settings, the Traveler element, the plans and the farming ticks. */
+/** Deletes the saved upload, with its showcase, its settings, the Traveler element, the plans, the farming ticks and the Keep marks. */
 export async function deleteGenshin(uid: string, chunkCount: number) {
   const batch = writeBatch(db);
   batch.delete(gameRef(uid));
@@ -229,4 +236,8 @@ export async function savePlans(uid: string, plans: SavedPlan[]) {
 
 export async function saveFarmingTicks(uid: string, farmingTicks: FarmingTicks) {
   await updateDoc(gameRef(uid), { farmingTicks });
+}
+
+export async function saveKeepMarks(uid: string, keepMarks: KeepMark[]) {
+  await updateDoc(gameRef(uid), { keepMarks });
 }

@@ -530,6 +530,55 @@ test.describe("signed in with the sample upload", () => {
     await expect(page.locator("#equipped-sort")).toContainText("Total CV (High to Low)");
   });
 
+  test("the artifacts page's cleanup lists pieces with reasons, and Keep takes one off", async () => {
+    await page.goto("/genshin/artifacts");
+    const show = page.getByRole("group", { name: "Show" });
+
+    // The Irminsul sample: 605 of its 648 unlocked pieces meet a rule, none of them 4★.
+    // Only pieces with a CRIT substat can be beaten.
+    await show.getByRole("button", { name: "Cleanup (605)" }).click();
+    const reasons = page.getByRole("group", { name: "Filter by reason" });
+    await expect(reasons.getByRole("button", { name: "Weak at +0 (558)" })).toBeVisible();
+    await expect(reasons.getByRole("button", { name: "4★ or lower (0)" })).toBeVisible();
+    await expect(page.getByText("Showing 60 of 605")).toBeVisible();
+    await expect(page.getByText(/^Worth leveling\? CV /).first()).toBeVisible();
+    // The fold-out explains each reason.
+    await page.getByText("What the reasons mean").click();
+    await expect(page.getByText(/Only pieces with a CRIT substat are compared/)).toBeVisible();
+    await page.getByText("What the reasons mean").click();
+    await reasons.getByRole("button", { name: "Beaten (221)" }).click();
+    await expect(page.getByText("Showing 60 of 221")).toBeVisible();
+    await expect(page.getByText(/^Beaten: your \+\d+ with CV /).first()).toBeVisible();
+    await reasons.getByRole("button", { name: "Beaten (221)" }).click();
+    await expect(page.getByText("Showing 60 of 605")).toBeVisible();
+    // Locked pieces are never listed.
+    await expect(page.locator("main").getByText(/· Locked$/)).toHaveCount(0);
+
+    // Keep moves focus to Undo; Undo brings the piece back.
+    const keep = page.getByRole("button", { name: /^Keep / }).first();
+    const label = await keep.getAttribute("aria-label");
+    await keep.click();
+    await expect(page.getByRole("status")).toContainText("It won't be listed again.");
+    await expect(page.getByRole("button", { name: "Undo" })).toBeFocused();
+    await expect(show.getByRole("button", { name: "Cleanup (604)" })).toBeVisible();
+    await page.getByRole("button", { name: "Undo" }).click();
+    await expect(page.getByRole("button", { name: label! })).toBeFocused();
+    await expect(show.getByRole("button", { name: "Cleanup (605)" })).toBeVisible();
+
+    // A kept piece stays off the list after a reload, and the Kept chip lists it.
+    await page.getByRole("button", { name: label! }).click();
+    await expect(show.getByRole("button", { name: "Cleanup (604)" })).toBeVisible();
+    await page.reload();
+    await expect(show.getByRole("button", { name: "Cleanup (604)" })).toHaveAttribute("aria-pressed", "true");
+    await page.getByRole("button", { name: "Kept (1)" }).click();
+    await expect(page.getByText("1 kept. Press Kept to let a piece be listed again.")).toBeVisible();
+    await page.getByRole("button", { name: label!.replace(/^Keep /, "Stop keeping ") }).click();
+    await expect(page.getByRole("status")).toContainText("It can be listed again.");
+    await expect(page.getByRole("button", { name: "Kept (0)" })).toBeVisible();
+    await expect(show.getByRole("button", { name: "Cleanup (605)" })).toBeVisible();
+    await show.getByRole("button", { name: /^Equipped/ }).click();
+  });
+
   test("on a phone, Equipped rows fold and open", async () => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto("/genshin/artifacts");

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useCallback, useEffect, useState } from "react";
+import React, { createContext, useCallback, useEffect, useRef, useState } from "react";
 import { FirebaseError } from "firebase/app";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -12,6 +12,7 @@ import {
   saveShowcaseOptions,
   savePlans,
   saveFarmingTicks,
+  saveKeepMarks,
   saveTravelerElement,
   type Showcase,
   type NamedShowcase,
@@ -26,6 +27,7 @@ import type { GenshinData } from "@/lib/genshin/types";
 import { snapshotBuilds, type BuildSnapshot } from "@/lib/genshin/showcaseBuild";
 import type { SavedPlan } from "@/lib/genshin/materialPlanner";
 import type { FarmingTicks } from "@/lib/genshin/farming";
+import { matchKeepMarks, type KeepMark } from "@/lib/genshin/artifactCleanup";
 
 // Loads the signed-in user's Genshin upload from Firestore once per login and
 // shares it with every page. Read it through useGenshinData().
@@ -44,6 +46,10 @@ export interface GenshinDataContextValue {
   plans: SavedPlan[];
   /** Today's farming list's ticks as saved; `currentTicks` clears ones from an earlier game day */
   farmingTicks: FarmingTicks | null;
+  /** Artifacts marked Keep; `matchKeepMarks` finds which pieces they are */
+  keepMarks: KeepMark[];
+  /** Keep marks the last upload in this session couldn't match to a piece, so they were removed */
+  droppedKeepMarks: number;
   /** True until auth has settled and the user's data has been fetched */
   loading: boolean;
   /** Set when saved data exists but couldn't be loaded */
@@ -62,9 +68,16 @@ export interface GenshinDataContextValue {
   setPlans: (plans: SavedPlan[]) => Promise<boolean>;
   /** Saves the farming list's ticks; puts the old ones back if the write fails */
   setFarmingTicks: (ticks: FarmingTicks) => Promise<void>;
+  /**
+   * Saves the Keep marks. Resolves false when the write failed and the last
+   * saved marks were put back; a failed write that a later save replaces
+   * resolves true, since the later one carries the change
+   */
+  setKeepMarks: (marks: KeepMark[]) => Promise<boolean>;
 }
 
 const NO_PLANS: SavedPlan[] = [];
+const NO_MARKS: KeepMark[] = [];
 
 export const GenshinDataContext = createContext<GenshinDataContextValue | null>(null);
 
@@ -73,6 +86,8 @@ interface LoadedState {
   stored: StoredGenshin | null;
   error: string | null;
   migratedFromLocal: boolean;
+  /** Keep marks the last upload couldn't match, shown once on the cleanup view */
+  droppedKeepMarks?: number;
 }
 
 // Before Firestore storage, uploads lived only in this browser's localStorage.
@@ -153,6 +168,8 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
     async (data: GenshinData) => {
       if (!uid) throw new Error("Not signed in");
       const previous = current?.stored;
+      // Marks follow their pieces into the new upload; ones that can't be found are dropped.
+      const keep = matchKeepMarks(previous?.keepMarks ?? [], data.artifacts);
       try {
         const stored = await saveGenshin(
           uid,
@@ -164,9 +181,10 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
           // Kept so the showcase can say what changed since this upload.
           previous ? snapshotBuilds(previous.data) : null,
           previous?.plans ?? [],
-          previous?.farmingTicks ?? null
+          previous?.farmingTicks ?? null,
+          keep.marks
         );
-        setState({ uid, stored, error: null, migratedFromLocal: false });
+        setState({ uid, stored, error: null, migratedFromLocal: false, droppedKeepMarks: keep.dropped });
       } catch (error) {
         console.error("Saving Genshin data failed:", error);
         throw new Error(describeError(error));
@@ -275,6 +293,44 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
     [uid, current?.stored]
   );
 
+  // Keep is pressed in quick runs, so several saves can be in flight at once.
+  const keepWrites = useRef({ latest: 0, inFlight: 0, saved: [] as KeepMark[] });
+  const setKeepMarks = useCallback(
+    async (keepMarks: KeepMark[]) => {
+      const stored = current?.stored;
+      if (!uid || !stored) return false;
+      const w = keepWrites.current;
+      // With nothing in flight, the marks on screen are the saved ones.
+      if (w.inFlight === 0) w.saved = stored.keepMarks;
+      const write = ++w.latest;
+      w.inFlight++;
+      // Update the screen right away.
+      setState((s) => (s && s.stored ? { ...s, stored: { ...s.stored, keepMarks } } : s));
+      try {
+        await saveKeepMarks(uid, keepMarks);
+        w.saved = keepMarks;
+        return true;
+      } catch (error) {
+        console.error("Saving Keep marks failed:", error);
+        // A later save carries this change too (it was made from these marks),
+        // so only the latest one puts back the last marks that were saved.
+        if (write !== w.latest) return true;
+        // Only while the screen still shows these marks for this account: an
+        // upload in the meantime has matched and saved marks of its own.
+        const saved = w.saved;
+        setState((s) =>
+          s && s.uid === uid && s.stored && s.stored.keepMarks === keepMarks
+            ? { ...s, stored: { ...s.stored, keepMarks: saved } }
+            : s
+        );
+        return false;
+      } finally {
+        w.inFlight--;
+      }
+    },
+    [uid, current?.stored]
+  );
+
   const value: GenshinDataContextValue = {
     data: current?.stored?.data ?? null,
     showcase: current?.stored?.showcases[0]?.picks ?? emptyShowcase(),
@@ -284,6 +340,8 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
     showcaseOptions: current?.stored?.showcaseOptions ?? DEFAULT_SHOWCASE_OPTIONS,
     plans: current?.stored?.plans ?? NO_PLANS,
     farmingTicks: current?.stored?.farmingTicks ?? null,
+    keepMarks: current?.stored?.keepMarks ?? NO_MARKS,
+    droppedKeepMarks: current?.droppedKeepMarks ?? 0,
     loading: authLoading || (!!uid && !current),
     loadError: current?.error ?? null,
     lastUploadedAt: current?.stored?.uploadedAt ?? null,
@@ -295,6 +353,7 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
     setShowcaseOptions,
     setPlans,
     setFarmingTicks,
+    setKeepMarks,
   };
 
   return <GenshinDataContext.Provider value={value}>{children}</GenshinDataContext.Provider>;

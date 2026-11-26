@@ -64,11 +64,11 @@ function weaponDiff(before: string[], after: string[]): { added: CountedKey[]; r
 }
 
 /** Pieces that can only be the same piece share these; level and substats can still grow. */
-function artifactGroup(a: GoodArtifact): string {
+export function artifactGroup(a: GoodArtifact): string {
   return `${a.setKey}|${a.slotKey}|${a.rarity}|${a.mainStatKey ?? ""}`;
 }
 
-function sameArtifact(a: GoodArtifact, b: GoodArtifact): boolean {
+export function sameArtifact(a: GoodArtifact, b: GoodArtifact): boolean {
   return (
     a.level === b.level &&
     a.substats.length === b.substats.length &&
@@ -77,7 +77,7 @@ function sameArtifact(a: GoodArtifact, b: GoodArtifact): boolean {
 }
 
 /** Could `before` have been leveled into `after`? Every old substat is still there, no lower. */
-function leveledInto(before: GoodArtifact, after: GoodArtifact): boolean {
+export function leveledInto(before: GoodArtifact, after: GoodArtifact): boolean {
   return (
     after.level > before.level &&
     before.substats.every((s) => after.substats.some((t) => t.key === s.key && t.value >= s.value))
