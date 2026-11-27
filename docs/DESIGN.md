@@ -56,7 +56,7 @@ Each phase builds on the one before it. Phase 2 comes first so later phases buil
 | 5 | Wish history tracker | 1 | **Done** (2026-11-11) |
 | 6 | Version 1.1: showcase and build card, upload changes, material planner, wish additions | 3, 4, 5 | **Done** (2026-11-13, released as v1.1.0) |
 | 7 | Version 1.2: today's farming list, artifact cleanup, notes and tags, spare weapon copies, quick search, year in review, coming-soon characters, splash art on character pages | 6 | **Done** (2026-11-27, released as v1.2.0) |
-| 1.2.1 | Security fixes from audit run 3: shared rate limits, a daily reset-email cap, hardening | 7 | In progress (planned 2026-11-27) |
+| 1.2.1 | Security fixes from audit run 3: shared rate limits, a daily reset-email cap, hardening | 7 | **Done** (2026-11-27, released as v1.2.1) |
 
 ---
 
@@ -769,7 +769,7 @@ A step is finished only when every box is checked. Each check is verified (run, 
 
 ## Version 1.2.1: security fixes
 
-> **Planned (2026-11-27).** Security audit run 3 (for 1.2) left two leads on the signed-out auth routes and some hardening notes. The user picked: shared rate limits in Firestore, one daily cap on reset emails covering both the email and the username path, the quick code fixes, the reset wording and rolling window, and the delete route's order. A full Content-Security-Policy stays under [Later](#later). It ships as a patch version, so the About timeline gets no step.
+> **Done (2026-11-27, released as v1.2.1).** Security audit run 3 (for 1.2) left two leads on the signed-out auth routes and some hardening notes. The user picked: shared rate limits in Firestore, one daily cap on reset emails covering both the email and the username path, the quick code fixes, the reset wording and rolling window, and the delete route's order. A full Content-Security-Policy stays under [Later](#later). It ships as a patch version, so the About timeline gets no step.
 
 - **Shared rate limits.** The signed-out routes count tries in `rateLimits/{route}:{hashed IP}` through the Admin SDK (no rule matches it, so the browser can't reach it), as a rolling window of timestamps, so every server instance shares one count and a restart doesn't reset it. The limits stay as they are: 10 a minute for username login, 3 per 15 minutes for resets.
 - **Daily reset cap.** The free plan sends 150 reset emails a day for the whole project. Email resets now go through `/api/auth/reset-password` too, and one counter (`rateLimits/resetEmails`, by Pacific day, when Google's quotas reset) stops at 100 a day, leaving room for the rest. Past it, every reset request (known account or not) gets "Password resets are paused until tomorrow".
@@ -791,7 +791,7 @@ A step is finished only when every box is checked. Each check is verified (run, 
 2. **Release**
    - [x] The live `usernames` collection has no name over 64 characters (they could no longer log in by username); read-only check, with the user's OK (2026-11-27: listed the document IDs with the Admin SDK: 1 name, 10 characters at most, none over 64, none with `/` or `@`; the user also tried the test build and it works)
    - [x] README version line and `package.json` at 1.2.1, tests run again after the bump (2026-11-27: `npm version 1.2.1 --no-git-tag-version`, README "**Version 1.2.1**"; 187 unit tests, lint and type check pass; `npm run build` clean; test build signed out: 7 pages 200, username login with an unknown name 401, reset for an unknown name `{ ok: true }`, a malformed email 400, delete without a token 401, no server errors)
-   - [ ] **Test build checked by the user**, then committed, tagged `v1.2.1`, rules published, deployed and the live routes checked (each only when the user says)
+   - [x] Test build checked by the user, then committed, tagged `v1.2.1`, rules published, deployed and the live routes checked (each only when the user says) (2026-11-27: the user tried the test build; commit `af43574` tagged `v1.2.1` and pushed; the user published `firestore.rules` (the live ruleset, read back through the Rules API, matches the repo); `npx vercel --prod`; live: 17 pages 200, `/characters` 308, username login with an unknown name 401 (so the Firestore count works there), reset for an unknown name `{ ok: true }`, a malformed email 400, delete and rename without a sign-in 401, HSTS, `X-Frame-Options` and `frame-ancestors` sent)
 
 ---
 
@@ -803,7 +803,7 @@ Ideas that came up but aren't scheduled yet:
 - **Per-character artifact scoring**: weighting substats by what each character wants, shown next to CV.
 - **Honkai: Star Rail and Zenless Zone Zero**, using the `games/{gameId}` structure from Phase 1.
 - **Public profiles**: a shareable read-only page for a user's showcase.
-- **Rest of the run 3 hardening notes:** a full Content-Security-Policy, and the timing difference between known and unknown usernames on the signed-out routes. Details in the run 3 report outside the repo (`~/security-audit-skill/gacha-savior-updated/run-3/REPORT.md`), since the repo is public. The rest is in [version 1.2.1](#version-121-security-fixes).
+- **Rest of the run 3 hardening notes:** a full Content-Security-Policy, and the timing difference between known and unknown accounts on the signed-out routes (a fix: answer at once and send in the background with `waitUntil`, or pad every reply to a fixed time). Also from the 1.2.1 commit review: a stricter per-IP daily limit (or App Check) before a reset counts against the 100-a-day cap, so one person with a few IPs can't pause resets for everyone. Details in the run 3 report outside the repo (`~/security-audit-skill/gacha-savior-updated/run-3/REPORT.md`), since the repo is public. The rest is in [version 1.2.1](#version-121-security-fixes).
 
 Kept for a later release from the 1.2 ideas list (2026-11-15):
 
