@@ -20,12 +20,12 @@ const FEATURES = [
   {
     icon: Users,
     title: "Characters",
-    text: "See every character in the game, with the ones you own in color. Sort and filter them, and open any character for their level, talents, constellations, weapon and artifacts.",
+    text: "See every character in the game, with the ones you own in color and the next ones coming soon. Sort and filter them, star your favorites, and add your own notes and tags. Each character's page has their splash art, level, talents, constellations, weapon and artifacts.",
   },
   {
     icon: Swords,
     title: "Weapons",
-    text: "Browse them as cards or a table, with search and filters for type and rarity. Each weapon has a page with every copy you own.",
+    text: "Browse them as cards or a table, with search and filters for type and rarity. Each weapon has a page with every copy you own, and spare copies show what refining with them would reach.",
   },
   {
     icon: Flower2,
@@ -40,12 +40,12 @@ const FEATURES = [
   {
     icon: ClipboardList,
     title: "Material planner",
-    text: "Pick the levels and talents you're aiming for and see which materials, EXP and Mora you still need. Check one character or weapon, or all your plans added up.",
+    text: "Pick the levels and talents you're aiming for and see which materials, EXP and Mora you still need. Check one character or weapon, or all your plans added up, switch plans off without removing them, and see which domains are worth farming today.",
   },
   {
     icon: Sparkles,
     title: "Wish history",
-    text: "Import paimon.moe or UIGF files to keep your wishes after the game's six-month limit. See your pity, your 50/50 record, Primogems spent and wishes per month, and download it all as UIGF.",
+    text: "Import paimon.moe or UIGF files to keep your wishes after the game's six-month limit. See your pity, your 50/50 record, Primogems spent and wishes per month, and download it all as UIGF. A year in review sums up each year as an image you can save.",
   },
 ];
 

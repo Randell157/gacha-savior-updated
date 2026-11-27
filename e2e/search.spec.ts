@@ -56,6 +56,8 @@ test("signed in, results show what you have, sets open Artifacts and materials o
   const dialog = page.getByRole("dialog", { name: "Search" });
 
   await page.keyboard.press("Control+k");
+  // Wait for the box: right after the upload, typing could start before the dialog takes focus.
+  await expect(dialog.getByRole("combobox")).toBeFocused();
   await page.keyboard.type("favonius lance");
   await expect(dialog.getByRole("option", { name: /Favonius Lance/ })).toContainText(/copies|R\d · Lv \d+/);
 

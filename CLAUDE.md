@@ -67,8 +67,8 @@ The details are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). **Before changi
 - **Data flow:** uploads, parsing, Firestore storage, `useGenshinData`, remembered filters.
 - **Protected pages:** `RequireAuth`, signed-out views, skeletons, the quick view.
 - **Auth and Firestore:** collections, security rules, login, passwords, account routes, the Admin SDK, profile pictures.
-- **Games:** the hub, each game's section and tabs (Planner and Wishes among them), the material planner's pages, adding a game.
-- **Character names and portraits:** the roster and its coming-soon characters, game data and how to update it after a patch, stat and name helpers, and the Genshin pages (features and sample, the showcase and build card, what changed since the last upload, weapons and each weapon's page, artifacts and Crit Value, character page), the planner's cost and EXP data, shared components, icons.
+- **Games:** the hub, each game's section and tabs (Planner and Wishes among them), the material planner's pages, today's farming list and switching plans off, adding a game.
+- **Character names and portraits:** the roster and its coming-soon characters, game data and how to update it after a patch, stat and name helpers, and the Genshin pages (features and sample, the showcase and build card, what changed since the last upload, weapons and each weapon's page with spare copies, artifacts and Crit Value with Cleanup and Keep marks, character page with splash art, notes, tags and the favorites star), the planner's cost and EXP data, shared components, icons.
 - **UI conventions:** read before any UI change: page shells, titles, accessibility, motion, header and its quick search (Ctrl+K), copy, dark mode.
 - **Wish history:** reading UIGF and paimon.moe exports, merging, pity and the 50/50 record, Primogems, the UIGF download, storage, and the year in review (`src/lib/genshin/wishes.ts`, `wishStore.ts`, `yearInReview.ts`, `src/lib/xlsx.ts`).
 - **Unit tests:** the Node test runner, `npm test`, and what's covered.

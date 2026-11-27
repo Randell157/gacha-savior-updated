@@ -661,16 +661,18 @@ test.describe("signed in with the sample upload", () => {
     // Keep moves focus to Undo; Undo brings the piece back.
     const keep = page.getByRole("button", { name: /^Keep / }).first();
     const label = await keep.getAttribute("aria-label");
+    // Several pieces can share a label ("Keep Noblesse Oblige plume"), so follow this one by its id.
+    const keepThis = page.locator(`#${await keep.getAttribute("id")}`);
     await keep.click();
     await expect(page.getByRole("status")).toContainText("It won't be listed again.");
     await expect(page.getByRole("button", { name: "Undo" })).toBeFocused();
     await expect(show.getByRole("button", { name: "Cleanup (604)" })).toBeVisible();
     await page.getByRole("button", { name: "Undo" }).click();
-    await expect(page.getByRole("button", { name: label! })).toBeFocused();
+    await expect(keepThis).toBeFocused();
     await expect(show.getByRole("button", { name: "Cleanup (605)" })).toBeVisible();
 
     // A kept piece stays off the list after a reload, and the Kept chip lists it.
-    await page.getByRole("button", { name: label! }).click();
+    await keepThis.click();
     await expect(show.getByRole("button", { name: "Cleanup (604)" })).toBeVisible();
     await page.reload();
     await expect(show.getByRole("button", { name: "Cleanup (604)" })).toHaveAttribute("aria-pressed", "true");
