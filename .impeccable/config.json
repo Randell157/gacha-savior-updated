@@ -101,6 +101,15 @@
         ],
         "createdAt": "2026-11-11T23:11:52.635Z",
         "reason": "Project heading style: the indigo-900/indigo-200 panel headings already used on the character and weapon pages (PanelHeading); CLAUDE.md says keep the current look"
+      },
+      {
+        "rule": "ai-color-palette",
+        "value": "*",
+        "files": [
+          "src/components/CharacterNotes.tsx"
+        ],
+        "createdAt": "2026-11-27T02:46:04.236Z",
+        "reason": "Claude: the indigo heading and chips are the site's existing palette (PanelHeading text-indigo-900 dark:text-indigo-200 on every character panel); CLAUDE.md requires keeping the current look"
       }
     ]
   }

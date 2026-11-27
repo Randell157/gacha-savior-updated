@@ -13,6 +13,7 @@ import {
   savePlans,
   saveFarmingTicks,
   saveKeepMarks,
+  saveCharacterNotes,
   saveTravelerElement,
   type Showcase,
   type NamedShowcase,
@@ -28,6 +29,7 @@ import { snapshotBuilds, type BuildSnapshot } from "@/lib/genshin/showcaseBuild"
 import type { SavedPlan } from "@/lib/genshin/materialPlanner";
 import type { FarmingTicks } from "@/lib/genshin/farming";
 import { matchKeepMarks, type KeepMark } from "@/lib/genshin/artifactCleanup";
+import { alignTravelerNote, type CharacterNotes } from "@/lib/genshin/characterNotes";
 
 // Loads the signed-in user's Genshin upload from Firestore once per login and
 // shares it with every page. Read it through useGenshinData().
@@ -57,7 +59,7 @@ export interface GenshinDataContextValue {
   lastUploadedAt: Date | null;
   /** True right after data saved in this browser's localStorage was moved to the account */
   migratedFromLocal: boolean;
-  /** Replaces the saved upload (keeps the showcases, settings, Traveler element and plans) */
+  /** Replaces the saved upload (keeps the showcases, settings, Traveler element, plans, Keep marks and character notes) */
   save: (data: GenshinData) => Promise<void>;
   /** Deletes the saved upload; rejects with a message for the player if it can't */
   deleteUpload: () => Promise<void>;
@@ -74,10 +76,15 @@ export interface GenshinDataContextValue {
    * resolves true, since the later one carries the change
    */
   setKeepMarks: (marks: KeepMark[]) => Promise<boolean>;
+  /** The player's own note and tags on each character */
+  characterNotes: CharacterNotes;
+  /** Saves every character's notes and tags; resolves false (and puts the old ones back) if the write fails */
+  setCharacterNotes: (notes: CharacterNotes) => Promise<boolean>;
 }
 
 const NO_PLANS: SavedPlan[] = [];
 const NO_MARKS: KeepMark[] = [];
+const NO_NOTES: CharacterNotes = {};
 
 export const GenshinDataContext = createContext<GenshinDataContextValue | null>(null);
 
@@ -182,7 +189,11 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
           previous ? snapshotBuilds(previous.data) : null,
           previous?.plans ?? [],
           previous?.farmingTicks ?? null,
-          keep.marks
+          keep.marks,
+          alignTravelerNote(
+            previous?.characterNotes ?? {},
+            data.characters.map((c) => c.key)
+          )
         );
         setState({ uid, stored, error: null, migratedFromLocal: false, droppedKeepMarks: keep.dropped });
       } catch (error) {
@@ -331,6 +342,29 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
     [uid, current?.stored]
   );
 
+  const setCharacterNotes = useCallback(
+    async (characterNotes: CharacterNotes) => {
+      const stored = current?.stored;
+      if (!uid || !stored) return false;
+      // Update the screen right away, and undo it if the write fails.
+      setState((s) => (s && s.stored ? { ...s, stored: { ...s.stored, characterNotes } } : s));
+      try {
+        await saveCharacterNotes(uid, characterNotes);
+        return true;
+      } catch (error) {
+        console.error("Saving character notes failed:", error);
+        // Only while the screen still shows these notes for this account.
+        setState((s) =>
+          s && s.uid === uid && s.stored && s.stored.characterNotes === characterNotes
+            ? { ...s, stored: { ...s.stored, characterNotes: stored.characterNotes } }
+            : s
+        );
+        return false;
+      }
+    },
+    [uid, current?.stored]
+  );
+
   const value: GenshinDataContextValue = {
     data: current?.stored?.data ?? null,
     showcase: current?.stored?.showcases[0]?.picks ?? emptyShowcase(),
@@ -341,6 +375,7 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
     plans: current?.stored?.plans ?? NO_PLANS,
     farmingTicks: current?.stored?.farmingTicks ?? null,
     keepMarks: current?.stored?.keepMarks ?? NO_MARKS,
+    characterNotes: current?.stored?.characterNotes ?? NO_NOTES,
     droppedKeepMarks: current?.droppedKeepMarks ?? 0,
     loading: authLoading || (!!uid && !current),
     loadError: current?.error ?? null,
@@ -354,6 +389,7 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
     setPlans,
     setFarmingTicks,
     setKeepMarks,
+    setCharacterNotes,
   };
 
   return <GenshinDataContext.Provider value={value}>{children}</GenshinDataContext.Provider>;

@@ -272,6 +272,57 @@ test.describe("signed in with the sample upload", () => {
     await expect(others.getByText(/ of 91$/)).toBeVisible();
   });
 
+  test("notes and tags on a character are saved, filter the roster, and can be cleared", async () => {
+    const notesPanel = () =>
+      page.locator("section", { has: page.getByRole("heading", { name: "Notes", exact: true }) });
+
+    await page.goto("/genshin/characters/Furina");
+    await notesPanel().getByRole("button", { name: "Add a note or tags" }).click();
+    await expect(page.getByLabel("Note", { exact: true })).toBeFocused();
+    await page.getByLabel("Note", { exact: true }).fill("Waiting on a better goblet.");
+    const tagBox = page.getByLabel("Tags", { exact: true });
+    await tagBox.fill("Abyss team A");
+    await tagBox.press("Enter");
+    await notesPanel().getByRole("button", { name: "Save" }).click();
+    await expect(notesPanel().getByRole("button", { name: "Edit note and tags" })).toBeFocused();
+    await page.reload();
+    await expect(notesPanel().getByText("Waiting on a better goblet.")).toBeVisible();
+    await expect(notesPanel().getByRole("list", { name: "Tags" })).toHaveText("Abyss team A");
+
+    // A second character picks the tag from the suggestions, typed in another case it would match too.
+    await page.goto("/genshin/characters/Mona");
+    await notesPanel().getByRole("button", { name: "Add a note or tags" }).click();
+    await notesPanel().getByRole("button", { name: "Add the tag Abyss team A" }).click();
+    // Escape leaves without saving.
+    await page.keyboard.press("Escape");
+    await expect(notesPanel().getByRole("button", { name: "Add a note or tags" })).toBeVisible();
+    await notesPanel().getByRole("button", { name: "Add a note or tags" }).click();
+    await page.getByLabel("Tags", { exact: true }).fill("abyss team a");
+    await notesPanel().getByRole("button", { name: "Save" }).click();
+    await expect(notesPanel().getByRole("list", { name: "Tags" })).toHaveText("Abyss team A");
+
+    // The roster's Tags menu lists it with its count and narrows the roster to both.
+    await page.goto("/genshin/characters");
+    await page.getByRole("button", { name: /^Tags/ }).click();
+    await page.getByRole("menuitemcheckbox", { name: /Abyss team A/ }).click();
+    await page.keyboard.press("Escape");
+    await expect(page.getByText("Showing 2 of 124 characters.", { exact: false })).toBeVisible();
+    await expect(page.locator("#roster > *")).toHaveCount(2);
+
+    // Clearing both takes the tag away, and with it the Tags filter.
+    for (const name of ["Furina", "Mona"]) {
+      await page.goto(`/genshin/characters/${name}`);
+      await notesPanel().getByRole("button", { name: "Edit note and tags" }).click();
+      await page.getByLabel("Note", { exact: true }).fill("");
+      await notesPanel().getByRole("button", { name: "Remove the tag Abyss team A" }).click();
+      await notesPanel().getByRole("button", { name: "Save" }).click();
+      await expect(notesPanel().getByRole("button", { name: "Add a note or tags" })).toBeVisible();
+    }
+    await page.goto("/genshin/characters");
+    await expect(page.getByText(/^Showing \d+ of 124/)).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /^Tags/ })).toHaveCount(0);
+  });
+
   test("a character page shows the profile, weapon, talents and artifacts", async () => {
     await page.goto("/genshin/characters/Aino");
     await expect(page.getByRole("heading", { level: 1, name: "Aino" })).toBeVisible();

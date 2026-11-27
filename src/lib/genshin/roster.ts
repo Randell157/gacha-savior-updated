@@ -1,5 +1,6 @@
 import { getCharacterDetails, getCharacterRoles } from "@/lib/genshin/characterDetails";
 import type { GenshinData, GoodCharacter } from "@/lib/genshin/types";
+import { tagCounts, type CharacterNotes } from "@/lib/genshin/characterNotes";
 import { GENSHIN_CHARACTERS, normalizeCharacterKey } from "@/lib/genshinCharacters";
 import { compareVersions, formatCharacterDisplayName } from "@/lib/utils";
 
@@ -10,29 +11,49 @@ export interface CharacterFilterState {
   rarity: string[];
   role: string[];
   region: string[];
+  /** The player's own tags (Phase 7 step 3); only owned characters have them */
+  tags: string[];
 }
 
-export const NO_FILTERS: CharacterFilterState = { element: [], weapon: [], rarity: [], role: [], region: [] };
+export const NO_FILTERS: CharacterFilterState = { element: [], weapon: [], rarity: [], role: [], region: [], tags: [] };
 
 export function activeFilterCount(filters: CharacterFilterState): number {
-  return Object.values(filters).reduce((n, values) => n + values.length, 0);
+  return Object.values(filters).reduce((n, values) => n + (Array.isArray(values) ? values.length : 0), 0);
+}
+
+/**
+ * The filters with any remembered tag that no owned character has any more
+ * taken out, so a tag removed since can't leave the roster empty with nothing
+ * to show why.
+ */
+export function withKnownTags(filters: CharacterFilterState, known: readonly string[]): CharacterFilterState {
+  const tags = (filters.tags ?? []).filter((tag) => known.includes(tag));
+  return tags.length === (filters.tags ?? []).length ? filters : { ...filters, tags };
+}
+
+/** The tags on the upload's characters, with how many have each, sorted by name. */
+export function ownedTags(data: GenshinData | null | undefined, notes: CharacterNotes) {
+  return tagCounts(notes, (data?.characters ?? []).map((character) => character.key));
 }
 
 /**
  * Whether a roster character matches: any chosen value within a group
  * (Support or Healer), and every group with a choice (Pyro and Sword).
+ * `tags` are the character's own tags.
  */
 export function matchesCharacterFilters(
   character: { key: string; rarity: number },
-  filters: CharacterFilterState
+  filters: CharacterFilterState,
+  tags: readonly string[] = []
 ): boolean {
   const details = getCharacterDetails(character.key);
-  const checks: [string[], string[]][] = [
+  const checks: [string[], readonly string[]][] = [
     [filters.element, details?.element ? [details.element] : []],
     [filters.weapon, details?.weaponType ? [details.weaponType] : []],
     [filters.rarity, [String(character.rarity)]],
     [filters.role, getCharacterRoles(character.key)],
     [filters.region, [details?.region ?? "Other"]],
+    [filters.tags ?? [], tags],
   ];
   return checks.every(([chosen, values]) => chosen.length === 0 || chosen.some((v) => values.includes(v)));
 }
@@ -97,7 +118,11 @@ export function obtainedPositions(data: GenshinData | null | undefined): Map<str
 }
 
 /** The roster's characters for these choices, in order, each with its build if owned. */
-export function buildRoster(data: GenshinData | null | undefined, choices: RosterChoices) {
+export function buildRoster(
+  data: GenshinData | null | undefined,
+  choices: RosterChoices,
+  notes: CharacterNotes = {}
+) {
   const ownedByNormalizedKey = new Map<string, GoodCharacter>();
   for (const char of data?.characters ?? []) {
     const normalized = normalizeCharacterKey(char.key);
@@ -118,7 +143,7 @@ export function buildRoster(data: GenshinData | null | undefined, choices: Roste
     if (choices.ownedFilter === "owned" && !character.owned) return false;
     if (choices.ownedFilter === "unowned" && character.owned) return false;
     if (query && !formatCharacterDisplayName(character.key).toLowerCase().includes(query)) return false;
-    return matchesCharacterFilters(character, choices.filters);
+    return matchesCharacterFilters(character, choices.filters, character.owned ? notes[character.owned.key]?.tags : []);
   });
 
   const byName = (a: { key: string }, b: { key: string }) =>
@@ -162,10 +187,11 @@ export function buildRoster(data: GenshinData | null | undefined, choices: Roste
 export function characterNeighbours(
   data: GenshinData | null | undefined,
   characterKey: string,
-  choices: RosterChoices
+  choices: RosterChoices,
+  notes: CharacterNotes = {}
 ): { previous: string; next: string; position: number; total: number } | null {
   const ownedKeys = (from: RosterChoices) =>
-    buildRoster(data, from)
+    buildRoster(data, from, notes)
       .filter((character) => character.owned)
       .map((character) => character.ownedKey);
 

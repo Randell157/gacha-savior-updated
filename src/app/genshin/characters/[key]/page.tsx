@@ -15,6 +15,7 @@ import { BaseStats, ChooseElementHint, ConstellationPicker, TalentKindLabel, Tal
 import CharacterGameInfo, { Stars } from "@/components/CharacterGameInfo";
 import CharacterStepper from "@/components/CharacterStepper";
 import CharacterPlan from "@/components/CharacterPlan";
+import CharacterNotes from "@/components/CharacterNotes";
 import BuildCard from "@/components/BuildCard";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { IdCard } from "lucide-react";
@@ -127,6 +128,7 @@ function CharacterDetail({ signedOut = false }: { signedOut?: boolean }) {
       <div className="max-w-7xl mx-auto py-4 sm:py-12 sm:px-6 lg:px-8">
         <div className="space-y-6">
           <ProfileCard character={character} name={displayName} />
+          <CharacterNotes key={`notes-${characterKey}`} characterKey={character.key} name={displayName} />
           <WeaponPanel weapon={weapon} />
           <ArtifactsPanel artifacts={artifacts} />
           <CharacterPlan key={characterKey} character={character} name={displayName} />

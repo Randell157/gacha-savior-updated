@@ -44,17 +44,21 @@ const GROUPS: { group: Group; label: string; values: string[]; text?: (v: string
 ];
 const groupInfo = (group: Group) => GROUPS.find((g) => g.group === group)!;
 
-/** A tick-box menu for the groups that allow several choices (Playstyle, Region). */
+/** A tick-box menu for the groups that allow several choices (Playstyle, Region, Tags). */
 function FilterMenu({
-  group,
+  label,
+  values,
+  counts,
   chosen,
   onToggle,
 }: {
-  group: Group;
+  label: string;
+  values: string[];
+  /** How many characters have each value, shown beside it */
+  counts?: Map<string, number>;
   chosen: string[];
   onToggle: (value: string) => void;
 }) {
-  const { label, values } = groupInfo(group);
   const summary = chosen.length > 2 ? `${chosen.length} selected` : chosen.join(", ");
   return (
     <DropdownMenu>
@@ -77,7 +81,13 @@ function FilterMenu({
             // Stay open, so several can be ticked in a row.
             onSelect={(event) => event.preventDefault()}
           >
-            {value}
+            <span className="flex-1">{value}</span>
+            {counts?.has(value) && (
+              <span className="ml-4 text-xs tabular-nums text-gray-500 dark:text-slate-400">
+                {counts.get(value)}
+                <span className="sr-only">{counts.get(value) === 1 ? " character" : " characters"}</span>
+              </span>
+            )}
           </DropdownMenuCheckboxItem>
         ))}
       </DropdownMenuContent>
@@ -94,10 +104,15 @@ function FilterMenu({
 export default function CharacterFilters({
   filters,
   onChange,
+  tags = [],
 }: {
   filters: CharacterFilterState;
   onChange: (filters: CharacterFilterState) => void;
+  /** The player's tags on owned characters, with counts; the Tags filter shows only when there are some */
+  tags?: { tag: string; count: number }[];
 }) {
+  const tagValues = tags.map(({ tag }) => tag);
+  const tagCounts = new Map(tags.map(({ tag, count }) => [tag, count]));
   const [phoneOpen, setPhoneOpen] = useState(false);
   const toggle = (group: Group, value: string) => {
     const chosen = filters[group];
@@ -137,8 +152,17 @@ export default function CharacterFilters({
           {chips("rarity")}
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <FilterMenu group="role" chosen={filters.role} onToggle={(v) => toggle("role", v)} />
-          <FilterMenu group="region" chosen={filters.region} onToggle={(v) => toggle("region", v)} />
+          <FilterMenu label="Playstyle" values={ROLES} chosen={filters.role} onToggle={(v) => toggle("role", v)} />
+          <FilterMenu label="Region" values={REGIONS} chosen={filters.region} onToggle={(v) => toggle("region", v)} />
+          {tagValues.length > 0 && (
+            <FilterMenu
+              label="Tags"
+              values={tagValues}
+              counts={tagCounts}
+              chosen={filters.tags}
+              onToggle={(v) => toggle("tags", v)}
+            />
+          )}
           <ClearFilters count={count} onClick={clear} />
         </div>
       </div>
@@ -164,6 +188,18 @@ export default function CharacterFilters({
                 {chips(group)}
               </div>
             ))}
+            {tagValues.length > 0 && (
+              <div className="space-y-1.5">
+                <span className="text-sm font-bold text-gray-800 dark:text-slate-200">Tags</span>
+                <div role="group" aria-label="Filter by tag" className="flex flex-wrap gap-2">
+                  {tagValues.map((tag) => (
+                    <FilterChip key={tag} pressed={filters.tags.includes(tag)} onClick={() => toggle("tags", tag)}>
+                      {tag}
+                    </FilterChip>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

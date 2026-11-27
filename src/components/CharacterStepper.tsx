@@ -6,7 +6,15 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { readRememberedTabState } from "@/hooks/useRememberedState";
 import type { GenshinData } from "@/lib/genshin/types";
-import { characterNeighbours, DEFAULT_ROSTER_CHOICES, ROSTER_MEMORY_KEYS, type RosterChoices } from "@/lib/genshin/roster";
+import { useGenshinData } from "@/hooks/useGenshinData";
+import {
+  characterNeighbours,
+  DEFAULT_ROSTER_CHOICES,
+  ownedTags,
+  ROSTER_MEMORY_KEYS,
+  withKnownTags,
+  type RosterChoices,
+} from "@/lib/genshin/roster";
 import { formatCharacterDisplayName } from "@/lib/utils";
 
 function rememberedRosterChoices(): RosterChoices {
@@ -37,8 +45,13 @@ export default function CharacterStepper({
   /** Two on one page need different names for screen readers. */
   label?: string;
 }) {
-  const [choices] = useState(rememberedRosterChoices);
-  const neighbours = useMemo(() => characterNeighbours(data, characterKey, choices), [data, characterKey, choices]);
+  const [remembered] = useState(rememberedRosterChoices);
+  const { characterNotes } = useGenshinData();
+  const neighbours = useMemo(() => {
+    const known = ownedTags(data, characterNotes).map(({ tag }) => tag);
+    const choices = { ...remembered, filters: withKnownTags(remembered.filters, known) };
+    return characterNeighbours(data, characterKey, choices, characterNotes);
+  }, [data, characterKey, remembered, characterNotes]);
   const previousLink = useRef<HTMLAnchorElement>(null);
   const nextLink = useRef<HTMLAnchorElement>(null);
 

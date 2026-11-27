@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import { NotebookPen, Tag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useGenshinData } from "@/hooks/useGenshinData";
@@ -29,9 +30,11 @@ import {
   DEFAULT_ROSTER_CHOICES,
   hasObtainedOrder as uploadHasObtainedOrder,
   obtainedPositions,
+  ownedTags,
   releaseVersion,
   ROSTER_MEMORY_KEYS,
   usableSortOrder,
+  withKnownTags,
   type OwnedFilter,
   type SortField,
 } from "@/lib/genshin/roster";
@@ -145,7 +148,7 @@ function SortedValue({ text, spoken }: { text: string; spoken: string }) {
 }
 
 export default function CharactersPage() {
-  const { data: genshinData, loading } = useGenshinData();
+  const { data: genshinData, loading, characterNotes } = useGenshinData();
   useFadeAfterLoading(loading);
   const { user } = useAuth();
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
@@ -155,7 +158,13 @@ export default function CharactersPage() {
     DEFAULT_ROSTER_CHOICES.ownedFilter
   );
   const [search, setSearch] = useRememberedState(ROSTER_MEMORY_KEYS.search, DEFAULT_ROSTER_CHOICES.search);
-  const [filters, setFilters] = useRememberedState(ROSTER_MEMORY_KEYS.filters, DEFAULT_ROSTER_CHOICES.filters);
+  const [rememberedFilters, setFilters] = useRememberedState(ROSTER_MEMORY_KEYS.filters, DEFAULT_ROSTER_CHOICES.filters);
+  const tags = useMemo(() => ownedTags(genshinData, characterNotes), [genshinData, characterNotes]);
+  // A remembered tag that no character has any more is left out.
+  const filters = useMemo(
+    () => withKnownTags(rememberedFilters, tags.map(({ tag }) => tag)),
+    [rememberedFilters, tags]
+  );
   const [quickView, setQuickView] = useState<string | null>(null);
   // The tile that opened the quick view, which gets focus back when it closes.
   const quickViewTile = useRef<HTMLElement | null>(null);
@@ -167,8 +176,8 @@ export default function CharactersPage() {
   const positionOf = (key: string) => obtainedPosition.get(normalizeCharacterKey(key));
 
   const roster = useMemo(
-    () => buildRoster(genshinData, { sortOrder, ownedFilter, search, filters }),
-    [genshinData, sortOrder, ownedFilter, search, filters]
+    () => buildRoster(genshinData, { sortOrder, ownedFilter, search, filters }, characterNotes),
+    [genshinData, sortOrder, ownedFilter, search, filters, characterNotes]
   );
 
   const sortField = sortOrder.split("-")[0];
@@ -246,7 +255,7 @@ export default function CharactersPage() {
           ]}
         />
       </div>
-      <CharacterFilters filters={filters} onChange={setFilters} />
+      <CharacterFilters filters={filters} onChange={setFilters} tags={tags} />
       <p className="text-sm text-gray-500 dark:text-slate-400 mb-4" aria-live="polite">
         {[
           activeFilterCount(filters) > 0 || ownedFilter !== "all" || search.trim()
@@ -279,6 +288,8 @@ export default function CharactersPage() {
       <div ref={rosterGrid} id="roster" className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-4 justify-items-center">
         {roster.map((character) => {
           const displayName = formatCharacterDisplayName(character.key);
+          // Only owned characters have notes and tags (design "3B" from `.mockups/notes-tags.html`).
+          const mine = character.owned ? characterNotes[character.owned.key] : undefined;
           const portrait = (
             <>
               <div
@@ -305,6 +316,19 @@ export default function CharactersPage() {
                     setImageErrors((prev) => new Set(prev).add(character.key))
                   }
                 />
+                {mine && (
+                  <span
+                    aria-hidden
+                    className="absolute bottom-1 left-1 flex h-4 w-4 items-center justify-center rounded bg-indigo-600 text-white dark:bg-indigo-500 dark:text-white"
+                  >
+                    {/* A tag for tags, a note for a note alone, so the mark never promises tags that aren't there. */}
+                    {mine.tags.length > 0 ? (
+                      <Tag className="h-2.5 w-2.5" strokeWidth={2.5} />
+                    ) : (
+                      <NotebookPen className="h-2.5 w-2.5" strokeWidth={2.5} />
+                    )}
+                  </span>
+                )}
               </div>
               <span
                 className={cn(
@@ -327,6 +351,12 @@ export default function CharactersPage() {
                 />
               )}
               {character.owned && <BuildLines character={character.owned} sortField={sortField} />}
+              {mine && (
+                <span className="sr-only">
+                  {mine.tags.length > 0 && `, tags: ${mine.tags.join(", ")}`}
+                  {mine.note && ", has a note"}
+                </span>
+              )}
             </>
           );
 
@@ -351,7 +381,11 @@ export default function CharactersPage() {
             <Link
               key={character.key}
               href={`/genshin/characters/${encodeURIComponent(character.ownedKey)}`}
-              title={displayName}
+              title={
+                mine
+                  ? [displayName, mine.tags.join(", "), mine.note && "has a note"].filter(Boolean).join(" · ")
+                  : displayName
+              }
               className="press group flex flex-col items-center w-full max-w-[7.5rem] rounded-lg p-2 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
             >
               {portrait}
