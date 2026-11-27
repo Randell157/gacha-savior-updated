@@ -31,6 +31,16 @@ export function uniqueName(prefix = "tester") {
   return `${prefix}${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 }
 
+/**
+ * Gives the page's requests an IP of their own. The signed-out auth routes
+ * count tries per IP in Firestore for the whole run, so tests that share one
+ * would run into each other's limits.
+ */
+export async function useOwnIp(page: Page) {
+  const n = () => Math.floor(Math.random() * 254) + 1;
+  await page.setExtraHTTPHeaders({ "x-real-ip": `10.${n()}.${n()}.${n()}` });
+}
+
 /** How many password reset emails the emulator has "sent" to this address. */
 export async function resetEmailsSentTo(email: string): Promise<number> {
   const res = await fetch(`${AUTH}/emulator/v1/projects/${EMULATOR_PROJECT}/oobCodes`);

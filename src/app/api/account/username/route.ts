@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { adminAuth } from "@/lib/firebaseAdminAuth";
+import { usernameProblem } from "@/lib/usernames";
 
 // Changes the signed-in user's username. The rules don't let the browser delete
 // the old claim in usernames/, so this runs on the server. The account always
 // comes from the verified ID token, never from the request's content.
 
 const TAKEN = "That username is taken. Try another.";
-const INVALID = 'Usernames can\'t be empty or contain "/" or "@".';
 const FAILED = "Couldn't change your username. Please try again.";
 
 /** Thrown inside the transaction to stop it and show the player a message. */
@@ -33,10 +33,9 @@ export async function POST(request: Request) {
 
   const body = await request.json().catch(() => null);
   const username = typeof body?.username === "string" ? body.username.trim() : "";
-  // The same rules as sign-up: names are document IDs, and login reads "@" as an email.
-  if (!username || /[/@]/.test(username) || username === "." || username === "..") {
-    return NextResponse.json({ error: INVALID }, { status: 400 });
-  }
+  // The same rules as sign-up (src/lib/usernames.ts).
+  const problem = usernameProblem(username);
+  if (problem) return NextResponse.json({ error: problem }, { status: 400 });
 
   try {
     await adminDb.runTransaction(async (transaction) => {

@@ -17,6 +17,18 @@ export async function loginEmail(uid: string): Promise<string | null> {
   }
 }
 
+/**
+ * The site's own address, for `callAuthRest`. On the live site it's the
+ * production address Vercel provides, not one built from the request's Host
+ * header (security audit run 3). Elsewhere (the dev server, previews) it's the
+ * request's own origin.
+ */
+export function siteOrigin(request: Request) {
+  const production = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  if (process.env.VERCEL_ENV === "production" && production) return `https://${production}`;
+  return new URL(request.url).origin;
+}
+
 export type AuthRestResult =
   | { ok: true; data: Record<string, unknown> }
   | { ok: false; message: string };

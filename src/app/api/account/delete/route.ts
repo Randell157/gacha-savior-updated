@@ -30,8 +30,15 @@ export async function POST(request: Request) {
     return denied();
   }
 
+  // A marker the rules check before a profile can be created, so the browser,
+  // whose ID token stays valid for up to an hour, can't recreate a profile (and
+  // claim a username) while the data is being deleted (security audit run 3).
+  const marker = adminDb.collection("deletedAccounts").doc(uid);
   try {
-    // The login goes last, so if a step fails the person can log in and try again.
+    await marker.set({ deletedAt: new Date() });
+    // No new sessions or token refreshes from here on.
+    await adminAuth.updateUser(uid, { disabled: true });
+    await adminAuth.revokeRefreshTokens(uid);
     await adminDb.recursiveDelete(adminDb.collection("users").doc(uid));
     // Every claim that points at this account, not just the one the profile
     // names (older accounts could hold more than one).
@@ -41,10 +48,17 @@ export async function POST(request: Request) {
     // The reset-email counter from /api/auth/reset-password, if there is one.
     batch.delete(adminDb.collection("resetRequests").doc(uid));
     await batch.commit();
+    // The login goes last, so if a step fails the person can log in and try again.
     await adminAuth.deleteUser(uid);
+    // A reset request that came in mid-delete could have written this again.
+    await adminDb.collection("resetRequests").doc(uid).delete();
+    // The marker stays: uids aren't reused, and it keeps refusing that token.
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error("Deleting account failed:", error);
+    // Let the person log in again to retry (if the login still exists).
+    await adminAuth.updateUser(uid, { disabled: false }).catch(() => {});
+    await marker.delete().catch(() => {});
     return NextResponse.json(
       { error: "Couldn't delete your account. Please try again." },
       { status: 500 }

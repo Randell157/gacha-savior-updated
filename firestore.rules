@@ -24,9 +24,15 @@ service cloud.firestore {
     // The profile itself can't be deleted from the browser (the delete-account
     // route does it): a deleted and re-created profile would let the account
     // claim another username below.
+    // deletedAccounts/{uid} is written by the delete-account route before it
+    // deletes anything. Its token stays valid for up to an hour, so without
+    // this check the browser could recreate the profile mid-delete and leave a
+    // username claimed by an account that's gone.
     match /users/{userId} {
       allow read: if isOwner(userId);
-      allow create, update: if isOwner(userId) && validPicture(request.resource.data);
+      allow create: if isOwner(userId) && validPicture(request.resource.data)
+                    && !exists(/databases/$(database)/documents/deletedAccounts/$(userId));
+      allow update: if isOwner(userId) && validPicture(request.resource.data);
 
       // {collection} first: on its own, {document=**} also matches users/{userId}
       // itself, which would let any profile write skip validPicture.

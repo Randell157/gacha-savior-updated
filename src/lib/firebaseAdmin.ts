@@ -14,7 +14,14 @@ function loadServiceAccount() {
       "Missing FIREBASE_SERVICE_ACCOUNT_KEY. Add the base64-encoded service account JSON to .env.local (see .env.example)."
     );
   }
-  return JSON.parse(Buffer.from(encoded, "base64").toString("utf8"));
+  try {
+    return JSON.parse(Buffer.from(encoded, "base64").toString("utf8"));
+  } catch {
+    // Not the parse error itself: its message can quote part of the key.
+    throw new Error(
+      "FIREBASE_SERVICE_ACCOUNT_KEY isn't base64-encoded service account JSON. Encode the key file again (see .env.example)."
+    );
+  }
 }
 
 /**

@@ -9,6 +9,7 @@ import {
   resetEmailsSentTo,
   uniqueName,
   uploadSample,
+  useOwnIp,
 } from "./helpers";
 
 const BAD_CREDENTIALS = "That email, username or password isn't right. Check them and try again.";
@@ -151,6 +152,7 @@ test.describe("passwords", () => {
 
   test("forgot password sends a link by email or username", async ({ page }) => {
     const user = await createUser("forgot");
+    await useOwnIp(page);
     await page.goto("/login");
     await page.getByRole("link", { name: "Forgot password?" }).click();
     await expect(page).toHaveURL(/\/forgot-password$/);
@@ -177,9 +179,26 @@ test.describe("passwords", () => {
       expect(await response.json()).toEqual({ ok: true });
     }
     expect(await resetEmailsSentTo(user.email)).toBe(3);
+
+    // The email path is counted apart, so it still sends.
+    const byEmail = await request.post("/api/auth/reset-password", {
+      headers: { "x-real-ip": "198.51.100.9" },
+      data: { email: user.email },
+    });
+    expect(await byEmail.json()).toEqual({ ok: true });
+    expect(await resetEmailsSentTo(user.email)).toBe(4);
+  });
+
+  test("a username reset suggests the email path too", async ({ page }) => {
+    await useOwnIp(page);
+    await page.goto("/forgot-password");
+    await page.getByLabel("Email or username").fill(uniqueName("nobody"));
+    await page.getByRole("button", { name: "Send reset link" }).click();
+    await expect(page.getByText("try again with your email address")).toBeVisible();
   });
 
   test("forgot password says the same for an unknown account", async ({ page }) => {
+    await useOwnIp(page);
     for (const unknown of [uniqueName("nobody"), `${uniqueName("nobody")}@example.test`]) {
       await page.goto("/forgot-password");
       await page.getByLabel("Email or username").fill(unknown);

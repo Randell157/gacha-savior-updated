@@ -3,9 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { sendPasswordResetEmail } from "firebase/auth";
-import { FirebaseError } from "firebase/app";
-import { auth } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
 import { CenteredPage } from "@/components/PageShell";
 import { Button } from "@/components/ui/button";
@@ -17,14 +14,16 @@ class ResetError extends Error {}
 const SEND_FAILED = "Couldn't send the link right now. Please try again.";
 
 /**
- * Asks the server to email a reset link to a username's account. The server
- * never sends the email address back, and answers the same for unknown names.
+ * Asks the server to email a reset link to an email's or a username's account.
+ * Both go through the server so the free plan's daily email quota can be
+ * counted. It never sends an email address back, and answers the same for
+ * unknown accounts.
  */
-async function sendResetForUsername(username: string) {
+async function sendReset(identifier: string) {
   const response = await fetch("/api/auth/reset-password", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username }),
+    body: JSON.stringify(identifier.includes("@") ? { email: identifier } : { username: identifier }),
   });
   if (!response.ok) {
     const result = await response.json().catch(() => ({}));
@@ -35,7 +34,8 @@ async function sendResetForUsername(username: string) {
 export default function ForgotPasswordPage() {
   const [identifier, setIdentifier] = useState("");
   const [isSending, setIsSending] = useState(false);
-  const [sent, setSent] = useState(false);
+  // Which way the link was asked for, once it's sent.
+  const [sent, setSent] = useState<"email" | "username" | null>(null);
   const [error, setError] = useState("");
   const sentMessage = useRef<HTMLParagraphElement>(null);
   const router = useRouter();
@@ -57,26 +57,11 @@ export default function ForgotPasswordPage() {
 
     try {
       const typed = identifier.trim();
-      if (typed.includes("@")) await sendPasswordResetEmail(auth, typed);
-      else await sendResetForUsername(typed);
-      setSent(true);
+      await sendReset(typed);
+      setSent(typed.includes("@") ? "email" : "username");
     } catch (error) {
-      // An unknown account looks the same as a known one, so this page can't
-      // be used to find out who has an account.
-      if (error instanceof FirebaseError && error.code === "auth/user-not-found") {
-        setSent(true);
-      } else {
-        setError(
-          error instanceof ResetError
-            ? error.message
-            : error instanceof FirebaseError && error.code === "auth/invalid-email"
-              ? "That email address doesn't look right. Check it and try again."
-              : error instanceof FirebaseError && error.code === "auth/too-many-requests"
-                ? "Too many tries. Wait a few minutes and try again."
-                : SEND_FAILED
-        );
-        console.error("Password reset failed:", error);
-      }
+      setError(error instanceof ResetError ? error.message : SEND_FAILED);
+      console.error("Password reset failed:", error);
     } finally {
       setIsSending(false);
     }
@@ -104,6 +89,7 @@ export default function ForgotPasswordPage() {
           >
             If that account exists, a link is on its way. Check your spam folder if you don&apos;t see it in
             a few minutes.
+            {sent === "username" && " If nothing arrives, try again with your email address."}
           </p>
         ) : (
           <form className="space-y-6" onSubmit={handleSubmit}>

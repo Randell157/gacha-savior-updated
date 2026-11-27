@@ -56,6 +56,7 @@ Each phase builds on the one before it. Phase 2 comes first so later phases buil
 | 5 | Wish history tracker | 1 | **Done** (2026-11-11) |
 | 6 | Version 1.1: showcase and build card, upload changes, material planner, wish additions | 3, 4, 5 | **Done** (2026-11-13, released as v1.1.0) |
 | 7 | Version 1.2: today's farming list, artifact cleanup, notes and tags, spare weapon copies, quick search, year in review, coming-soon characters, splash art on character pages | 6 | **Done** (2026-11-27, released as v1.2.0) |
+| 1.2.1 | Security fixes from audit run 3: shared rate limits, a daily reset-email cap, hardening | 7 | In progress (planned 2026-11-27) |
 
 ---
 
@@ -766,6 +767,34 @@ A step is finished only when every box is checked. Each check is verified (run, 
 
 ---
 
+## Version 1.2.1: security fixes
+
+> **Planned (2026-11-27).** Security audit run 3 (for 1.2) left two leads on the signed-out auth routes and some hardening notes. The user picked: shared rate limits in Firestore, one daily cap on reset emails covering both the email and the username path, the quick code fixes, the reset wording and rolling window, and the delete route's order. A full Content-Security-Policy stays under [Later](#later). It ships as a patch version, so the About timeline gets no step.
+
+- **Shared rate limits.** The signed-out routes count tries in `rateLimits/{route}:{hashed IP}` through the Admin SDK (no rule matches it, so the browser can't reach it), as a rolling window of timestamps, so every server instance shares one count and a restart doesn't reset it. The limits stay as they are: 10 a minute for username login, 3 per 15 minutes for resets.
+- **Daily reset cap.** The free plan sends 150 reset emails a day for the whole project. Email resets now go through `/api/auth/reset-password` too, and one counter (`rateLimits/resetEmails`, by Pacific day, when Google's quotas reset) stops at 100 a day, leaving room for the rest. Past it, every reset request (known account or not) gets "Password resets are paused until tomorrow".
+- **Per-account cap.** Still 3 an hour, now a rolling hour and counted apart for the username path and the email path, so someone who knows a username can't block the email path. After a username reset, the message adds that resetting by email works too.
+- **Delete route.** Writes a `deletedAccounts/{uid}` marker first, disables the login and revokes its sessions, then deletes. The rules refuse a new profile for a uid with a marker, so the browser can't recreate a profile (and claim a name) mid-delete. If a step fails, the marker goes and the login is enabled again, so the person can retry. Needs `firestore.rules` published.
+- **Quick fixes.** Usernames are at most 64 characters (sign-up, rename and the signed-out routes). The service-account `JSON.parse` fails with a clear message. The `Referer` sent to Firebase comes from the site's own address rather than the request's Host. (Recent searches already check for a list and clear on logout, and the splash-art script already pins its hosts, refuses redirects and caps the size: both were done in 1.2.)
+
+### Steps, and what finished means for each
+
+1. **Fixes**
+   - [x] Unit tests for the rolling window and the Pacific day, and `npm test`, lint and type check pass (2026-11-27: `src/lib/rateWindow.test.ts`, 7 tests: the window's edges and junk saved data, PST and PDT midnight, the daily cap, the username rules and 64-character cap, email shapes; 187 in all pass, lint and type check clean)
+   - [x] On `dev:emu`: 11 username logins in a minute give a 429 on the 11th, and the count is in `rateLimits` (read back from Firestore) (2026-11-27, dev server on port 3100: ten 401s then 429; the right password from another IP still gets a token; the `rateLimits/login:…` doc holds 10 times)
+   - [x] On `dev:emu`: a username's 4th reset in an hour sends nothing while its email path still sends; an email reset arrives in the emulator's list; with the daily counter set to 100, both paths say resets are paused (2026-11-27: four username resets from four IPs all answer `{ ok: true }`, 3 in the emulator's list; the email path makes it 4; an unknown email answers `{ ok: true }`, a malformed one 400; a 4th reset from one IP gets 429; `resetRequests/{uid}` holds `username` and `email` apart; with `rateLimits/resetEmails` at 100, the username, the email and an unknown name all get 429 "Password resets are paused until tomorrow")
+   - [x] On `dev:emu`: deleting an account still works, leaves a `deletedAccounts` marker, and creating a profile for that uid is refused by the rules emulator (2026-11-27: delete 200; marker present; profile, claim and `resetRequests` gone; recreating the profile with the old ID token gets 403; a fresh account still creates its profile, 200. Test data removed afterwards)
+   - [x] The forgot-password page in light, dark and phone width with no console errors (2026-11-27: dark at desktop width after a username shows the extra line "If nothing arrives, try again with your email address."; light at 375 px after an email shows the usual message only, no sideways scroll; no console errors)
+   - [x] e2e specs updated for the new reset behavior (not run unless asked) (2026-11-27: `useOwnIp` helper; the email path still sends after the username cap; the username hint; not run)
+   - [x] Fresh review against `docs/REVIEW_RUBRIC.md`, findings fixed (2026-11-27, 2 rounds. Round 1 passed the rubric and raised: a Firestore read per request could let one IP use up the free plan's 50,000 daily reads, fixed with an in-memory copy checked first; bursts giving 500, now 429; `auth/invalid-email` giving 500; `resetRequests` recreated mid-delete; an unsalted IP hash, now an HMAC; docs gaps. Round 2 confirmed those and found the memory pruning never pruned, fixed by storing when each entry expires; checks rerun after it. Left as documented: the per-account hit taken before the daily count in a race, writes under `users/{uid}/…` mid-delete, the timing difference)
+   - [x] `docs/ARCHITECTURE.md` and `CLAUDE.md` describe the new behavior (2026-11-27: collections, rules, login, passwords, deleting, sign-up, the admin key, unit and e2e tests updated; `CLAUDE.md` needed no change)
+2. **Release**
+   - [x] The live `usernames` collection has no name over 64 characters (they could no longer log in by username); read-only check, with the user's OK (2026-11-27: listed the document IDs with the Admin SDK: 1 name, 10 characters at most, none over 64, none with `/` or `@`; the user also tried the test build and it works)
+   - [x] README version line and `package.json` at 1.2.1, tests run again after the bump (2026-11-27: `npm version 1.2.1 --no-git-tag-version`, README "**Version 1.2.1**"; 187 unit tests, lint and type check pass; `npm run build` clean; test build signed out: 7 pages 200, username login with an unknown name 401, reset for an unknown name `{ ok: true }`, a malformed email 400, delete without a token 401, no server errors)
+   - [ ] **Test build checked by the user**, then committed, tagged `v1.2.1`, rules published, deployed and the live routes checked (each only when the user says)
+
+---
+
 ## Later
 
 Ideas that came up but aren't scheduled yet:
@@ -774,7 +803,7 @@ Ideas that came up but aren't scheduled yet:
 - **Per-character artifact scoring**: weighting substats by what each character wants, shown next to CV.
 - **Honkai: Star Rail and Zenless Zone Zero**, using the `games/{gameId}` structure from Phase 1.
 - **Public profiles**: a shareable read-only page for a user's showcase.
-- **Security audit run 3 leads and hardening notes** (2026-11-26): two leads on the signed-out auth routes and five hardening notes, not fixed. They're kept in the run 3 report outside the repo (`~/security-audit-skill/gacha-savior-updated/run-3/REPORT.md`) rather than here, since the repo is public.
+- **Rest of the run 3 hardening notes:** a full Content-Security-Policy, and the timing difference between known and unknown usernames on the signed-out routes. Details in the run 3 report outside the repo (`~/security-audit-skill/gacha-savior-updated/run-3/REPORT.md`), since the repo is public. The rest is in [version 1.2.1](#version-121-security-fixes).
 
 Kept for a later release from the 1.2 ideas list (2026-11-15):
 

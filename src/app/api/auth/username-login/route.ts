@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { adminAuth } from "@/lib/firebaseAdminAuth";
-import { callAuthRest, loginEmail } from "@/lib/firebaseAuthRest";
-import { createRateLimit, usernameFrom } from "@/lib/rateLimit";
+import { callAuthRest, loginEmail, siteOrigin } from "@/lib/firebaseAuthRest";
+import { isRateLimited } from "@/lib/rateLimit";
+import { usernameFrom } from "@/lib/usernames";
 
 // Logs in with a username. The server looks up the account's email, checks
 // the password with Firebase, and only then sends back a one-time sign-in
@@ -10,7 +11,6 @@ import { createRateLimit, usernameFrom } from "@/lib/rateLimit";
 // find out someone's email.
 
 const INVALID = "That email, username or password isn't right. Check them and try again.";
-const isRateLimited = createRateLimit(10);
 // Firebase's answers for a wrong password or a missing or disabled account.
 const BAD_CREDENTIALS = new Set([
   "INVALID_LOGIN_CREDENTIALS",
@@ -28,14 +28,15 @@ const tooMany = () =>
   );
 
 export async function POST(request: Request) {
-  if (isRateLimited(request)) return tooMany();
-
-  const body = await request.json().catch(() => null);
-  const username = usernameFrom(body);
-  const password = typeof body?.password === "string" ? body.password : "";
-  if (!username || !password || password.length > 4096) return invalid();
-
   try {
+    // 10 a minute per IP, shared by every server instance (src/lib/rateLimit.ts).
+    if (await isRateLimited(request, "login", 10)) return tooMany();
+
+    const body = await request.json().catch(() => null);
+    const username = usernameFrom(body);
+    const password = typeof body?.password === "string" ? body.password : "";
+    if (!username || !password || password.length > 4096) return invalid();
+
     // Usernames are stored lowercase, so any capitalization matches.
     const claim = await adminDb.collection("usernames").doc(username.toLowerCase()).get();
     const uid = claim.get("uid");
@@ -47,7 +48,7 @@ export async function POST(request: Request) {
     const result = await callAuthRest(
       "signInWithPassword",
       { email, password, returnSecureToken: false },
-      new URL(request.url).origin
+      siteOrigin(request)
     );
     if (!result.ok) {
       if (result.message.startsWith("TOO_MANY_ATTEMPTS")) return tooMany();

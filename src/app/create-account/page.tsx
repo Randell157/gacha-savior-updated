@@ -7,6 +7,7 @@ import { createUserWithEmailAndPassword, deleteUser } from "firebase/auth";
 import { doc, runTransaction } from "firebase/firestore";
 import { FirebaseError } from "firebase/app";
 import { auth, db } from "@/lib/firebase";
+import { usernameProblem } from "@/lib/usernames";
 import { CenteredPage } from "@/components/PageShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,15 +45,11 @@ export default function CreateAccountPage() {
     }
 
     // Usernames are Firestore document IDs, and login treats anything with
-    // an "@" as an email, so rule those characters out.
+    // an "@" as an email (the rules are in src/lib/usernames.ts).
     const trimmedUsername = username.trim();
-    if (
-      !trimmedUsername ||
-      /[/@]/.test(trimmedUsername) ||
-      trimmedUsername === "." ||
-      trimmedUsername === ".."
-    ) {
-      setError('Usernames can\'t be empty or contain "/" or "@".');
+    const usernameError = usernameProblem(trimmedUsername);
+    if (usernameError) {
+      setError(usernameError);
       setIsLoading(false);
       return;
     }
