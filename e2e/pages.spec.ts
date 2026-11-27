@@ -376,6 +376,30 @@ test.describe("signed in with the sample upload", () => {
     await page.getByRole("button", { name: "Cards" }).click();
   });
 
+  test("spare weapon copies show on the Weapons page and each weapon's page", async () => {
+    await page.goto("/genshin/weapons");
+    await page.getByRole("group", { name: "Show" }).getByRole("button", { name: "Spare" }).click();
+    await expect(page.getByText("Showing 29 weapons with spare copies (161 spare copies)")).toBeVisible();
+    const lance = page.locator("main").getByText("Favonius Lance", { exact: true }).locator("visible=true").first();
+    await expect(page.getByText(/Iansan's R3/).first()).toBeVisible();
+    await lance.click();
+    await expect(page).toHaveURL(/\/genshin\/weapons\/FavoniusLance$/);
+    const panel = page.locator("section", { has: page.getByRole("heading", { name: "Spare copies" }) });
+    await expect(panel.getByText("4 spare copies, all locked.")).toBeVisible();
+    await expect(panel.getByText("2 spare weapons for refinement", { exact: false })).toBeVisible();
+
+    // Both equipped copies of The Widsith are R5, so its spares are left over.
+    await page.goto("/genshin/weapons/TheWidsith");
+    await expect(page.getByText("Every equipped copy is already R5, so all 6 spares are left over.")).toBeVisible();
+    // Two copies, both equipped: nothing spare, so no panel.
+    await page.goto("/genshin/weapons/PrototypeAmber");
+    await expect(page.getByRole("heading", { name: /Your 2 copies/ })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Spare copies" })).toHaveCount(0);
+
+    await page.goto("/genshin/weapons");
+    await page.getByRole("group", { name: "Show" }).getByRole("button", { name: "All" }).click();
+  });
+
   test("a weapon's page shows its passive and every copy, and is reached from the list and the character page", async () => {
     // The whole card opens the page.
     await page.goto("/genshin/weapons");

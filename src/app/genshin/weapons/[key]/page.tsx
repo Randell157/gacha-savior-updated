@@ -14,6 +14,7 @@ import SignedOutBanner from "@/components/SignedOutBanner";
 import WeaponIcon from "@/components/WeaponIcon";
 import WeaponPlan from "@/components/WeaponPlan";
 import WeaponPassive from "@/components/WeaponPassive";
+import { SpareCopiesPanel, sparesOf } from "@/components/WeaponSpares";
 import { formatCharacterDisplayName } from "@/lib/utils";
 import { getWeaponStats } from "@/lib/genshin/weaponDetails";
 import { getWeapon, weaponId, weaponName } from "@/lib/genshin/weapons";
@@ -65,6 +66,7 @@ function WeaponDetail({ signedOut = false }: { signedOut?: boolean }) {
     [data, weaponKey]
   );
   const rows = useMemo(() => copyRows(copies), [copies]);
+  const spares = useMemo(() => sparesOf(copies, weaponKey), [copies, weaponKey]);
   const name = weaponName(weaponKey);
 
   const info = getWeapon(weaponKey);
@@ -113,6 +115,7 @@ function WeaponDetail({ signedOut = false }: { signedOut?: boolean }) {
           <CopiesList rows={rows} />
           <CopiesTable rows={rows} />
         </section>
+        {spares && <SpareCopiesPanel spares={spares} weaponKey={weaponKey} className={PANEL} />}
         <WeaponPlan key={weaponKey} copies={copies} rarity={info?.rarity ?? 5} />
       </div>
     </GenshinShell>

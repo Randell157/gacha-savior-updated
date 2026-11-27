@@ -30,12 +30,14 @@ import { ClearFilters, FilterChip, NoMatches, RARITY_CHIP, WEAPON_TYPES } from "
 import CharacterAvatar from "@/components/CharacterAvatar";
 import WeaponIcon from "@/components/WeaponIcon";
 import SignedOutBanner, { EmptyList } from "@/components/SignedOutBanner";
+import { SpareCard, allSpares } from "@/components/WeaponSpares";
 import { cn, formatCharacterDisplayName } from "@/lib/utils";
 import { getWeapon, weaponHref, weaponName } from "@/lib/genshin/weapons";
 import type { GoodWeapon } from "@/lib/genshin/types";
+import type { WeaponSpares } from "@/lib/genshin/weaponSpares";
 
 type SortKey = "level-desc" | "level-asc" | "name-asc" | "rarity-desc" | "refinement-desc";
-type ShowFilter = "all" | "equipped" | "unequipped";
+type ShowFilter = "all" | "equipped" | "unequipped" | "spare";
 type View = "cards" | "table";
 
 /** One row on the page: a weapon, or several identical copies when grouped. */
@@ -44,6 +46,15 @@ interface WeaponRow {
   weapon: GoodWeapon;
   name: string;
   copies: number;
+  /** How many of the copies are spare (extra 4★ and 5★ copies nobody holds). */
+  spare: number;
+}
+
+/** A weapon in the "Spare" view, with its best copy standing in for sorting. */
+interface SpareRow {
+  row: WeaponRow;
+  key: string;
+  spares: WeaponSpares;
 }
 
 // Ignores punctuation so "The Catch" (with its quotation marks) sorts under T.
@@ -114,6 +125,13 @@ function Weapons({ signedOut = false }: { signedOut?: boolean }) {
     [weapons]
   );
 
+  // Spare copies of every 4★ and 5★ weapon, for the "Spare" view and the notes in the others.
+  const spares = useMemo(() => allSpares(weapons), [weapons]);
+  const spareCopies = useMemo(
+    () => new Set([...spares.values()].flatMap(({ spares: s }) => s.spare)),
+    [spares]
+  );
+
   const rows = useMemo(() => {
     const query = search.trim().toLowerCase();
     const matching = weapons.filter((w) => {
@@ -132,12 +150,33 @@ function Weapons({ signedOut = false }: { signedOut?: boolean }) {
       const id = groupCopies
         ? `${weapon.key}|${weapon.level}|${weapon.refinement}|${weapon.location ?? ""}`
         : String(index);
+      const spare = Number(spareCopies.has(weapon));
       const existing = byId.get(id);
-      if (existing) existing.copies += 1;
-      else byId.set(id, { id, weapon, name: weaponName(weapon.key), copies: 1 });
+      if (existing) {
+        existing.copies += 1;
+        existing.spare += spare;
+      } else byId.set(id, { id, weapon, name: weaponName(weapon.key), copies: 1, spare });
     });
     return [...byId.values()].sort(SORTERS[sort]);
-  }, [weapons, search, show, groupCopies, sort, typeFilter, rarityFilter]);
+  }, [weapons, search, show, groupCopies, sort, typeFilter, rarityFilter, spareCopies]);
+
+  const spareRows = useMemo((): SpareRow[] => {
+    const query = search.trim().toLowerCase();
+    return [...spares.entries()]
+      .filter(([, { key }]) => {
+        const info = getWeapon(key);
+        if (typeFilter && info?.type !== typeFilter) return false;
+        if (rarityFilter && info?.rarity !== rarityFilter) return false;
+        return !query || weaponName(key).toLowerCase().includes(query);
+      })
+      .map(([id, { key, spares: s }]) => ({
+        row: { id, weapon: s.equipped[0] ?? s.kept ?? s.spare[0], name: weaponName(key), copies: s.total, spare: s.spare.length },
+        key,
+        spares: s,
+      }))
+      .sort((a, b) => SORTERS[sort](a.row, b.row));
+  }, [spares, search, sort, typeFilter, rarityFilter]);
+  const shownCount = show === "spare" ? spareRows.length : rows.length;
 
   const filterCount = Number(typeFilter !== null) + Number(rarityFilter !== null) + Number(show !== "all");
   const clearFilters = () => {
@@ -186,8 +225,11 @@ function Weapons({ signedOut = false }: { signedOut?: boolean }) {
                 { value: "all", label: "All" },
                 { value: "equipped", label: "Equipped" },
                 { value: "unequipped", label: "Unequipped" },
+                { value: "spare", label: "Spare" },
               ]}
             />
+            {/* The Spare view has a card per weapon, so grouping and the table don't apply there. */}
+            {show !== "spare" && (
             <label className="-mx-2 flex min-h-11 cursor-pointer items-center gap-2 rounded-md px-2 text-sm hover:bg-gray-100 dark:hover:bg-slate-800">
               <input
                 type="checkbox"
@@ -197,8 +239,9 @@ function Weapons({ signedOut = false }: { signedOut?: boolean }) {
               />
               Group copies
             </label>
+            )}
             </div>
-            <div className="ml-auto">
+            <div className={cn("ml-auto", show === "spare" && "invisible")}>
               <Segmented
                 label="View"
                 value={view}
@@ -267,6 +310,20 @@ function Weapons({ signedOut = false }: { signedOut?: boolean }) {
         <>
           {toolbar}
 
+          {show === "spare" ? (
+            <SpareView
+              rows={spareRows}
+              limit={limit}
+              filters={typeFilter !== null || rarityFilter !== null}
+              search={search.trim() !== ""}
+              onClear={() => {
+                setTypeFilter(null);
+                setRarityFilter(null);
+                setSearch("");
+              }}
+            />
+          ) : (
+          <>
           <p className="mb-4 text-sm text-gray-500 dark:text-slate-400">
             {rows.length === 0 ? (
               <NoMatches
@@ -291,10 +348,13 @@ function Weapons({ signedOut = false }: { signedOut?: boolean }) {
             <WeaponTable rows={rows.slice(0, limit)} sort={sort} onSort={setSort} />
           )}
 
-          {limit < rows.length && (
+          </>
+          )}
+
+          {limit < shownCount && (
             <div className="mt-6 flex justify-center">
               <Button variant="outline" onClick={() => setLimit((n) => n + PAGE_SIZE)}>
-                Show {Math.min(PAGE_SIZE, rows.length - limit)} more
+                Show {Math.min(PAGE_SIZE, shownCount - limit)} more
               </Button>
             </div>
           )}
@@ -323,6 +383,11 @@ function WeaponLink({ weapon, name }: { weapon: GoodWeapon; name: string }) {
 
 const ROW_HOVER = "relative hover:bg-indigo-50 dark:hover:bg-indigo-900/20";
 
+/** "Spare" when all of a card's copies are spare, "3 spare" when only some are (the kept one isn't). */
+function spareLabel(row: WeaponRow): string {
+  return row.spare === row.copies ? "Spare" : `${row.spare} spare`;
+}
+
 function CopiesBadge({ copies }: { copies: number }) {
   if (copies < 2) return null;
   return (
@@ -339,7 +404,8 @@ function WeaponCards({ rows }: { rows: WeaponRow[] }) {
     {/* The card titles are h3s; this keeps the heading levels in order for screen readers. */}
     <h2 className="sr-only">Weapons</h2>
     <ul className="divide-y divide-gray-200 dark:divide-slate-700 sm:hidden">
-      {rows.map(({ id, weapon, name, copies }) => {
+      {rows.map((row) => {
+        const { id, weapon, name, copies } = row;
         const info = getWeapon(weapon.key);
         return (
           <li key={id} className={cn("flex items-center gap-3 py-2", ROW_HOVER)}>
@@ -350,6 +416,7 @@ function WeaponCards({ rows }: { rows: WeaponRow[] }) {
               </p>
               <p className="text-xs text-gray-500 dark:text-slate-400">
                 {info && `${info.type} · ${info.rarity}★ · `}Lv. {weapon.level} · R{weapon.refinement}
+                {row.spare > 0 && ` · ${spareLabel(row)}`}
               </p>
               {/* A phone has no hover to show whose face it is, so the name is written out. */}
               {weapon.location && (
@@ -368,7 +435,9 @@ function WeaponCards({ rows }: { rows: WeaponRow[] }) {
       })}
     </ul>
     <div className="hidden grid-cols-1 gap-4 sm:grid md:grid-cols-2 lg:grid-cols-3">
-      {rows.map(({ id, weapon, name, copies }) => (
+      {rows.map((row) => {
+        const { id, weapon, name, copies } = row;
+        return (
         <Card key={id} className={ROW_HOVER}>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-3 text-lg">
@@ -394,10 +463,16 @@ function WeaponCards({ rows }: { rows: WeaponRow[] }) {
               )}
               <span className="rounded bg-gray-100 dark:bg-slate-800 px-2 py-0.5">Lv. {weapon.level}</span>
               <span className="rounded bg-gray-100 dark:bg-slate-800 px-2 py-0.5">R{weapon.refinement}</span>
+              {row.spare > 0 && (
+                <span className="rounded bg-indigo-50 px-2 py-0.5 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">
+                  {spareLabel(row)}
+                </span>
+              )}
             </div>
           </CardContent>
         </Card>
-      ))}
+        );
+      })}
     </div>
     </>
   );
@@ -440,7 +515,9 @@ function WeaponTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {rows.map(({ id, weapon, name, copies }) => (
+          {rows.map((row) => {
+            const { id, weapon, name, copies } = row;
+            return (
             <TableRow key={id} className={ROW_HOVER}>
               <TableCell className="font-medium">
                 <div className="flex items-center gap-3">
@@ -450,14 +527,54 @@ function WeaponTable({
               </TableCell>
               <TableCell>{weapon.level}</TableCell>
               <TableCell>R{weapon.refinement}</TableCell>
-              <TableCell className={weapon.location ? "" : "text-gray-400 dark:text-slate-500"}>
-                {weapon.location ? formatCharacterDisplayName(weapon.location) : "—"}
+              <TableCell className={weapon.location || row.spare > 0 ? "" : "text-gray-400 dark:text-slate-500"}>
+                {weapon.location ? formatCharacterDisplayName(weapon.location) : row.spare > 0 ? spareLabel(row) : "—"}
               </TableCell>
               <TableCell className="text-right">{copies}</TableCell>
             </TableRow>
-          ))}
+            );
+          })}
         </TableBody>
       </Table>
     </div>
+  );
+}
+
+/** The "Spare" view (design "A" from `.mockups/spare-copies.html`): a card per weapon with spare copies. */
+function SpareView({
+  rows,
+  limit,
+  filters,
+  search,
+  onClear,
+}: {
+  rows: SpareRow[];
+  limit: number;
+  filters: boolean;
+  search: boolean;
+  onClear: () => void;
+}) {
+  const copies = rows.reduce((total, { spares }) => total + spares.spare.length, 0);
+  const shown = Math.min(limit, rows.length);
+  return (
+    <>
+      <p className="mb-4 text-sm text-gray-500 dark:text-slate-400">
+        {rows.length === 0 ? (
+          filters || search ? (
+            <NoMatches message="No spare copies match these filters." filters={filters} search={search} onClear={onClear} />
+          ) : (
+            "No spare copies. A spare is an extra 4★ or 5★ copy that nobody has equipped."
+          )
+        ) : (
+          `Showing ${shown < rows.length ? `${shown} of ` : ""}${rows.length} ${rows.length === 1 ? "weapon" : "weapons"} with spare copies (${copies.toLocaleString()} spare ${copies === 1 ? "copy" : "copies"})`
+        )}
+      </p>
+      <h2 className="sr-only">Weapons with spare copies</h2>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {rows.slice(0, limit).map(({ row, key, spares }) => (
+          <SpareCard key={row.id} weaponKey={key} spares={spares} />
+        ))}
+      </div>
+    </>
   );
 }
