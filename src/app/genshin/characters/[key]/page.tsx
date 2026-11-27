@@ -16,6 +16,7 @@ import CharacterGameInfo, { Stars } from "@/components/CharacterGameInfo";
 import CharacterStepper from "@/components/CharacterStepper";
 import CharacterPlan from "@/components/CharacterPlan";
 import CharacterNotes from "@/components/CharacterNotes";
+import FavoriteStar from "@/components/FavoriteStar";
 import BuildCard from "@/components/BuildCard";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { IdCard } from "lucide-react";
@@ -100,6 +101,7 @@ function CharacterDetail({ signedOut = false }: { signedOut?: boolean }) {
   return (
     <GenshinShell
       title={displayName}
+      titleAside={<FavoriteStar key={`star-${characterKey}`} characterKey={character.key} name={displayName} />}
       panel="none"
       actions={
         <>

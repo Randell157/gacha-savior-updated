@@ -17,6 +17,8 @@ export interface PageShellProps {
   tabs?: React.ReactNode;
   /** Controls shown next to the title, such as sort and filter dropdowns */
   actions?: React.ReactNode;
+  /** A control right beside the heading, outside it so it isn't part of the heading's name (a favorite star) */
+  titleAside?: React.ReactNode;
   /**
    * "padded" (default) wraps the content in the white panel with padding,
    * "flush" in the panel without padding (for row layouts like About), and
@@ -35,9 +37,11 @@ export default function PageShell({
   breadcrumbs,
   tabs,
   actions,
+  titleAside,
   panel = "padded",
   children,
 }: PageShellProps) {
+  const heading = <h1 className="text-3xl font-bold text-indigo-900 dark:text-indigo-200">{title}</h1>;
   return (
     <ShellFrame>
       <div className="bg-white dark:bg-slate-900 shadow">
@@ -58,7 +62,14 @@ export default function PageShell({
             </nav>
           )}
           <div className="flex flex-wrap justify-between items-center gap-4">
-            <h1 className="text-3xl font-bold text-indigo-900 dark:text-indigo-200">{title}</h1>
+            {titleAside ? (
+              <div className="flex min-w-0 flex-wrap items-center gap-3">
+                {heading}
+                {titleAside}
+              </div>
+            ) : (
+              heading
+            )}
             {actions && <div className="flex flex-wrap items-center gap-4">{actions}</div>}
           </div>
           {tabs && <div className="mt-4">{tabs}</div>}

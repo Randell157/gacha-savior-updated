@@ -1,8 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
+  alignTravelerFavorite,
   alignTravelerNote,
   allTags,
+  favoritesFirst,
+  readFavorites,
+  toggleFavorite,
   splitTags,
   cleanTag,
   MAX_TAGS,
@@ -89,6 +93,32 @@ test("alignTravelerNote moves the Traveler's note to the key the new upload uses
   assert.equal(alignTravelerNote(old, ["Furina"]), old, "no Traveler in the upload: unchanged");
   const both = { ...old, Traveler: { note: "New", tags: [] } };
   assert.equal(alignTravelerNote(both, ["Traveler"]), both, "an existing note on the new key wins");
+});
+
+test("favorites read back as unique strings, toggle, and follow the Traveler's key", () => {
+  assert.deepEqual(readFavorites(["Furina", "Furina", 3, "", "Nahida"]), ["Furina", "Nahida"]);
+  assert.deepEqual(readFavorites(undefined), []);
+  assert.deepEqual(toggleFavorite(["Furina"], "Nahida"), ["Furina", "Nahida"]);
+  assert.deepEqual(toggleFavorite(["Furina", "Nahida"], "Furina"), ["Nahida"]);
+  assert.deepEqual(alignTravelerFavorite(["TravelerAnemo", "Furina"], ["Traveler", "Furina"]), ["Traveler", "Furina"]);
+  const same = ["Traveler"];
+  assert.equal(alignTravelerFavorite(same, ["Traveler"]), same);
+  assert.equal(PRESET_TAGS.includes("Favorites"), false, "favorites have their own star");
+});
+
+test("favoritesFirst moves favorites to the front and keeps each group's order", () => {
+  const byLevel = [
+    { key: "Ganyu", level: 90 },
+    { key: "Nahida", level: 80 },
+    { key: "Bennett", level: 70 },
+    { key: "Furina", level: 20 },
+  ];
+  const favs = new Set(["Furina", "Nahida"]);
+  assert.deepEqual(
+    favoritesFirst(byLevel, (c) => favs.has(c.key)).map((c) => c.key),
+    ["Nahida", "Furina", "Ganyu", "Bennett"]
+  );
+  assert.deepEqual(favoritesFirst(byLevel, () => false), byLevel);
 });
 
 test("splitTags splits pasted text at commas", () => {

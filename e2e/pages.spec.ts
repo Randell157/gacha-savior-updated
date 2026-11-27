@@ -323,6 +323,33 @@ test.describe("signed in with the sample upload", () => {
     await expect(page.getByRole("button", { name: /^Tags/ })).toHaveCount(0);
   });
 
+  test("the favorite star marks a character, filters the roster and puts favorites first", async () => {
+    await page.goto("/genshin/characters/Mona");
+    const star = page.getByRole("button", { name: "Favorite Mona" });
+    await expect(star).toHaveAttribute("aria-pressed", "false");
+    await star.click();
+    await expect(star).toHaveAttribute("aria-pressed", "true");
+    await page.reload();
+    await expect(page.getByRole("button", { name: "Favorite Mona" })).toHaveAttribute("aria-pressed", "true");
+
+    // Favorites first is on by default, so Mona leads the name sort; off, Aino does.
+    await page.goto("/genshin/characters");
+    await expect(page.locator("#roster > *").first()).toHaveAttribute("title", /^Mona · ★ Favorite/);
+    await page.getByRole("switch", { name: "Favorites first" }).click();
+    await expect(page.locator("#roster > *").first()).toHaveAttribute("title", /^Aino/);
+    await page.getByRole("switch", { name: "Favorites first" }).click();
+    await page.getByRole("group", { name: "Show" }).getByRole("button", { name: "Favorites" }).click();
+    await expect(page.getByText("Showing 1 of 124 characters.", { exact: false })).toBeVisible();
+
+    // Unstarring leaves no favorites: the switch goes, and the filter says how to add one.
+    await page.goto("/genshin/characters/Mona");
+    await page.getByRole("button", { name: "Favorite Mona" }).click();
+    await expect(page.getByRole("button", { name: "Favorite Mona" })).toHaveAttribute("aria-pressed", "false");
+    await page.goto("/genshin/characters");
+    await expect(page.getByText("No favorites yet.", { exact: false })).toBeVisible();
+    await expect(page.getByRole("switch", { name: "Favorites first" })).toHaveCount(0);
+  });
+
   test("a character page shows the profile, weapon, talents and artifacts", async () => {
     await page.goto("/genshin/characters/Aino");
     await expect(page.getByRole("heading", { level: 1, name: "Aino" })).toBeVisible();

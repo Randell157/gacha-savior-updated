@@ -14,6 +14,7 @@ import {
   saveFarmingTicks,
   saveKeepMarks,
   saveCharacterNotes,
+  saveFavorites,
   saveTravelerElement,
   type Showcase,
   type NamedShowcase,
@@ -29,7 +30,7 @@ import { snapshotBuilds, type BuildSnapshot } from "@/lib/genshin/showcaseBuild"
 import type { SavedPlan } from "@/lib/genshin/materialPlanner";
 import type { FarmingTicks } from "@/lib/genshin/farming";
 import { matchKeepMarks, type KeepMark } from "@/lib/genshin/artifactCleanup";
-import { alignTravelerNote, type CharacterNotes } from "@/lib/genshin/characterNotes";
+import { alignTravelerFavorite, alignTravelerNote, type CharacterNotes } from "@/lib/genshin/characterNotes";
 
 // Loads the signed-in user's Genshin upload from Firestore once per login and
 // shares it with every page. Read it through useGenshinData().
@@ -80,11 +81,16 @@ export interface GenshinDataContextValue {
   characterNotes: CharacterNotes;
   /** Saves every character's notes and tags; resolves false (and puts the old ones back) if the write fails */
   setCharacterNotes: (notes: CharacterNotes) => Promise<boolean>;
+  /** Export keys of the characters starred as favorites */
+  favorites: string[];
+  /** Saves the favorites; resolves false (and puts the old ones back) if the write fails */
+  setFavorites: (favorites: string[]) => Promise<boolean>;
 }
 
 const NO_PLANS: SavedPlan[] = [];
 const NO_MARKS: KeepMark[] = [];
 const NO_NOTES: CharacterNotes = {};
+const NO_FAVORITES: string[] = [];
 
 export const GenshinDataContext = createContext<GenshinDataContextValue | null>(null);
 
@@ -193,7 +199,8 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
           alignTravelerNote(
             previous?.characterNotes ?? {},
             data.characters.map((c) => c.key)
-          )
+          ),
+          [...alignTravelerFavorite(previous?.favorites ?? [], data.characters.map((c) => c.key))]
         );
         setState({ uid, stored, error: null, migratedFromLocal: false, droppedKeepMarks: keep.dropped });
       } catch (error) {
@@ -342,24 +349,66 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
     [uid, current?.stored]
   );
 
+  // What was last saved for sure, so a failed write goes back to that and not to a
+  // change made just before it whose own write also failed. Reset while nothing is in flight.
+  const notesWrites = useRef({ inFlight: 0, saved: NO_NOTES });
   const setCharacterNotes = useCallback(
     async (characterNotes: CharacterNotes) => {
       const stored = current?.stored;
       if (!uid || !stored) return false;
+      const w = notesWrites.current;
+      if (w.inFlight === 0) w.saved = stored.characterNotes;
+      w.inFlight++;
       // Update the screen right away, and undo it if the write fails.
-      setState((s) => (s && s.stored ? { ...s, stored: { ...s.stored, characterNotes } } : s));
+      setState((s) => (s && s.uid === uid && s.stored ? { ...s, stored: { ...s.stored, characterNotes } } : s));
       try {
         await saveCharacterNotes(uid, characterNotes);
+        w.saved = characterNotes;
         return true;
       } catch (error) {
         console.error("Saving character notes failed:", error);
         // Only while the screen still shows these notes for this account.
+        const saved = w.saved;
         setState((s) =>
           s && s.uid === uid && s.stored && s.stored.characterNotes === characterNotes
-            ? { ...s, stored: { ...s.stored, characterNotes: stored.characterNotes } }
+            ? { ...s, stored: { ...s.stored, characterNotes: saved } }
             : s
         );
         return false;
+      } finally {
+        w.inFlight--;
+      }
+    },
+    [uid, current?.stored]
+  );
+
+  // Stars are pressed in quick runs; as with the notes, a failure goes back to what was last saved.
+  const favoriteWrites = useRef({ inFlight: 0, saved: NO_FAVORITES });
+  const setFavorites = useCallback(
+    async (favorites: string[]) => {
+      const stored = current?.stored;
+      if (!uid || !stored) return false;
+      const w = favoriteWrites.current;
+      if (w.inFlight === 0) w.saved = stored.favorites;
+      w.inFlight++;
+      // Update the screen right away, and undo it if the write fails.
+      setState((s) => (s && s.uid === uid && s.stored ? { ...s, stored: { ...s.stored, favorites } } : s));
+      try {
+        await saveFavorites(uid, favorites);
+        w.saved = favorites;
+        return true;
+      } catch (error) {
+        console.error("Saving favorites failed:", error);
+        // Only while the screen still shows this list: a later press carries its own change.
+        const saved = w.saved;
+        setState((s) =>
+          s && s.uid === uid && s.stored && s.stored.favorites === favorites
+            ? { ...s, stored: { ...s.stored, favorites: saved } }
+            : s
+        );
+        return false;
+      } finally {
+        w.inFlight--;
       }
     },
     [uid, current?.stored]
@@ -376,6 +425,7 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
     farmingTicks: current?.stored?.farmingTicks ?? null,
     keepMarks: current?.stored?.keepMarks ?? NO_MARKS,
     characterNotes: current?.stored?.characterNotes ?? NO_NOTES,
+    favorites: current?.stored?.favorites ?? NO_FAVORITES,
     droppedKeepMarks: current?.droppedKeepMarks ?? 0,
     loading: authLoading || (!!uid && !current),
     loadError: current?.error ?? null,
@@ -390,6 +440,7 @@ export function GenshinDataProvider({ children }: { children: React.ReactNode })
     setFarmingTicks,
     setKeepMarks,
     setCharacterNotes,
+    setFavorites,
   };
 
   return <GenshinDataContext.Provider value={value}>{children}</GenshinDataContext.Provider>;

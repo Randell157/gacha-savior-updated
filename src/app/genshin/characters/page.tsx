@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { NotebookPen, Tag } from "lucide-react";
+import { NotebookPen, Star, Tag } from "lucide-react";
+import ToggleSwitch from "@/components/ToggleSwitch";
 import Image from "next/image";
 import Link from "next/link";
 import { useGenshinData } from "@/hooks/useGenshinData";
@@ -148,14 +149,27 @@ function SortedValue({ text, spoken }: { text: string; spoken: string }) {
 }
 
 export default function CharactersPage() {
-  const { data: genshinData, loading, characterNotes } = useGenshinData();
+  const { data: genshinData, loading, characterNotes, favorites } = useGenshinData();
   useFadeAfterLoading(loading);
   const { user } = useAuth();
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [rememberedSort, setSortOrder] = useRememberedState(ROSTER_MEMORY_KEYS.sortOrder, DEFAULT_ROSTER_CHOICES.sortOrder);
-  const [ownedFilter, setOwnedFilter] = useRememberedState<OwnedFilter>(
+  const [rememberedShow, setOwnedFilter] = useRememberedState<OwnedFilter>(
     ROSTER_MEMORY_KEYS.ownedFilter,
     DEFAULT_ROSTER_CHOICES.ownedFilter
+  );
+  // Favorites are on owned characters, so without an upload (or signed out) a remembered "Favorites" shows everyone.
+  const canFavorite = !!user && (genshinData?.characters.length ?? 0) > 0;
+  const ownedFilter: OwnedFilter = !canFavorite && rememberedShow === "favorites" ? "all" : rememberedShow;
+  const [favoritesFirst, setFavoritesFirst] = useRememberedState(
+    ROSTER_MEMORY_KEYS.favoritesFirst,
+    DEFAULT_ROSTER_CHOICES.favoritesFirst
+  );
+  const favoriteKeys = useMemo(() => new Set(favorites), [favorites]);
+  // A starred character missing from the latest upload has no tile, so it doesn't count.
+  const ownedFavorites = useMemo(
+    () => (genshinData?.characters ?? []).filter((c) => favoriteKeys.has(c.key)).length,
+    [genshinData, favoriteKeys]
   );
   const [search, setSearch] = useRememberedState(ROSTER_MEMORY_KEYS.search, DEFAULT_ROSTER_CHOICES.search);
   const [rememberedFilters, setFilters] = useRememberedState(ROSTER_MEMORY_KEYS.filters, DEFAULT_ROSTER_CHOICES.filters);
@@ -176,8 +190,13 @@ export default function CharactersPage() {
   const positionOf = (key: string) => obtainedPosition.get(normalizeCharacterKey(key));
 
   const roster = useMemo(
-    () => buildRoster(genshinData, { sortOrder, ownedFilter, search, filters }, characterNotes),
-    [genshinData, sortOrder, ownedFilter, search, filters, characterNotes]
+    () =>
+      buildRoster(
+        genshinData,
+        { sortOrder, ownedFilter, search, filters, favoritesFirst },
+        { notes: characterNotes, favorites }
+      ),
+    [genshinData, sortOrder, ownedFilter, search, filters, favoritesFirst, characterNotes, favorites]
   );
 
   const sortField = sortOrder.split("-")[0];
@@ -252,8 +271,24 @@ export default function CharactersPage() {
             { value: "all", label: "All" },
             { value: "owned", label: "Owned" },
             { value: "unowned", label: "Not owned" },
+            // Design "3A" from `.mockups/favorites.html`; favorites need an account.
+            ...(canFavorite
+              ? [
+                  {
+                    value: "favorites" as const,
+                    label: "Favorites",
+                    icon: <Star className="h-3.5 w-3.5 fill-current" aria-hidden />,
+                  },
+                ]
+              : []),
           ]}
         />
+        {/* Design "4B": on by default and remembered, shown once there's a favorite to put first. */}
+        {ownedFavorites > 0 && (
+          <ToggleSwitch checked={favoritesFirst} onChange={setFavoritesFirst}>
+            Favorites first
+          </ToggleSwitch>
+        )}
       </div>
       <CharacterFilters filters={filters} onChange={setFilters} tags={tags} />
       <p className="text-sm text-gray-500 dark:text-slate-400 mb-4" aria-live="polite">
@@ -274,7 +309,11 @@ export default function CharactersPage() {
       {roster.length === 0 ? (
         <p className="text-sm text-gray-500 dark:text-slate-400 mb-6">
           <NoMatches
-            message="No characters match these filters."
+            message={
+              ownedFilter === "favorites" && ownedFavorites === 0
+                ? "No favorites yet. Press the star beside a character's name on their page."
+                : "No characters match these filters."
+            }
             filters={activeFilterCount(filters) > 0 || ownedFilter !== "all"}
             search={search.trim() !== ""}
             onClear={() => {
@@ -290,6 +329,7 @@ export default function CharactersPage() {
           const displayName = formatCharacterDisplayName(character.key);
           // Only owned characters have notes and tags (design "3B" from `.mockups/notes-tags.html`).
           const mine = character.owned ? characterNotes[character.owned.key] : undefined;
+          const favorite = !!character.owned && favoriteKeys.has(character.owned.key);
           const portrait = (
             <>
               <div
@@ -316,6 +356,15 @@ export default function CharactersPage() {
                     setImageErrors((prev) => new Set(prev).add(character.key))
                   }
                 />
+                {favorite && (
+                  // Design "2A" from `.mockups/favorites.html`: on a light or dark circle, so it shows on any portrait.
+                  <span
+                    aria-hidden
+                    className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white/90 text-amber-500 shadow-sm dark:bg-slate-900/90 dark:text-amber-400"
+                  >
+                    <Star className="h-3.5 w-3.5 fill-current" />
+                  </span>
+                )}
                 {mine && (
                   <span
                     aria-hidden
@@ -351,10 +400,11 @@ export default function CharactersPage() {
                 />
               )}
               {character.owned && <BuildLines character={character.owned} sortField={sortField} />}
-              {mine && (
+              {(mine || favorite) && (
                 <span className="sr-only">
-                  {mine.tags.length > 0 && `, tags: ${mine.tags.join(", ")}`}
-                  {mine.note && ", has a note"}
+                  {favorite && ", favorite"}
+                  {mine && mine.tags.length > 0 && `, tags: ${mine.tags.join(", ")}`}
+                  {mine?.note && ", has a note"}
                 </span>
               )}
             </>
@@ -382,9 +432,9 @@ export default function CharactersPage() {
               key={character.key}
               href={`/genshin/characters/${encodeURIComponent(character.ownedKey)}`}
               title={
-                mine
-                  ? [displayName, mine.tags.join(", "), mine.note && "has a note"].filter(Boolean).join(" · ")
-                  : displayName
+                [displayName, favorite && "★ Favorite", mine?.tags.join(", "), mine?.note && "has a note"]
+                  .filter(Boolean)
+                  .join(" · ")
               }
               className="press group flex flex-col items-center w-full max-w-[7.5rem] rounded-lg p-2 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
             >

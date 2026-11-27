@@ -13,7 +13,7 @@ import type { BuildSnapshot } from "./showcaseBuild";
 import { normalizePlans, type SavedPlan } from "./materialPlanner";
 import { normalizeFarmingTicks, type FarmingTicks } from "./farming";
 import { readKeepMarks, type KeepMark } from "./artifactCleanup";
-import { readCharacterNotes, type CharacterNotes } from "./characterNotes";
+import { readCharacterNotes, readFavorites, type CharacterNotes } from "./characterNotes";
 
 // Firestore layout for a user's Genshin upload:
 //   users/{uid}/games/genshin                      everything except artifacts
@@ -62,6 +62,8 @@ export interface StoredGenshin {
   keepMarks: KeepMark[];
   /** The player's own note and tags on each character, kept through new uploads */
   characterNotes: CharacterNotes;
+  /** Export keys of the characters starred as favorites, kept through new uploads */
+  favorites: string[];
   uploadedAt: Date | null;
   /** Number of artifact chunks currently stored, used to clean up on re-upload */
   artifactChunkCount: number;
@@ -142,6 +144,7 @@ export async function loadGenshin(uid: string): Promise<StoredGenshin | null> {
     farmingTicks: normalizeFarmingTicks(stored.farmingTicks),
     keepMarks: readKeepMarks(stored.keepMarks),
     characterNotes: readCharacterNotes(stored.characterNotes),
+    favorites: readFavorites(stored.favorites),
     uploadedAt: stored.uploadedAt instanceof Timestamp ? stored.uploadedAt.toDate() : null,
     artifactChunkCount: chunkCount,
   };
@@ -163,7 +166,8 @@ export async function saveGenshin(
   plans: SavedPlan[] = [],
   farmingTicks: FarmingTicks | null = null,
   keepMarks: KeepMark[] = [],
-  characterNotes: CharacterNotes = {}
+  characterNotes: CharacterNotes = {},
+  favorites: string[] = []
 ): Promise<StoredGenshin> {
   const chunks: GenshinData["artifacts"][] = [];
   for (let i = 0; i < data.artifacts.length; i += ARTIFACTS_PER_CHUNK) {
@@ -193,6 +197,7 @@ export async function saveGenshin(
     farmingTicks,
     keepMarks,
     characterNotes,
+    favorites,
   });
   chunks.forEach((items, i) => batch.set(chunkRef(uid, i), { items }));
   for (let i = chunks.length; i < previousChunkCount; i++) {
@@ -210,12 +215,13 @@ export async function saveGenshin(
     farmingTicks,
     keepMarks,
     characterNotes,
+    favorites,
     uploadedAt: new Date(),
     artifactChunkCount: chunks.length,
   };
 }
 
-/** Deletes the saved upload, with its showcase, its settings, the Traveler element, the plans, the farming ticks, the Keep marks and the character notes. */
+/** Deletes the saved upload, with its showcase, its settings, the Traveler element, the plans, the farming ticks, the Keep marks, the character notes and the favorites. */
 export async function deleteGenshin(uid: string, chunkCount: number) {
   const batch = writeBatch(db);
   batch.delete(gameRef(uid));
@@ -251,4 +257,8 @@ export async function saveKeepMarks(uid: string, keepMarks: KeepMark[]) {
 
 export async function saveCharacterNotes(uid: string, characterNotes: CharacterNotes) {
   await updateDoc(gameRef(uid), { characterNotes });
+}
+
+export async function saveFavorites(uid: string, favorites: string[]) {
+  await updateDoc(gameRef(uid), { favorites });
 }

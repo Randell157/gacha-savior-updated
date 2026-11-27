@@ -68,13 +68,48 @@ const isTraveler = (key: string) => /^Traveler/.test(key);
  * the key the upload uses, unless that key already has one.
  */
 export function alignTravelerNote(notes: CharacterNotes, ownedKeys: readonly string[]): CharacterNotes {
+  const moved = travelerMove(Object.keys(notes), ownedKeys);
+  if (!moved) return notes;
+  const out: CharacterNotes = { ...notes, [moved.to]: notes[moved.from] };
+  delete out[moved.from];
+  return out;
+}
+
+/** Which saved Traveler key to move to the upload's one, if the upload names the Traveler differently. */
+function travelerMove(saved: readonly string[], ownedKeys: readonly string[]): { from: string; to: string } | null {
   const traveler = ownedKeys.find(isTraveler);
-  if (!traveler || notes[traveler]) return notes;
-  const old = Object.keys(notes).find((key) => isTraveler(key) && key !== traveler);
-  if (!old) return notes;
-  const moved: CharacterNotes = { ...notes, [traveler]: notes[old] };
-  delete moved[old];
-  return moved;
+  if (!traveler || saved.includes(traveler)) return null;
+  const old = saved.find((key) => isTraveler(key) && key !== traveler);
+  return old ? { from: old, to: traveler } : null;
+}
+
+// ----- Favorites (the star beside a character's name) -----
+
+/** More than the game has characters, so it only guards against a broken document. */
+export const MAX_FAVORITES = 300;
+
+/** The starred characters' export keys, read back: strings only, no repeats. */
+export function readFavorites(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  const out: string[] = [];
+  for (const key of raw) if (typeof key === "string" && key && !out.includes(key)) out.push(key);
+  return out.slice(0, MAX_FAVORITES);
+}
+
+/** The list with this character starred or unstarred. */
+export function toggleFavorite(favorites: readonly string[], key: string): string[] {
+  return favorites.includes(key) ? favorites.filter((k) => k !== key) : [...favorites, key];
+}
+
+/** The list with favorites moved to the front, each group keeping the order it had. */
+export function favoritesFirst<T>(list: T[], isFavorite: (item: T) => boolean): T[] {
+  return [...list.filter(isFavorite), ...list.filter((item) => !isFavorite(item))];
+}
+
+/** Like `alignTravelerNote`: the Traveler's star follows the key the new upload uses. */
+export function alignTravelerFavorite(favorites: readonly string[], ownedKeys: readonly string[]): readonly string[] {
+  const moved = travelerMove(favorites, ownedKeys);
+  return moved ? favorites.map((key) => (key === moved.from ? moved.to : key)) : favorites;
 }
 
 /**
@@ -168,7 +203,7 @@ export const PRESET_TAGS = [
   "Abyss 2",
   "Imaginarium Theater",
   "Stygian Onslaught",
-  "Favorites",
+  // No "Favorites": favorites have their own star (`favorites` below).
   "Needs artifacts",
   "Needs talents",
   "Needs leveling",

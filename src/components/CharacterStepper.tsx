@@ -23,6 +23,7 @@ function rememberedRosterChoices(): RosterChoices {
     ownedFilter: readRememberedTabState(ROSTER_MEMORY_KEYS.ownedFilter, DEFAULT_ROSTER_CHOICES.ownedFilter),
     search: readRememberedTabState(ROSTER_MEMORY_KEYS.search, DEFAULT_ROSTER_CHOICES.search),
     filters: readRememberedTabState(ROSTER_MEMORY_KEYS.filters, DEFAULT_ROSTER_CHOICES.filters),
+    favoritesFirst: readRememberedTabState(ROSTER_MEMORY_KEYS.favoritesFirst, DEFAULT_ROSTER_CHOICES.favoritesFirst),
   };
 }
 
@@ -46,12 +47,12 @@ export default function CharacterStepper({
   label?: string;
 }) {
   const [remembered] = useState(rememberedRosterChoices);
-  const { characterNotes } = useGenshinData();
+  const { characterNotes, favorites } = useGenshinData();
   const neighbours = useMemo(() => {
     const known = ownedTags(data, characterNotes).map(({ tag }) => tag);
     const choices = { ...remembered, filters: withKnownTags(remembered.filters, known) };
-    return characterNeighbours(data, characterKey, choices, characterNotes);
-  }, [data, characterKey, remembered, characterNotes]);
+    return characterNeighbours(data, characterKey, choices, { notes: characterNotes, favorites });
+  }, [data, characterKey, remembered, characterNotes, favorites]);
   const previousLink = useRef<HTMLAnchorElement>(null);
   const nextLink = useRef<HTMLAnchorElement>(null);
 

@@ -1,6 +1,6 @@
 import { getCharacterDetails, getCharacterRoles } from "@/lib/genshin/characterDetails";
 import type { GenshinData, GoodCharacter } from "@/lib/genshin/types";
-import { tagCounts, type CharacterNotes } from "@/lib/genshin/characterNotes";
+import { favoritesFirst, tagCounts, type CharacterNotes } from "@/lib/genshin/characterNotes";
 import { GENSHIN_CHARACTERS, normalizeCharacterKey } from "@/lib/genshinCharacters";
 import { compareVersions, formatCharacterDisplayName } from "@/lib/utils";
 
@@ -60,7 +60,7 @@ export function matchesCharacterFilters(
 
 type BuildField = "level" | "constellation" | "auto" | "skill" | "burst";
 export type SortField = "name" | "release" | "obtained" | BuildField;
-export type OwnedFilter = "all" | "owned" | "unowned";
+export type OwnedFilter = "all" | "owned" | "unowned" | "favorites";
 
 /** What the roster is showing. The roster remembers these, and character pages step through the result. */
 export interface RosterChoices {
@@ -68,6 +68,8 @@ export interface RosterChoices {
   ownedFilter: OwnedFilter;
   search: string;
   filters: CharacterFilterState;
+  /** Starred characters before everyone else, in the same sort (on by default) */
+  favoritesFirst: boolean;
 }
 
 export const DEFAULT_ROSTER_CHOICES: RosterChoices = {
@@ -75,6 +77,7 @@ export const DEFAULT_ROSTER_CHOICES: RosterChoices = {
   ownedFilter: "all",
   search: "",
   filters: NO_FILTERS,
+  favoritesFirst: true,
 };
 
 /** Where `useRememberedState` keeps each choice. */
@@ -83,7 +86,16 @@ export const ROSTER_MEMORY_KEYS = {
   ownedFilter: "roster:show",
   search: "roster:search",
   filters: "roster:filters",
+  favoritesFirst: "roster:favoritesFirst",
 } as const;
+
+/** The player's own marks on characters, by export key: notes and tags, and the favorites. */
+export interface RosterMarks {
+  notes: CharacterNotes;
+  favorites: readonly string[];
+}
+
+const NO_MARKS: RosterMarks = { notes: {}, favorites: [] };
 
 function sortValue(character: GoodCharacter, field: BuildField): number {
   if (field === "level" || field === "constellation") return character[field];
@@ -121,7 +133,21 @@ export function obtainedPositions(data: GenshinData | null | undefined): Map<str
 export function buildRoster(
   data: GenshinData | null | undefined,
   choices: RosterChoices,
-  notes: CharacterNotes = {}
+  marks: RosterMarks = NO_MARKS
+) {
+  const { notes } = marks;
+  const favorites = new Set(marks.favorites);
+  const isFavorite = (character: { owned: GoodCharacter | null }) =>
+    !!character.owned && favorites.has(character.owned.key);
+  const sorted = sortRoster(data, choices, notes, isFavorite);
+  return choices.favoritesFirst ? favoritesFirst(sorted, isFavorite) : sorted;
+}
+
+function sortRoster(
+  data: GenshinData | null | undefined,
+  choices: RosterChoices,
+  notes: CharacterNotes,
+  isFavorite: (character: { owned: GoodCharacter | null }) => boolean
 ) {
   const ownedByNormalizedKey = new Map<string, GoodCharacter>();
   for (const char of data?.characters ?? []) {
@@ -142,6 +168,7 @@ export function buildRoster(
   }).filter((character) => {
     if (choices.ownedFilter === "owned" && !character.owned) return false;
     if (choices.ownedFilter === "unowned" && character.owned) return false;
+    if (choices.ownedFilter === "favorites" && !isFavorite(character)) return false;
     if (query && !formatCharacterDisplayName(character.key).toLowerCase().includes(query)) return false;
     return matchesCharacterFilters(character, choices.filters, character.owned ? notes[character.owned.key]?.tags : []);
   });
@@ -188,16 +215,16 @@ export function characterNeighbours(
   data: GenshinData | null | undefined,
   characterKey: string,
   choices: RosterChoices,
-  notes: CharacterNotes = {}
+  marks: RosterMarks = NO_MARKS
 ): { previous: string; next: string; position: number; total: number } | null {
   const ownedKeys = (from: RosterChoices) =>
-    buildRoster(data, from, notes)
+    buildRoster(data, from, marks)
       .filter((character) => character.owned)
       .map((character) => character.ownedKey);
 
   let keys = ownedKeys(choices);
   if (!keys.includes(characterKey)) {
-    keys = ownedKeys({ ...DEFAULT_ROSTER_CHOICES, sortOrder: choices.sortOrder });
+    keys = ownedKeys({ ...DEFAULT_ROSTER_CHOICES, sortOrder: choices.sortOrder, favoritesFirst: choices.favoritesFirst });
   }
   const index = keys.indexOf(characterKey);
   if (index === -1 || keys.length < 2) return null;
