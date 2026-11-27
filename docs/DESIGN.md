@@ -55,7 +55,7 @@ Each phase builds on the one before it. Phase 2 comes first so later phases buil
 | 4 | Character and weapon detail pages | 1 | **Done** (2026-11-06) |
 | 5 | Wish history tracker | 1 | **Done** (2026-11-11) |
 | 6 | Version 1.1: showcase and build card, upload changes, material planner, wish additions | 3, 4, 5 | **Done** (2026-11-13, released as v1.1.0) |
-| 7 | Version 1.2: today's farming list, artifact cleanup, notes and tags, spare weapon copies, quick search, year in review, coming-soon characters, splash art on character pages | 6 | **Planned** (2026-11-15) |
+| 7 | Version 1.2: today's farming list, artifact cleanup, notes and tags, spare weapon copies, quick search, year in review, coming-soon characters, splash art on character pages | 6 | **Done** (2026-11-27, released as v1.2.0) |
 
 ---
 
@@ -762,7 +762,7 @@ A step is finished only when every box is checked. Each check is verified (run, 
    - [x] Security audit (run 3), with the findings shown to the user before anything is fixed (2026-11-26: quick, scoped to `e1521a5..2e34a93`, source-only, 10 agents; report in `~/security-audit-skill/gacha-savior-updated/run-3/`, findings and ledger validate. No confirmed findings; run 2's rename lead fixed; two leads need Vercel/Firebase facts: the per-instance IP limiter (from run 2) and reset emails vs the 150-a-day quota (new). Hardening notes shown to the user before any fix. On 2026-11-27 the user had two small ones fixed: the remembered recent-searches list must read back as a list and is forgotten on logout (checked headless on the emulators: a non-list value opened the dialog cleanly with no recent list; copytest's 2 recent items were gone after logout, in the still-open dialog too, no page errors), and `fetch-splash-art.mjs` downloads only from HoYoverse's hosts over https, with no redirects, up to 20 MB (checked with a fake fetch: 2 HoYoverse hosts pass; another host, http, a look-alike host and a 24 MB picture are refused). The rest go to Later)
    - [x] `package.json` set to 1.2.0, the README's version line updated, and a "Version 1.2, Month YYYY" step added to the About page's timeline (2026-11-26: `package.json` and `package-lock.json` 1.2.0, README "**Version 1.2.0**", About step "Version 1.2, November 2026" naming today's farming list, artifact cleanup, notes and tags, quick search and the year in review; after the bump 180 unit tests pass, lint and type check clean. Leftover sweep of `e1521a5..HEAD`: every commit uses the GitHub no-reply email, no logs, exports, local paths or debug code, `console.log` only in the data scripts)
    - [ ] Test build served on localhost for the user to check
-   - [ ] Committed, tagged `v1.2.0`, deployed, the live pages checked, and a GitHub release published
+   - [x] Committed, tagged `v1.2.0`, deployed, the live pages checked, and a GitHub release published (2026-11-27: release commit `2abdacc` tagged `v1.2.0`, pushed with all of Phase 7; `npx vercel --prod`; live: 18 pages return 200 including `/genshin/wishes/year`, `/characters` redirects (308), the About page shows "Version 1.2, November 2026", the account routes and username login refuse requests without a sign-in (401), the security headers and HSTS are sent, splash art and the coming-soon portraits load, Furina's page opens signed out with no console errors. `firestore.rules` unchanged since 1.1.1, so nothing to publish. GitHub release "Gacha Savior Updated 1.2" published on `v1.2.0`)
 
 ---
 
