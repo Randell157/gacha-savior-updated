@@ -19,6 +19,8 @@ function read<T>(key: string, initial: T, scope: Scope): T {
     const stored = storageFor(scope).getItem(PREFIX + key);
     if (stored === null) return initial;
     const value: unknown = JSON.parse(stored);
+    // A list stays a list (`typeof` alone would let an edited object through).
+    if (Array.isArray(initial)) return Array.isArray(value) ? (value as T) : initial;
     // A plain object keeps any field added since it was saved.
     if (initial && typeof initial === "object" && !Array.isArray(initial)) {
       return value && typeof value === "object" ? { ...initial, ...value } : initial;
@@ -84,14 +86,23 @@ export function readRememberedTabState<T>(key: string, initial: T): T {
   return read(key, initial, "tab");
 }
 
-/** Forgets this tab's choices, so the next person to log in here starts clean. */
+/** Saved on the device but belonging to whoever was logged in, so logging out forgets them too. */
+const ACCOUNT_DEVICE_KEYS = ["search:recent"];
+
+/**
+ * Forgets this tab's choices and the account's recent searches, so the next
+ * person to log in here starts clean.
+ */
 export function clearRememberedTabState() {
   try {
     const storage = window.sessionStorage;
     for (const key of Object.keys(storage)) {
       if (key.startsWith(PREFIX)) storage.removeItem(key);
     }
+    for (const key of ACCOUNT_DEVICE_KEYS) window.localStorage.removeItem(PREFIX + key);
   } catch {
     // Nothing was saved if storage is blocked.
   }
+  // The header's search dialog stays mounted after its first use: tell it the list is gone.
+  for (const key of ACCOUNT_DEVICE_KEYS) window.dispatchEvent(new CustomEvent(CHANGED, { detail: key }));
 }

@@ -18,6 +18,7 @@ const STORY = [
   { title: "Rebuilt as a personal project", text: "A new design and wish history." },
   { title: "Version 1.0, November 2026", text: "Live, with the code public on GitHub." },
   { title: "Version 1.1, November 2026", text: "Team showcases, build cards and the material planner, plus security fixes." },
+  { title: "Version 1.2, November 2026", text: "Today's farming list, artifact cleanup, notes and tags, quick search and the year in review." },
 ];
 
 const PLANNED_GAMES = GAMES.filter((game) => !game.href);

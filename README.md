@@ -1,6 +1,6 @@
 # Gacha Savior Updated
 
-**Version 1.1.1** · [Live site](https://gacha-savior-updated.vercel.app/)
+**Version 1.2.0** · [Live site](https://gacha-savior-updated.vercel.app/)
 
 > **AI disclosure:** this project's work since the capstone was written with [Claude Code](https://claude.com/claude-code) using Claude Opus 5.5. See [AI-assisted development](#ai-assisted-development).
 

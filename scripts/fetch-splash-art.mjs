@@ -49,6 +49,31 @@ async function pictureBounds(input) {
   bottom = Math.min(height - 1, bottom + pad);
   return { left, top, width: right - left + 1, height: bottom - top + 1 };
 }
+// The picture's address comes from the wiki's data, so only HoYoverse's own
+// image servers are fetched, without following redirects, and at most this size.
+const IMAGE_HOSTS = [".hoyolab.com", ".hoyoverse.com"];
+const MAX_BYTES = 20 * 1024 * 1024;
+
+async function download(address) {
+  const url = new URL(address);
+  if (url.protocol !== "https:" || !IMAGE_HOSTS.some((end) => url.hostname.endsWith(end))) {
+    throw new Error(`picture on an unexpected host (${url.hostname}); add it to IMAGE_HOSTS if it's HoYoverse's`);
+  }
+  url.searchParams.set("x-oss-process", "image/format,webp");
+  const res = await fetch(url, { redirect: "error" });
+  if (!res.ok) throw new Error(`${res.status} for the picture`);
+  if (Number(res.headers.get("content-length")) > MAX_BYTES) throw new Error("picture over 20 MB");
+  const chunks = [];
+  let size = 0;
+  for await (const chunk of res.body) {
+    size += chunk.length;
+    // Leaving the loop by throwing cancels the rest of the download.
+    if (size > MAX_BYTES) throw new Error("picture over 20 MB");
+    chunks.push(chunk);
+  }
+  return Buffer.concat(chunks);
+}
+
 const force = process.argv.includes("--force");
 const normalize = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
 const API = "https://sg-wiki-api.hoyolab.com/hoyowiki/genshin/wapi";
@@ -109,9 +134,7 @@ for (const entry of entries) {
       failed.push(`${entry.name} (no Avatar picture in the wiki's gallery)`);
       continue;
     }
-    const res = await fetch(`${avatar.img}?x-oss-process=image%2Fformat%2Cwebp`);
-    if (!res.ok) throw new Error(`${res.status} for the picture`);
-    const full = Buffer.from(await res.arrayBuffer());
+    const full = await download(avatar.img);
     const image = await sharp(full)
       .extract(await pictureBounds(full))
       .resize({ width: SIZE, height: SIZE, fit: "inside", withoutEnlargement: true })
