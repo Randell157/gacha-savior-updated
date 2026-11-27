@@ -634,7 +634,7 @@ Settled with the user on 2026-11-26:
 
 - **Locked copies count as spare, marked locked.** The Feb 2026 sample locks nearly every copy (Favonius Lance: 3 equipped, 4 unequipped, all locked), so leaving locked copies out would show no spares at all. Locked spares get a note that the game needs them unlocked before refining.
 - **4★ and 5★ only.** 1–3★ copies pile up as EXP fodder; they keep today's display.
-- **Spares go to the equipped copies, best first:** the equipped copy with the highest refinement (then level) is refined until R5, then the next. With none equipped, the highest-level copy is the one kept and the rest are spare. Feeding a copy adds its own refinement (an R2 copy adds 2), never past R5; the lowest-level spares are used first, with as little wasted past R5 as possible. Spares left over after every equipped copy is R5 are just counted.
+- **Spares go to the equipped copies, best first:** the equipped copy with the highest refinement (then level) is refined until R5, then the next. With none equipped, the highest-level copy is the one kept and the rest are spare. Feeding a copy adds its own refinement (an R2 copy adds 2), never past R5; the lowest-level spares are used first, with as little wasted past R5 as possible. Spares left over after every equipped copy is R5 are just counted. Added at the user's request after trying it (2026-11-26): a copy the spares can't take to R5 says how many more copies it needs ("2 more copies needed for R5"), and an equipped copy below R5 that gets none says "no spares left for it".
 
 ### Quick search
 

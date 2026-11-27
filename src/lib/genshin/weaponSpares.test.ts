@@ -134,3 +134,29 @@ test("the words on the page", () => {
   assert.equal(kept.steps[0].who, "The copy you keep (Lv. 70)");
   assert.equal(kept.lockNote, "");
 });
+
+test("copies the spares can't take to R5 say how many more copies they need", () => {
+  // Bennett's R4 takes one spare to R5; Xingqiu's R1 gets the last spare, R2; Diona's R3 gets none.
+  const r = weaponSpares(
+    [copy(4, 90, "Bennett"), copy(3, 80, "Diona"), copy(1, 70, "Xingqiu"), copy(1), copy(1)],
+    4
+  )!;
+  assert.deepEqual(summary(r)!.refines, ["Bennett R4→R5 using 1", "Diona R3→R4 using 1", "Xingqiu R1→R1 using 0"]);
+  const words = spareWords(r, (key) => key);
+  assert.deepEqual(
+    words.steps.map((s) => [s.who, s.needs, s.short]),
+    [
+      ["Bennett's", "1 spare weapon for refinement", ""],
+      ["Diona's", "1 spare weapon for refinement", "1 more copy needed for R5"],
+      ["Xingqiu's", "no spares left for it", "4 more copies needed for R5"],
+    ]
+  );
+  assert.equal(words.leftover, "");
+
+  // The Feb 2026 sample's Favonius Lance: Chevreuse's stops at R3.
+  const data = JSON.parse(
+    readFileSync("public/sample-data/inventory-kamera/genshin_export_2026-02-11_12-16.json", "utf8")
+  );
+  const lance = spareWords(weaponSpares(data.weapons.filter((w: GoodWeapon) => w.key === "FavoniusLance"), 4)!, (k) => k);
+  assert.deepEqual(lance.steps.map((s) => s.short), ["", "", "2 more copies needed for R5"]);
+});

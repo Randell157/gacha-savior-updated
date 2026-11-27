@@ -387,6 +387,8 @@ test.describe("signed in with the sample upload", () => {
     const panel = page.locator("section", { has: page.getByRole("heading", { name: "Spare copies" }) });
     await expect(panel.getByText("4 spare copies, all locked.")).toBeVisible();
     await expect(panel.getByText("2 spare weapons for refinement", { exact: false })).toBeVisible();
+    // Chevreuse's stops at R3 when the spares run out.
+    await expect(panel.getByText("2 more copies needed for R5", { exact: false })).toBeVisible();
 
     // Both equipped copies of The Widsith are R5, so its spares are left over.
     await page.goto("/genshin/weapons/TheWidsith");

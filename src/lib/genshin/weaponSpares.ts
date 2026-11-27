@@ -12,7 +12,7 @@ export interface RefineStep {
   copy: GoodWeapon;
   from: number;
   to: number;
-  /** The spares it uses up, lowest level first. */
+  /** The spares it uses up, lowest level first; empty when they ran out before this copy. */
   uses: GoodWeapon[];
 }
 
@@ -27,7 +27,10 @@ export interface WeaponSpares {
   spare: GoodWeapon[];
   /** How many of `spare` are locked (the game needs them unlocked to refine with). */
   lockedSpare: number;
-  /** What the spares could do, in the order they'd be used. Empty when nothing can be refined. */
+  /**
+   * What the spares could do, in the order they'd be used: every copy below R5 that they're
+   * meant for, including ones they run out before reaching (`to` < 5, or `uses` empty).
+   */
   refines: RefineStep[];
   /** Spares not needed by any refine step (every copy already at R5, or more than enough). */
   leftover: GoodWeapon[];
@@ -84,7 +87,6 @@ export function weaponSpares(copies: GoodWeapon[], rarity: number): WeaponSpares
   let left = spare;
   const refines: RefineStep[] = [];
   for (const copy of targets) {
-    if (left.length === 0) break;
     const from = copy.refinement;
     if (from >= MAX_REFINEMENT) continue;
     const uses = pickSpares(left, MAX_REFINEMENT - from);
@@ -114,8 +116,10 @@ export interface RefineLine {
   who: string;
   from: number;
   to: number;
-  /** "1 spare weapon for refinement" */
+  /** "1 spare weapon for refinement", or "no spares left for it" */
   needs: string;
+  /** "2 more copies needed for R5" when the spares don't reach R5, else "". Counts R1 copies. */
+  short: string;
 }
 
 /** What the page says about a weapon's spares. `nameOf` turns a character key into a name. */
@@ -138,7 +142,14 @@ export function spareWords(spares: WeaponSpares, nameOf: (key: string) => string
     who: step.copy.location ? `${nameOf(step.copy.location)}'s` : `The copy you keep (Lv. ${step.copy.level})`,
     from: step.from,
     to: step.to,
-    needs: `${count(step.uses.length, "spare weapon", "spare weapons")} for refinement`,
+    needs:
+      step.uses.length === 0
+        ? "no spares left for it"
+        : `${count(step.uses.length, "spare weapon", "spare weapons")} for refinement`,
+    short:
+      step.to < MAX_REFINEMENT
+        ? `${count(MAX_REFINEMENT - step.to, "more copy", "more copies")} needed for R${MAX_REFINEMENT}`
+        : "",
   }));
 
   let leftover = "";

@@ -33,14 +33,21 @@ export function allSpares(weapons: GoodWeapon[]): Map<string, { key: string; spa
 
 const words = (spares: WeaponSpares) => spareWords(spares, formatCharacterDisplayName);
 
-/** "R4 → R5", read out as "R4 to R5". */
+/** "R4 → R5", read out as "R4 to R5"; just "R1" when the spares ran out before this copy. */
 function Refinement({ step }: { step: RefineLine }) {
+  if (step.from === step.to) return <>R{step.from}</>;
   return (
     <>
       R{step.from} <span aria-hidden="true">→</span>
       <span className="sr-only">to</span> R{step.to}
     </>
   );
+}
+
+/** "· 2 more copies needed for R5", when the spares don't reach R5. */
+function Short({ text }: { text: string }) {
+  if (!text) return null;
+  return <span className="text-amber-700 dark:text-amber-400"> · {text}</span>;
 }
 
 function LockLine({ note }: { note: string }) {
@@ -86,6 +93,7 @@ export function SpareCopiesPanel({ spares, weaponKey, className }: { spares: Wea
                   <Refinement step={step} />
                 </span>
                 <span className="text-gray-500 dark:text-slate-400"> · {step.needs}</span>
+                <Short text={step.short} />
               </span>
             </li>
           ))}
@@ -128,6 +136,7 @@ export function SpareCard({ weaponKey, spares }: { weaponKey: string; spares: We
                 <span>
                   {step.who} <Refinement step={step} />
                   <span className="text-gray-500 dark:text-slate-400"> · {step.needs}</span>
+                <Short text={step.short} />
                 </span>
               </li>
             ))}
