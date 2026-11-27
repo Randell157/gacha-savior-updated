@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, type RefObject } from "react";
-import { AlertCircle, CheckCircle2, Download } from "lucide-react";
+import { useRef, useState, type RefObject } from "react";
+import Link from "next/link";
+import { AlertCircle, CalendarDays, CheckCircle2, Download } from "lucide-react";
 import GenshinShell from "@/components/GenshinShell";
 import PageSkeleton from "@/components/PageSkeleton";
 import RequireAuth from "@/components/RequireAuth";
@@ -13,8 +14,9 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import wishItems from "@/data/genshin/wishItems.json";
+import { useSampleWishes } from "@/hooks/useSampleWishes";
 import { useWishData } from "@/hooks/useWishData";
-import { mergePulls, nameLookup, parsePaimon, parseUigfText, toUigf, type ParseUigfResult, type Pull, type WishAccount, type WishItem } from "@/lib/genshin/wishes";
+import { nameLookup, parsePaimon, parseUigfText, toUigf, type ParseUigfResult, type Pull, type WishAccount, type WishItem } from "@/lib/genshin/wishes";
 import { formatUploadTime, cn } from "@/lib/utils";
 import { readXlsx } from "@/lib/xlsx";
 import { version } from "../../../../package.json";
@@ -169,10 +171,18 @@ function Wishes() {
               lastUploadedAt={saved?.lastImportedAt ?? null}
               buttonLabel="Import a newer export"
               actions={
-                <Button ref={downloadButton} size="sm" variant="outline" onClick={() => setDownloading(true)}>
-                  <Download className="mr-1.5 h-4 w-4" />
-                  Download
-                </Button>
+                <>
+                  <Button ref={downloadButton} size="sm" variant="outline" onClick={() => setDownloading(true)}>
+                    <Download className="mr-1.5 h-4 w-4" />
+                    Download
+                  </Button>
+                  <Button asChild size="sm">
+                    <Link href="/genshin/wishes/year">
+                      <CalendarDays className="mr-1.5 h-4 w-4" />
+                      Year in review
+                    </Link>
+                  </Button>
+                </>
               }
               info={
                 <>
@@ -386,30 +396,7 @@ function DownloadDialog({
 
 /** Signed out: the made-up test history, so visitors can see what the page does. */
 function SampleWishes() {
-  const [pulls, setPulls] = useState<Pull[] | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    const load = (file: string) =>
-      fetch(`/sample-data/test-account/${file}`)
-        .then((r) => r.text())
-        .then((text) => {
-          const result = parseUigfText(text, lookupId);
-          return result.ok ? result.accounts[0].pulls : [];
-        });
-    Promise.all([load("wishes-older.json"), load("wishes-newer.json")]).then(
-      ([older, newer]) => {
-        if (!cancelled) setPulls(mergePulls(older, newer).pulls);
-      },
-      (error) => {
-        console.error("Loading the sample wishes failed:", error);
-        if (!cancelled) setPulls([]);
-      }
-    );
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const pulls = useSampleWishes();
 
   return (
     <GenshinShell title="Wishes">
@@ -421,7 +408,19 @@ function SampleWishes() {
           Loading the sample...
         </p>
       ) : (
-        pulls.length > 0 && <WishStats pulls={pulls} />
+        pulls.length > 0 && (
+          <>
+            <div className="mb-4 flex justify-end">
+              <Button asChild size="sm">
+                <Link href="/genshin/wishes/year">
+                  <CalendarDays className="mr-1.5 h-4 w-4" />
+                  Year in review
+                </Link>
+              </Button>
+            </div>
+            <WishStats pulls={pulls} />
+          </>
+        )
       )}
     </GenshinShell>
   );

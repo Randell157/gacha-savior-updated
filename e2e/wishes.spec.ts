@@ -39,6 +39,42 @@ test("signed out, the page shows the made-up history with a log-in banner", asyn
   await expect(page.locator("li[data-picked]")).toHaveCount(0);
 });
 
+test("signed out, the year in review shows the made-up history's years and saves every shape", async ({ page }) => {
+  // Phase 7 step 6 (picks 1A, 2A and 4A from .mockups/year-review.html, with four image shapes).
+  await page.goto("/genshin/wishes");
+  await page.getByRole("link", { name: "Year in review" }).click();
+  await expect(page).toHaveURL(/\/genshin\/wishes\/year$/);
+  await expect(page.getByText("This is a made-up wish history.")).toBeVisible();
+  const years = page.getByRole("group", { name: "Year" }).getByRole("button");
+  await expect(years).toHaveCount(3);
+  await expect(years.first()).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "2025", exact: true }).click();
+  const card = page.locator("[data-year-card]");
+  await expect(card).toContainText("2025: year in review");
+  await expect(card).toContainText("≈ 157,120 Primogems");
+  await expect(card).toContainText("3–3");
+  await expect(card).toContainText("Skyward Blade");
+  await expect(card).toContainText("81 wishes without a 5★");
+  await expect(card.getByRole("list", { name: /Every 5★ in 2025/ }).getByRole("listitem")).toHaveCount(17);
+  await expect(card).toContainText("luckier than about 80% of players");
+  await expect(card).toContainText("Best ten-pull");
+  await expect(card).toContainText("1× 5★ and 3× 4★ · Character Event · Nov 5");
+  await expect(card).toContainText("22 characters new to your wish history · 30 constellations");
+  // The test browser is desktop-sized, so Horizontal is picked to start with.
+  await expect(page.getByRole("button", { name: /^Horizontal/ })).toHaveAttribute("aria-pressed", "true");
+  for (const [shape, file] of [
+    ["Vertical", "gacha-savior-2025-in-review-9x16.png"],
+    ["Square", "gacha-savior-2025-in-review-1x1.png"],
+    ["Tablet", "gacha-savior-2025-in-review-4x3.png"],
+    ["Horizontal", "gacha-savior-2025-in-review-16x9.png"],
+  ]) {
+    await page.getByRole("button", { name: new RegExp(`^${shape}`) }).click();
+    const download = page.waitForEvent("download");
+    await page.getByRole("button", { name: "Save as image" }).click();
+    expect((await download).suggestedFilename()).toBe(file);
+  }
+});
+
 test("a paimon.moe file and UIGF exports merge into one history", async ({ page }) => {
   await logIn(page, await createUser());
   await page.goto("/genshin/wishes");

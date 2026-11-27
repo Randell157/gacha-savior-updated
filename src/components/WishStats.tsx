@@ -52,7 +52,8 @@ const FIFTY_FIFTY: Record<FiftyFifty, { label: string; chip: string }> = {
 
 const chipClass = "inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold";
 
-function itemIcon(pull: Pull): string | null {
+/** A 5★'s portrait or weapon icon, from its name with punctuation removed. */
+export function itemIcon(pull: Pull): string | null {
   const key = pull.name.replace(/[^A-Za-z0-9]/g, "");
   return pull.type === "Character" ? getCharacterPortrait(key) : weaponIcon(key);
 }
